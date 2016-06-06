@@ -17,7 +17,7 @@ zabbix-db:
     - MARIADB_PASS=zabbix
 
 zabbix-server:
-  image: zouyapeng/zabbix-3.0:latest
+  image: zouyapeng/docker-zabbix-server-3.0:latest
   container_name: zabbix-server
   ports:
     - "80:80"
