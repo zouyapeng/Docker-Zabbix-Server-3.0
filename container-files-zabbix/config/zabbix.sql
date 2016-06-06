@@ -10,9 +10,32 @@
 /*!40101 SET NAMES utf8 */;
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `acknowledges`
+--
+
+DROP TABLE IF EXISTS `acknowledges`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `acknowledges` (
+  `acknowledgeid` bigint(20) unsigned NOT NULL,
+  `userid` bigint(20) unsigned NOT NULL,
+  `eventid` bigint(20) unsigned NOT NULL,
+  `clock` int(11) NOT NULL DEFAULT '0',
+  `message` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`acknowledgeid`),
+  KEY `acknowledges_1` (`userid`),
+  KEY `acknowledges_2` (`eventid`),
+  KEY `acknowledges_3` (`clock`),
+  CONSTRAINT `c_acknowledges_2` FOREIGN KEY (`eventid`) REFERENCES `events` (`eventid`) ON DELETE CASCADE,
+  CONSTRAINT `c_acknowledges_1` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `acknowledges`
@@ -22,6 +45,32 @@ LOCK TABLES `acknowledges` WRITE;
 /*!40000 ALTER TABLE `acknowledges` DISABLE KEYS */;
 /*!40000 ALTER TABLE `acknowledges` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `actions`
+--
+
+DROP TABLE IF EXISTS `actions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `actions` (
+  `actionid` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `eventsource` int(11) NOT NULL DEFAULT '0',
+  `evaltype` int(11) NOT NULL DEFAULT '0',
+  `status` int(11) NOT NULL DEFAULT '0',
+  `esc_period` int(11) NOT NULL DEFAULT '0',
+  `def_shortdata` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `def_longdata` text COLLATE utf8_bin NOT NULL,
+  `recovery_msg` int(11) NOT NULL DEFAULT '0',
+  `r_shortdata` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `r_longdata` text COLLATE utf8_bin NOT NULL,
+  `formula` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`actionid`),
+  UNIQUE KEY `actions_2` (`name`),
+  KEY `actions_1` (`eventsource`,`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `actions`
@@ -34,6 +83,42 @@ INSERT INTO `actions` VALUES (2,'Auto discovery. Linux servers.',1,0,1,0,'','',0
 UNLOCK TABLES;
 
 --
+-- Table structure for table `alerts`
+--
+
+DROP TABLE IF EXISTS `alerts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `alerts` (
+  `alertid` bigint(20) unsigned NOT NULL,
+  `actionid` bigint(20) unsigned NOT NULL,
+  `eventid` bigint(20) unsigned NOT NULL,
+  `userid` bigint(20) unsigned DEFAULT NULL,
+  `clock` int(11) NOT NULL DEFAULT '0',
+  `mediatypeid` bigint(20) unsigned DEFAULT NULL,
+  `sendto` varchar(100) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `subject` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `message` text COLLATE utf8_bin NOT NULL,
+  `status` int(11) NOT NULL DEFAULT '0',
+  `retries` int(11) NOT NULL DEFAULT '0',
+  `error` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `esc_step` int(11) NOT NULL DEFAULT '0',
+  `alerttype` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`alertid`),
+  KEY `alerts_1` (`actionid`),
+  KEY `alerts_2` (`clock`),
+  KEY `alerts_3` (`eventid`),
+  KEY `alerts_4` (`status`,`retries`),
+  KEY `alerts_5` (`mediatypeid`),
+  KEY `alerts_6` (`userid`),
+  CONSTRAINT `c_alerts_4` FOREIGN KEY (`mediatypeid`) REFERENCES `media_type` (`mediatypeid`) ON DELETE CASCADE,
+  CONSTRAINT `c_alerts_1` FOREIGN KEY (`actionid`) REFERENCES `actions` (`actionid`) ON DELETE CASCADE,
+  CONSTRAINT `c_alerts_2` FOREIGN KEY (`eventid`) REFERENCES `events` (`eventid`) ON DELETE CASCADE,
+  CONSTRAINT `c_alerts_3` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `alerts`
 --
 
@@ -41,6 +126,28 @@ LOCK TABLES `alerts` WRITE;
 /*!40000 ALTER TABLE `alerts` DISABLE KEYS */;
 /*!40000 ALTER TABLE `alerts` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `application_discovery`
+--
+
+DROP TABLE IF EXISTS `application_discovery`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `application_discovery` (
+  `application_discoveryid` bigint(20) unsigned NOT NULL,
+  `applicationid` bigint(20) unsigned NOT NULL,
+  `application_prototypeid` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `lastcheck` int(11) NOT NULL DEFAULT '0',
+  `ts_delete` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`application_discoveryid`),
+  KEY `application_discovery_1` (`applicationid`),
+  KEY `application_discovery_2` (`application_prototypeid`),
+  CONSTRAINT `c_application_discovery_2` FOREIGN KEY (`application_prototypeid`) REFERENCES `application_prototype` (`application_prototypeid`) ON DELETE CASCADE,
+  CONSTRAINT `c_application_discovery_1` FOREIGN KEY (`applicationid`) REFERENCES `applications` (`applicationid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `application_discovery`
@@ -52,6 +159,26 @@ LOCK TABLES `application_discovery` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `application_prototype`
+--
+
+DROP TABLE IF EXISTS `application_prototype`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `application_prototype` (
+  `application_prototypeid` bigint(20) unsigned NOT NULL,
+  `itemid` bigint(20) unsigned NOT NULL,
+  `templateid` bigint(20) unsigned DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`application_prototypeid`),
+  KEY `application_prototype_1` (`itemid`),
+  KEY `application_prototype_2` (`templateid`),
+  CONSTRAINT `c_application_prototype_2` FOREIGN KEY (`templateid`) REFERENCES `application_prototype` (`application_prototypeid`) ON DELETE CASCADE,
+  CONSTRAINT `c_application_prototype_1` FOREIGN KEY (`itemid`) REFERENCES `items` (`itemid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `application_prototype`
 --
 
@@ -61,14 +188,51 @@ LOCK TABLES `application_prototype` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `application_template`
+--
+
+DROP TABLE IF EXISTS `application_template`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `application_template` (
+  `application_templateid` bigint(20) unsigned NOT NULL,
+  `applicationid` bigint(20) unsigned NOT NULL,
+  `templateid` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`application_templateid`),
+  UNIQUE KEY `application_template_1` (`applicationid`,`templateid`),
+  KEY `application_template_2` (`templateid`),
+  CONSTRAINT `c_application_template_2` FOREIGN KEY (`templateid`) REFERENCES `applications` (`applicationid`) ON DELETE CASCADE,
+  CONSTRAINT `c_application_template_1` FOREIGN KEY (`applicationid`) REFERENCES `applications` (`applicationid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `application_template`
 --
 
 LOCK TABLES `application_template` WRITE;
 /*!40000 ALTER TABLE `application_template` DISABLE KEYS */;
-INSERT INTO `application_template` VALUES (1,396,367),(3,398,394),(4,399,395),(5,404,369),(6,405,376),(7,406,377),(8,407,378),(9,408,379),(10,409,380),(11,410,382),(12,411,383),(13,412,384),(14,413,396);
+INSERT INTO `application_template` VALUES (1,396,367),(3,398,394),(4,399,395);
 /*!40000 ALTER TABLE `application_template` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `applications`
+--
+
+DROP TABLE IF EXISTS `applications`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `applications` (
+  `applicationid` bigint(20) unsigned NOT NULL,
+  `hostid` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `flags` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`applicationid`),
+  UNIQUE KEY `applications_2` (`hostid`,`name`),
+  CONSTRAINT `c_applications_1` FOREIGN KEY (`hostid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `applications`
@@ -76,9 +240,33 @@ UNLOCK TABLES;
 
 LOCK TABLES `applications` WRITE;
 /*!40000 ALTER TABLE `applications` DISABLE KEYS */;
-INSERT INTO `applications` VALUES (356,10085,'Ceph Cluster',0),(357,10086,'Ceph OSD',0),(359,10088,'HAProxy',0),(362,10091,'MySQL',0),(364,10093,'RabbitMQ',0),(367,10096,'Zabbix agent',0),(368,10097,'Zabbix proxy',0),(369,10098,'Zabbix server',0),(370,10099,'ICMP',0),(371,10100,'I/O Stats',0),(372,10101,'OpenStack',0),(373,10102,'OpenStack',0),(374,10103,'OpenStack',0),(375,10104,'OpenStack',0),(376,10107,'CPU',0),(377,10107,'Filesystems',0),(378,10107,'General',0),(379,10107,'Memory',0),(380,10107,'Network interfaces',0),(382,10107,'Performance',0),(383,10107,'Processes',0),(384,10107,'Security',0),(394,10105,'General',0),(395,10106,'Interfaces',0),(396,10107,'Zabbix agent',0),(398,10109,'General',0),(399,10109,'Interfaces',0),(400,10110,'SSH service',0),(401,10111,'Test',0),(402,10112,'Network interfaces',0),(403,10113,'Instances',0),(404,10114,'Zabbix server',0),(405,10114,'CPU',0),(406,10114,'Filesystems',0),(407,10114,'General',0),(408,10114,'Memory',0),(409,10114,'Network interfaces',0),(410,10114,'Performance',0),(411,10114,'Processes',0),(412,10114,'Security',0),(413,10114,'Zabbix agent',0);
+INSERT INTO `applications` VALUES (356,10085,'Ceph Cluster',0),(357,10086,'Ceph OSD',0),(359,10088,'HAProxy',0),(362,10091,'MySQL',0),(364,10093,'RabbitMQ',0),(367,10096,'Zabbix agent',0),(368,10097,'Zabbix proxy',0),(369,10098,'Zabbix server',0),(370,10099,'ICMP',0),(371,10100,'I/O Stats',0),(372,10101,'OpenStack',0),(373,10102,'OpenStack',0),(374,10103,'OpenStack',0),(375,10104,'OpenStack',0),(376,10107,'CPU',0),(377,10107,'Filesystems',0),(378,10107,'General',0),(379,10107,'Memory',0),(380,10107,'Network interfaces',0),(382,10107,'Performance',0),(383,10107,'Processes',0),(384,10107,'Security',0),(394,10105,'General',0),(395,10106,'Interfaces',0),(396,10107,'Zabbix agent',0),(398,10109,'General',0),(399,10109,'Interfaces',0),(400,10110,'SSH service',0),(401,10111,'Test',0),(402,10112,'Network interfaces',0),(403,10113,'Instances',0);
 /*!40000 ALTER TABLE `applications` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `auditlog`
+--
+
+DROP TABLE IF EXISTS `auditlog`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `auditlog` (
+  `auditid` bigint(20) unsigned NOT NULL,
+  `userid` bigint(20) unsigned NOT NULL,
+  `clock` int(11) NOT NULL DEFAULT '0',
+  `action` int(11) NOT NULL DEFAULT '0',
+  `resourcetype` int(11) NOT NULL DEFAULT '0',
+  `details` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '0',
+  `ip` varchar(39) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `resourceid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `resourcename` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`auditid`),
+  KEY `auditlog_1` (`userid`,`clock`),
+  KEY `auditlog_2` (`clock`),
+  CONSTRAINT `c_auditlog_1` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `auditlog`
@@ -90,6 +278,26 @@ LOCK TABLES `auditlog` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `auditlog_details`
+--
+
+DROP TABLE IF EXISTS `auditlog_details`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `auditlog_details` (
+  `auditdetailid` bigint(20) unsigned NOT NULL,
+  `auditid` bigint(20) unsigned NOT NULL,
+  `table_name` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `field_name` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `oldvalue` text COLLATE utf8_bin NOT NULL,
+  `newvalue` text COLLATE utf8_bin NOT NULL,
+  PRIMARY KEY (`auditdetailid`),
+  KEY `auditlog_details_1` (`auditid`),
+  CONSTRAINT `c_auditlog_details_1` FOREIGN KEY (`auditid`) REFERENCES `auditlog` (`auditid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `auditlog_details`
 --
 
@@ -99,6 +307,27 @@ LOCK TABLES `auditlog_details` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `autoreg_host`
+--
+
+DROP TABLE IF EXISTS `autoreg_host`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `autoreg_host` (
+  `autoreg_hostid` bigint(20) unsigned NOT NULL,
+  `proxy_hostid` bigint(20) unsigned DEFAULT NULL,
+  `host` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `listen_ip` varchar(39) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `listen_port` int(11) NOT NULL DEFAULT '0',
+  `listen_dns` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `host_metadata` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`autoreg_hostid`),
+  KEY `autoreg_host_1` (`proxy_hostid`,`host`),
+  CONSTRAINT `c_autoreg_host_1` FOREIGN KEY (`proxy_hostid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `autoreg_host`
 --
 
@@ -106,6 +335,25 @@ LOCK TABLES `autoreg_host` WRITE;
 /*!40000 ALTER TABLE `autoreg_host` DISABLE KEYS */;
 /*!40000 ALTER TABLE `autoreg_host` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `conditions`
+--
+
+DROP TABLE IF EXISTS `conditions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `conditions` (
+  `conditionid` bigint(20) unsigned NOT NULL,
+  `actionid` bigint(20) unsigned NOT NULL,
+  `conditiontype` int(11) NOT NULL DEFAULT '0',
+  `operator` int(11) NOT NULL DEFAULT '0',
+  `value` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`conditionid`),
+  KEY `conditions_1` (`actionid`),
+  CONSTRAINT `c_conditions_1` FOREIGN KEY (`actionid`) REFERENCES `actions` (`actionid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `conditions`
@@ -118,6 +366,84 @@ INSERT INTO `conditions` VALUES (2,2,10,0,'0'),(3,2,8,0,'9'),(4,2,12,2,'Linux'),
 UNLOCK TABLES;
 
 --
+-- Table structure for table `config`
+--
+
+DROP TABLE IF EXISTS `config`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `config` (
+  `configid` bigint(20) unsigned NOT NULL,
+  `refresh_unsupported` int(11) NOT NULL DEFAULT '0',
+  `work_period` varchar(100) COLLATE utf8_bin NOT NULL DEFAULT '1-5,00:00-24:00',
+  `alert_usrgrpid` bigint(20) unsigned DEFAULT NULL,
+  `event_ack_enable` int(11) NOT NULL DEFAULT '1',
+  `event_expire` int(11) NOT NULL DEFAULT '7',
+  `event_show_max` int(11) NOT NULL DEFAULT '100',
+  `default_theme` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT 'blue-theme',
+  `authentication_type` int(11) NOT NULL DEFAULT '0',
+  `ldap_host` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `ldap_port` int(11) NOT NULL DEFAULT '389',
+  `ldap_base_dn` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `ldap_bind_dn` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `ldap_bind_password` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `ldap_search_attribute` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `dropdown_first_entry` int(11) NOT NULL DEFAULT '1',
+  `dropdown_first_remember` int(11) NOT NULL DEFAULT '1',
+  `discovery_groupid` bigint(20) unsigned NOT NULL,
+  `max_in_table` int(11) NOT NULL DEFAULT '50',
+  `search_limit` int(11) NOT NULL DEFAULT '1000',
+  `severity_color_0` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT '97AAB3',
+  `severity_color_1` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT '7499FF',
+  `severity_color_2` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT 'FFC859',
+  `severity_color_3` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT 'FFA059',
+  `severity_color_4` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT 'E97659',
+  `severity_color_5` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT 'E45959',
+  `severity_name_0` varchar(32) COLLATE utf8_bin NOT NULL DEFAULT 'Not classified',
+  `severity_name_1` varchar(32) COLLATE utf8_bin NOT NULL DEFAULT 'Information',
+  `severity_name_2` varchar(32) COLLATE utf8_bin NOT NULL DEFAULT 'Warning',
+  `severity_name_3` varchar(32) COLLATE utf8_bin NOT NULL DEFAULT 'Average',
+  `severity_name_4` varchar(32) COLLATE utf8_bin NOT NULL DEFAULT 'High',
+  `severity_name_5` varchar(32) COLLATE utf8_bin NOT NULL DEFAULT 'Disaster',
+  `ok_period` int(11) NOT NULL DEFAULT '1800',
+  `blink_period` int(11) NOT NULL DEFAULT '1800',
+  `problem_unack_color` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT 'DC0000',
+  `problem_ack_color` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT 'DC0000',
+  `ok_unack_color` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT '00AA00',
+  `ok_ack_color` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT '00AA00',
+  `problem_unack_style` int(11) NOT NULL DEFAULT '1',
+  `problem_ack_style` int(11) NOT NULL DEFAULT '1',
+  `ok_unack_style` int(11) NOT NULL DEFAULT '1',
+  `ok_ack_style` int(11) NOT NULL DEFAULT '1',
+  `snmptrap_logging` int(11) NOT NULL DEFAULT '1',
+  `server_check_interval` int(11) NOT NULL DEFAULT '10',
+  `hk_events_mode` int(11) NOT NULL DEFAULT '1',
+  `hk_events_trigger` int(11) NOT NULL DEFAULT '365',
+  `hk_events_internal` int(11) NOT NULL DEFAULT '365',
+  `hk_events_discovery` int(11) NOT NULL DEFAULT '365',
+  `hk_events_autoreg` int(11) NOT NULL DEFAULT '365',
+  `hk_services_mode` int(11) NOT NULL DEFAULT '1',
+  `hk_services` int(11) NOT NULL DEFAULT '365',
+  `hk_audit_mode` int(11) NOT NULL DEFAULT '1',
+  `hk_audit` int(11) NOT NULL DEFAULT '365',
+  `hk_sessions_mode` int(11) NOT NULL DEFAULT '1',
+  `hk_sessions` int(11) NOT NULL DEFAULT '365',
+  `hk_history_mode` int(11) NOT NULL DEFAULT '1',
+  `hk_history_global` int(11) NOT NULL DEFAULT '0',
+  `hk_history` int(11) NOT NULL DEFAULT '90',
+  `hk_trends_mode` int(11) NOT NULL DEFAULT '1',
+  `hk_trends_global` int(11) NOT NULL DEFAULT '0',
+  `hk_trends` int(11) NOT NULL DEFAULT '365',
+  `default_inventory_mode` int(11) NOT NULL DEFAULT '-1',
+  PRIMARY KEY (`configid`),
+  KEY `config_1` (`alert_usrgrpid`),
+  KEY `config_2` (`discovery_groupid`),
+  CONSTRAINT `c_config_2` FOREIGN KEY (`discovery_groupid`) REFERENCES `groups` (`groupid`),
+  CONSTRAINT `c_config_1` FOREIGN KEY (`alert_usrgrpid`) REFERENCES `usrgrp` (`usrgrpid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `config`
 --
 
@@ -126,6 +452,19 @@ LOCK TABLES `config` WRITE;
 INSERT INTO `config` VALUES (1,120,'1-7,00:00-23:59;',7,1,7,100,'blue-theme',0,'',389,'','','','',1,1,5,50,1000,'97AAB3','7499FF','FFC859','FFA059','E97659','E45959','Not classified','Information','Warning','Average','High','Disaster',1800,1800,'DC0000','DC0000','00AA00','00AA00',1,1,1,1,1,10,1,30,30,30,30,1,30,1,365,1,1,1,1,3,1,1,365,-1);
 /*!40000 ALTER TABLE `config` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `dbversion`
+--
+
+DROP TABLE IF EXISTS `dbversion`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `dbversion` (
+  `mandatory` int(11) NOT NULL DEFAULT '0',
+  `optional` int(11) NOT NULL DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `dbversion`
@@ -138,6 +477,34 @@ INSERT INTO `dbversion` VALUES (3000000,3000000);
 UNLOCK TABLES;
 
 --
+-- Table structure for table `dchecks`
+--
+
+DROP TABLE IF EXISTS `dchecks`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `dchecks` (
+  `dcheckid` bigint(20) unsigned NOT NULL,
+  `druleid` bigint(20) unsigned NOT NULL,
+  `type` int(11) NOT NULL DEFAULT '0',
+  `key_` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `snmp_community` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `ports` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '0',
+  `snmpv3_securityname` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `snmpv3_securitylevel` int(11) NOT NULL DEFAULT '0',
+  `snmpv3_authpassphrase` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `snmpv3_privpassphrase` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `uniq` int(11) NOT NULL DEFAULT '0',
+  `snmpv3_authprotocol` int(11) NOT NULL DEFAULT '0',
+  `snmpv3_privprotocol` int(11) NOT NULL DEFAULT '0',
+  `snmpv3_contextname` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`dcheckid`),
+  KEY `dchecks_1` (`druleid`),
+  CONSTRAINT `c_dchecks_1` FOREIGN KEY (`druleid`) REFERENCES `drules` (`druleid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `dchecks`
 --
 
@@ -147,6 +514,25 @@ LOCK TABLES `dchecks` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `dhosts`
+--
+
+DROP TABLE IF EXISTS `dhosts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `dhosts` (
+  `dhostid` bigint(20) unsigned NOT NULL,
+  `druleid` bigint(20) unsigned NOT NULL,
+  `status` int(11) NOT NULL DEFAULT '0',
+  `lastup` int(11) NOT NULL DEFAULT '0',
+  `lastdown` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`dhostid`),
+  KEY `dhosts_1` (`druleid`),
+  CONSTRAINT `c_dhosts_1` FOREIGN KEY (`druleid`) REFERENCES `drules` (`druleid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `dhosts`
 --
 
@@ -154,6 +540,28 @@ LOCK TABLES `dhosts` WRITE;
 /*!40000 ALTER TABLE `dhosts` DISABLE KEYS */;
 /*!40000 ALTER TABLE `dhosts` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `drules`
+--
+
+DROP TABLE IF EXISTS `drules`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `drules` (
+  `druleid` bigint(20) unsigned NOT NULL,
+  `proxy_hostid` bigint(20) unsigned DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `iprange` varchar(2048) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `delay` int(11) NOT NULL DEFAULT '3600',
+  `nextcheck` int(11) NOT NULL DEFAULT '0',
+  `status` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`druleid`),
+  UNIQUE KEY `drules_2` (`name`),
+  KEY `drules_1` (`proxy_hostid`),
+  CONSTRAINT `c_drules_1` FOREIGN KEY (`proxy_hostid`) REFERENCES `hosts` (`hostid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `drules`
@@ -166,6 +574,34 @@ INSERT INTO `drules` VALUES (2,NULL,'Local network','192.168.0.1-254',3600,0,1);
 UNLOCK TABLES;
 
 --
+-- Table structure for table `dservices`
+--
+
+DROP TABLE IF EXISTS `dservices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `dservices` (
+  `dserviceid` bigint(20) unsigned NOT NULL,
+  `dhostid` bigint(20) unsigned NOT NULL,
+  `type` int(11) NOT NULL DEFAULT '0',
+  `key_` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `value` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `port` int(11) NOT NULL DEFAULT '0',
+  `status` int(11) NOT NULL DEFAULT '0',
+  `lastup` int(11) NOT NULL DEFAULT '0',
+  `lastdown` int(11) NOT NULL DEFAULT '0',
+  `dcheckid` bigint(20) unsigned NOT NULL,
+  `ip` varchar(39) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `dns` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`dserviceid`),
+  UNIQUE KEY `dservices_1` (`dcheckid`,`type`,`key_`,`ip`,`port`),
+  KEY `dservices_2` (`dhostid`),
+  CONSTRAINT `c_dservices_2` FOREIGN KEY (`dcheckid`) REFERENCES `dchecks` (`dcheckid`) ON DELETE CASCADE,
+  CONSTRAINT `c_dservices_1` FOREIGN KEY (`dhostid`) REFERENCES `dhosts` (`dhostid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `dservices`
 --
 
@@ -173,6 +609,28 @@ LOCK TABLES `dservices` WRITE;
 /*!40000 ALTER TABLE `dservices` DISABLE KEYS */;
 /*!40000 ALTER TABLE `dservices` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `escalations`
+--
+
+DROP TABLE IF EXISTS `escalations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `escalations` (
+  `escalationid` bigint(20) unsigned NOT NULL,
+  `actionid` bigint(20) unsigned NOT NULL,
+  `triggerid` bigint(20) unsigned DEFAULT NULL,
+  `eventid` bigint(20) unsigned DEFAULT NULL,
+  `r_eventid` bigint(20) unsigned DEFAULT NULL,
+  `nextcheck` int(11) NOT NULL DEFAULT '0',
+  `esc_step` int(11) NOT NULL DEFAULT '0',
+  `status` int(11) NOT NULL DEFAULT '0',
+  `itemid` bigint(20) unsigned DEFAULT NULL,
+  PRIMARY KEY (`escalationid`),
+  UNIQUE KEY `escalations_1` (`actionid`,`triggerid`,`itemid`,`escalationid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `escalations`
@@ -184,6 +642,28 @@ LOCK TABLES `escalations` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `events`
+--
+
+DROP TABLE IF EXISTS `events`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `events` (
+  `eventid` bigint(20) unsigned NOT NULL,
+  `source` int(11) NOT NULL DEFAULT '0',
+  `object` int(11) NOT NULL DEFAULT '0',
+  `objectid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `clock` int(11) NOT NULL DEFAULT '0',
+  `value` int(11) NOT NULL DEFAULT '0',
+  `acknowledged` int(11) NOT NULL DEFAULT '0',
+  `ns` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`eventid`),
+  KEY `events_1` (`source`,`object`,`objectid`,`clock`),
+  KEY `events_2` (`source`,`object`,`clock`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `events`
 --
 
@@ -191,6 +671,26 @@ LOCK TABLES `events` WRITE;
 /*!40000 ALTER TABLE `events` DISABLE KEYS */;
 /*!40000 ALTER TABLE `events` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `expressions`
+--
+
+DROP TABLE IF EXISTS `expressions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `expressions` (
+  `expressionid` bigint(20) unsigned NOT NULL,
+  `regexpid` bigint(20) unsigned NOT NULL,
+  `expression` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `expression_type` int(11) NOT NULL DEFAULT '0',
+  `exp_delimiter` varchar(1) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `case_sensitive` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`expressionid`),
+  KEY `expressions_1` (`regexpid`),
+  CONSTRAINT `c_expressions_1` FOREIGN KEY (`regexpid`) REFERENCES `regexps` (`regexpid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `expressions`
@@ -203,14 +703,51 @@ INSERT INTO `expressions` VALUES (1,1,'^(btrfs|ext2|ext3|ext4|jfs|reiser|xfs|ffs
 UNLOCK TABLES;
 
 --
+-- Table structure for table `functions`
+--
+
+DROP TABLE IF EXISTS `functions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `functions` (
+  `functionid` bigint(20) unsigned NOT NULL,
+  `itemid` bigint(20) unsigned NOT NULL,
+  `triggerid` bigint(20) unsigned NOT NULL,
+  `function` varchar(12) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `parameter` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '0',
+  PRIMARY KEY (`functionid`),
+  KEY `functions_1` (`triggerid`),
+  KEY `functions_2` (`itemid`,`function`,`parameter`),
+  CONSTRAINT `c_functions_2` FOREIGN KEY (`triggerid`) REFERENCES `triggers` (`triggerid`) ON DELETE CASCADE,
+  CONSTRAINT `c_functions_1` FOREIGN KEY (`itemid`) REFERENCES `items` (`itemid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `functions`
 --
 
 LOCK TABLES `functions` WRITE;
 /*!40000 ALTER TABLE `functions` DISABLE KEYS */;
-INSERT INTO `functions` VALUES (13162,23879,13559,'diff','0'),(13172,23865,13569,'avg','5m'),(13181,23735,13578,'diff','0'),(13188,23880,13585,'last','0'),(13190,23874,13587,'last','0'),(13192,23781,13589,'min','10m'),(13193,23755,13590,'min','10m'),(13194,23780,13591,'min','10m'),(13195,23756,13592,'min','10m'),(13196,23786,13593,'min','10m'),(13197,23757,13594,'min','10m'),(13198,23787,13595,'min','10m'),(13199,23788,13596,'min','10m'),(13201,23753,13598,'min','10m'),(13202,23778,13599,'min','10m'),(13203,23713,13600,'last','0'),(13209,23808,13606,'str','\"inactive\"'),(13210,23808,13606,'str','\"failed\"'),(13211,23840,13607,'str','\"inactive\"'),(13212,23840,13607,'str','\"failed\"'),(13213,23846,13608,'last',''),(13214,23794,13609,'str','\"inactive\"'),(13215,23794,13609,'str','\"failed\"'),(13216,23817,13610,'str','\"inactive\"'),(13217,23817,13610,'str','\"failed\"'),(13218,23833,13611,'str','\"inactive\"'),(13219,23833,13611,'str','\"failed\"'),(13220,23847,13612,'str','\"inactive\"'),(13221,23847,13612,'str','\"failed\"'),(13222,23795,13613,'str','\"inactive\"'),(13223,23795,13613,'str','\"failed\"'),(13224,23818,13614,'str','\"inactive\"'),(13225,23818,13614,'str','\"failed\"'),(13226,23796,13615,'str','\"inactive\"'),(13227,23796,13615,'str','\"failed\"'),(13230,23834,13617,'str','\"inactive\"'),(13231,23834,13617,'str','\"failed\"'),(13232,23797,13618,'str','\"inactive\"'),(13233,23797,13618,'str','\"failed\"'),(13236,23848,13620,'str','\"inactive\"'),(13237,23848,13620,'str','\"failed\"'),(13238,23798,13621,'str','\"inactive\"'),(13239,23798,13621,'str','\"failed\"'),(13242,23849,13623,'str','\"inactive\"'),(13243,23849,13623,'str','\"failed\"'),(13244,23799,13624,'str','\"inactive\"'),(13245,23799,13624,'str','\"failed\"'),(13248,23800,13626,'str','\"inactive\"'),(13249,23800,13626,'str','\"failed\"'),(13250,23823,13627,'str','\"inactive\"'),(13251,23823,13627,'str','\"failed\"'),(13252,23850,13628,'str','\"inactive\"'),(13253,23850,13628,'str','\"failed\"'),(13254,23824,13629,'str','\"inactive\"'),(13255,23824,13629,'str','\"failed\"'),(13256,23851,13630,'str','\"inactive\"'),(13257,23851,13630,'str','\"failed\"'),(13258,23801,13631,'str','\"inactive\"'),(13259,23801,13631,'str','\"failed\"'),(13260,23835,13632,'str','\"inactive\"'),(13261,23835,13632,'str','\"failed\"'),(13262,23802,13633,'str','\"inactive\"'),(13263,23802,13633,'str','\"failed\"'),(13264,23836,13634,'str','\"inactive\"'),(13265,23836,13634,'str','\"failed\"'),(13266,23803,13635,'str','\"inactive\"'),(13267,23803,13635,'str','\"failed\"'),(13268,23804,13636,'str','\"inactive\"'),(13269,23804,13636,'str','\"failed\"'),(13270,23805,13637,'str','\"inactive\"'),(13271,23805,13637,'str','\"failed\"'),(13272,23837,13638,'str','\"inactive\"'),(13273,23837,13638,'str','\"failed\"'),(13274,23793,13639,'str','\"inactive\"'),(13275,23793,13639,'str','\"failed\"'),(13276,23806,13640,'str','\"inactive\"'),(13277,23806,13640,'str','\"failed\"'),(13278,23838,13641,'str','\"inactive\"'),(13279,23838,13641,'str','\"failed\"'),(13280,23807,13642,'str','\"inactive\"'),(13281,23807,13642,'str','\"failed\"'),(13282,23839,13643,'str','\"inactive\"'),(13283,23839,13643,'str','\"failed\"'),(13284,23809,13644,'str','\"inactive\"'),(13285,23809,13644,'str','\"failed\"'),(13288,23841,13646,'str','\"inactive\"'),(13289,23841,13646,'str','\"failed\"'),(13290,23810,13647,'str','\"inactive\"'),(13291,23810,13647,'str','\"failed\"'),(13294,23842,13649,'str','\"inactive\"'),(13295,23842,13649,'str','\"failed\"'),(13296,23811,13650,'str','\"inactive\"'),(13297,23811,13650,'str','\"failed\"'),(13298,23827,13651,'str','\"inactive\"'),(13299,23827,13651,'str','\"failed\"'),(13300,23812,13652,'str','\"inactive\"'),(13301,23812,13652,'str','\"failed\"'),(13304,23843,13654,'str','\"inactive\"'),(13305,23843,13654,'str','\"failed\"'),(13306,23813,13655,'str','\"inactive\"'),(13307,23813,13655,'str','\"failed\"'),(13310,23814,13657,'str','\"inactive\"'),(13311,23814,13657,'str','\"failed\"'),(13312,23830,13658,'str','\"inactive\"'),(13313,23830,13658,'str','\"failed\"'),(13314,23852,13659,'str','\"inactive\"'),(13315,23852,13659,'str','\"failed\"'),(13316,23815,13660,'str','\"inactive\"'),(13317,23815,13660,'str','\"failed\"'),(13322,23816,13663,'str','\"inactive\"'),(13323,23816,13663,'str','\"failed\"'),(13326,23845,13665,'str','\"inactive\"'),(13327,23845,13665,'str','\"failed\"'),(13328,23679,13666,'avg','3m'),(13329,23680,13667,'avg','3m'),(13330,23791,13668,'min','5m'),(13331,23859,13669,'avg','5m'),(13333,23732,13671,'last',''),(13335,23792,13673,'avg','5m'),(13340,23730,13678,'last',''),(13341,23714,13679,'last',''),(13344,23855,13682,'avg','5m'),(13346,23731,13684,'last',''),(13347,23737,13685,'diff','0'),(13348,23736,13686,'nodata','5m'),(13349,23759,13687,'avg','10m'),(13350,23738,13688,'avg','10m'),(13351,23760,13689,'avg','10m'),(13352,23739,13690,'avg','10m'),(13353,23761,13691,'avg','10m'),(13354,23740,13692,'avg','10m'),(13355,23762,13693,'avg','10m'),(13356,23763,13694,'avg','10m'),(13357,23741,13695,'avg','10m'),(13358,23742,13696,'avg','10m'),(13359,23764,13697,'avg','10m'),(13360,23743,13698,'avg','30m'),(13361,23765,13699,'avg','30m'),(13362,23744,13700,'avg','10m'),(13363,23766,13701,'avg','10m'),(13364,23745,13702,'avg','10m'),(13365,23767,13703,'avg','10m'),(13366,23746,13704,'avg','10m'),(13368,23747,13706,'avg','10m'),(13370,23748,13708,'avg','10m'),(13371,23770,13709,'avg','10m'),(13372,23771,13710,'avg','10m'),(13373,23749,13711,'avg','10m'),(13374,23772,13712,'min','10m'),(13375,23750,13713,'avg','10m'),(13377,23774,13715,'avg','10m'),(13378,23751,13716,'avg','10m'),(13379,23775,13717,'avg','10m'),(13380,23752,13718,'avg','10m'),(13381,23776,13719,'avg','10m'),(13382,23784,13720,'last',''),(13386,23790,13724,'max','#3'),(13387,23917,13725,'diff','0'),(13389,23919,13727,'diff','0'),(13391,23918,13729,'nodata','5m'),(13393,23937,13731,'str','\"down\"'),(13395,23940,13733,'min','#3'),(13396,23941,13734,'min','#3'),(13397,23954,13735,'last','0'),(13398,23952,13736,'last','0'),(13401,23969,13739,'diff','0'),(13402,23977,13740,'diff','0'),(13405,23856,13680,'avg','5m'),(13406,23710,13575,'str','\"active\"'),(13407,23995,13742,'max','#3'),(13408,23996,13743,'last',''),(13411,23991,13744,'count','#3,200'),(13413,24005,13745,'change',''),(13422,24002,13747,'avg','5m'),(13423,24001,13746,'avg','5m'),(13424,24004,13749,'avg','5m'),(13425,24003,13748,'avg','5m'),(13426,24007,13750,'diff','0'),(13427,24008,13751,'avg','10m'),(13428,24009,13752,'avg','10m'),(13429,24010,13753,'avg','10m'),(13430,24011,13754,'avg','10m'),(13431,24012,13755,'avg','10m'),(13432,24013,13756,'avg','10m'),(13433,24014,13757,'avg','30m'),(13434,24015,13758,'avg','10m'),(13435,24016,13759,'avg','10m'),(13436,24017,13760,'avg','10m'),(13437,24018,13761,'avg','10m'),(13438,24019,13762,'min','10m'),(13439,24020,13763,'avg','10m'),(13440,24021,13764,'avg','10m'),(13441,24022,13765,'avg','10m'),(13442,24023,13766,'min','10m'),(13443,24025,13767,'min','10m'),(13444,24026,13768,'min','10m'),(13445,24029,13769,'last',''),(13446,24030,13770,'min','10m'),(13447,24031,13771,'min','10m'),(13448,24032,13772,'min','10m'),(13449,24039,13773,'diff','0'),(13450,24040,13774,'nodata','5m'),(13451,24041,13775,'diff','0'),(13452,24042,13776,'avg','5m'),(13453,24043,13777,'avg','5m'),(13454,24046,13778,'avg','5m'),(13455,24051,13779,'avg','5m'),(13456,24057,13780,'last','0'),(13457,24059,13781,'diff','0'),(13458,24060,13782,'diff','0'),(13459,24061,13783,'last','0'),(13460,24035,13784,'last','0'),(13461,24037,13785,'last','0');
+INSERT INTO `functions` VALUES (13162,23879,13559,'diff','0'),(13172,23865,13569,'avg','5m'),(13181,23735,13578,'diff','0'),(13188,23880,13585,'last','0'),(13190,23874,13587,'last','0'),(13192,23781,13589,'min','10m'),(13193,23755,13590,'min','10m'),(13194,23780,13591,'min','10m'),(13195,23756,13592,'min','10m'),(13196,23786,13593,'min','10m'),(13197,23757,13594,'min','10m'),(13198,23787,13595,'min','10m'),(13199,23788,13596,'min','10m'),(13201,23753,13598,'min','10m'),(13202,23778,13599,'min','10m'),(13203,23713,13600,'last','0'),(13209,23808,13606,'str','\"inactive\"'),(13210,23808,13606,'str','\"failed\"'),(13211,23840,13607,'str','\"inactive\"'),(13212,23840,13607,'str','\"failed\"'),(13213,23846,13608,'last',''),(13214,23794,13609,'str','\"inactive\"'),(13215,23794,13609,'str','\"failed\"'),(13216,23817,13610,'str','\"inactive\"'),(13217,23817,13610,'str','\"failed\"'),(13218,23833,13611,'str','\"inactive\"'),(13219,23833,13611,'str','\"failed\"'),(13220,23847,13612,'str','\"inactive\"'),(13221,23847,13612,'str','\"failed\"'),(13222,23795,13613,'str','\"inactive\"'),(13223,23795,13613,'str','\"failed\"'),(13224,23818,13614,'str','\"inactive\"'),(13225,23818,13614,'str','\"failed\"'),(13226,23796,13615,'str','\"inactive\"'),(13227,23796,13615,'str','\"failed\"'),(13230,23834,13617,'str','\"inactive\"'),(13231,23834,13617,'str','\"failed\"'),(13232,23797,13618,'str','\"inactive\"'),(13233,23797,13618,'str','\"failed\"'),(13236,23848,13620,'str','\"inactive\"'),(13237,23848,13620,'str','\"failed\"'),(13238,23798,13621,'str','\"inactive\"'),(13239,23798,13621,'str','\"failed\"'),(13242,23849,13623,'str','\"inactive\"'),(13243,23849,13623,'str','\"failed\"'),(13244,23799,13624,'str','\"inactive\"'),(13245,23799,13624,'str','\"failed\"'),(13248,23800,13626,'str','\"inactive\"'),(13249,23800,13626,'str','\"failed\"'),(13250,23823,13627,'str','\"inactive\"'),(13251,23823,13627,'str','\"failed\"'),(13252,23850,13628,'str','\"inactive\"'),(13253,23850,13628,'str','\"failed\"'),(13254,23824,13629,'str','\"inactive\"'),(13255,23824,13629,'str','\"failed\"'),(13256,23851,13630,'str','\"inactive\"'),(13257,23851,13630,'str','\"failed\"'),(13258,23801,13631,'str','\"inactive\"'),(13259,23801,13631,'str','\"failed\"'),(13260,23835,13632,'str','\"inactive\"'),(13261,23835,13632,'str','\"failed\"'),(13262,23802,13633,'str','\"inactive\"'),(13263,23802,13633,'str','\"failed\"'),(13264,23836,13634,'str','\"inactive\"'),(13265,23836,13634,'str','\"failed\"'),(13266,23803,13635,'str','\"inactive\"'),(13267,23803,13635,'str','\"failed\"'),(13268,23804,13636,'str','\"inactive\"'),(13269,23804,13636,'str','\"failed\"'),(13270,23805,13637,'str','\"inactive\"'),(13271,23805,13637,'str','\"failed\"'),(13272,23837,13638,'str','\"inactive\"'),(13273,23837,13638,'str','\"failed\"'),(13274,23793,13639,'str','\"inactive\"'),(13275,23793,13639,'str','\"failed\"'),(13276,23806,13640,'str','\"inactive\"'),(13277,23806,13640,'str','\"failed\"'),(13278,23838,13641,'str','\"inactive\"'),(13279,23838,13641,'str','\"failed\"'),(13280,23807,13642,'str','\"inactive\"'),(13281,23807,13642,'str','\"failed\"'),(13282,23839,13643,'str','\"inactive\"'),(13283,23839,13643,'str','\"failed\"'),(13284,23809,13644,'str','\"inactive\"'),(13285,23809,13644,'str','\"failed\"'),(13288,23841,13646,'str','\"inactive\"'),(13289,23841,13646,'str','\"failed\"'),(13290,23810,13647,'str','\"inactive\"'),(13291,23810,13647,'str','\"failed\"'),(13294,23842,13649,'str','\"inactive\"'),(13295,23842,13649,'str','\"failed\"'),(13296,23811,13650,'str','\"inactive\"'),(13297,23811,13650,'str','\"failed\"'),(13298,23827,13651,'str','\"inactive\"'),(13299,23827,13651,'str','\"failed\"'),(13300,23812,13652,'str','\"inactive\"'),(13301,23812,13652,'str','\"failed\"'),(13304,23843,13654,'str','\"inactive\"'),(13305,23843,13654,'str','\"failed\"'),(13306,23813,13655,'str','\"inactive\"'),(13307,23813,13655,'str','\"failed\"'),(13310,23814,13657,'str','\"inactive\"'),(13311,23814,13657,'str','\"failed\"'),(13312,23830,13658,'str','\"inactive\"'),(13313,23830,13658,'str','\"failed\"'),(13314,23852,13659,'str','\"inactive\"'),(13315,23852,13659,'str','\"failed\"'),(13316,23815,13660,'str','\"inactive\"'),(13317,23815,13660,'str','\"failed\"'),(13322,23816,13663,'str','\"inactive\"'),(13323,23816,13663,'str','\"failed\"'),(13326,23845,13665,'str','\"inactive\"'),(13327,23845,13665,'str','\"failed\"'),(13328,23679,13666,'avg','3m'),(13329,23680,13667,'avg','3m'),(13330,23791,13668,'min','5m'),(13331,23859,13669,'avg','5m'),(13333,23732,13671,'last',''),(13335,23792,13673,'avg','5m'),(13340,23730,13678,'last',''),(13341,23714,13679,'last',''),(13344,23855,13682,'avg','5m'),(13346,23731,13684,'last',''),(13347,23737,13685,'diff','0'),(13348,23736,13686,'nodata','5m'),(13349,23759,13687,'avg','10m'),(13350,23738,13688,'avg','10m'),(13351,23760,13689,'avg','10m'),(13352,23739,13690,'avg','10m'),(13353,23761,13691,'avg','10m'),(13354,23740,13692,'avg','10m'),(13355,23762,13693,'avg','10m'),(13356,23763,13694,'avg','10m'),(13357,23741,13695,'avg','10m'),(13358,23742,13696,'avg','10m'),(13359,23764,13697,'avg','10m'),(13360,23743,13698,'avg','30m'),(13361,23765,13699,'avg','30m'),(13362,23744,13700,'avg','10m'),(13363,23766,13701,'avg','10m'),(13364,23745,13702,'avg','10m'),(13365,23767,13703,'avg','10m'),(13366,23746,13704,'avg','10m'),(13368,23747,13706,'avg','10m'),(13370,23748,13708,'avg','10m'),(13371,23770,13709,'avg','10m'),(13372,23771,13710,'avg','10m'),(13373,23749,13711,'avg','10m'),(13374,23772,13712,'min','10m'),(13375,23750,13713,'avg','10m'),(13377,23774,13715,'avg','10m'),(13378,23751,13716,'avg','10m'),(13379,23775,13717,'avg','10m'),(13380,23752,13718,'avg','10m'),(13381,23776,13719,'avg','10m'),(13382,23784,13720,'last',''),(13386,23790,13724,'max','#3'),(13387,23917,13725,'diff','0'),(13389,23919,13727,'diff','0'),(13391,23918,13729,'nodata','5m'),(13393,23937,13731,'str','\"down\"'),(13395,23940,13733,'min','#3'),(13396,23941,13734,'min','#3'),(13397,23954,13735,'last','0'),(13398,23952,13736,'last','0'),(13401,23969,13739,'diff','0'),(13402,23977,13740,'diff','0'),(13405,23856,13680,'avg','5m'),(13406,23710,13575,'str','\"active\"'),(13407,23995,13742,'max','#3'),(13408,23996,13743,'last',''),(13411,23991,13744,'count','#3,200'),(13413,24005,13745,'change',''),(13422,24002,13747,'avg','5m'),(13423,24001,13746,'avg','5m'),(13424,24004,13749,'avg','5m'),(13425,24003,13748,'avg','5m'),(13426,24007,13750,'diff','0');
 /*!40000 ALTER TABLE `functions` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `globalmacro`
+--
+
+DROP TABLE IF EXISTS `globalmacro`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `globalmacro` (
+  `globalmacroid` bigint(20) unsigned NOT NULL,
+  `macro` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `value` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`globalmacroid`),
+  UNIQUE KEY `globalmacro_1` (`macro`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `globalmacro`
@@ -223,6 +760,20 @@ INSERT INTO `globalmacro` VALUES (2,'{$SNMP_COMMUNITY}','public'),(3,'{$IDC_NAME
 UNLOCK TABLES;
 
 --
+-- Table structure for table `globalvars`
+--
+
+DROP TABLE IF EXISTS `globalvars`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `globalvars` (
+  `globalvarid` bigint(20) unsigned NOT NULL,
+  `snmp_lastsize` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`globalvarid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `globalvars`
 --
 
@@ -232,6 +783,23 @@ LOCK TABLES `globalvars` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `graph_discovery`
+--
+
+DROP TABLE IF EXISTS `graph_discovery`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `graph_discovery` (
+  `graphid` bigint(20) unsigned NOT NULL,
+  `parent_graphid` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`graphid`),
+  KEY `graph_discovery_1` (`parent_graphid`),
+  CONSTRAINT `c_graph_discovery_2` FOREIGN KEY (`parent_graphid`) REFERENCES `graphs` (`graphid`),
+  CONSTRAINT `c_graph_discovery_1` FOREIGN KEY (`graphid`) REFERENCES `graphs` (`graphid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `graph_discovery`
 --
 
@@ -239,6 +807,31 @@ LOCK TABLES `graph_discovery` WRITE;
 /*!40000 ALTER TABLE `graph_discovery` DISABLE KEYS */;
 /*!40000 ALTER TABLE `graph_discovery` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `graph_theme`
+--
+
+DROP TABLE IF EXISTS `graph_theme`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `graph_theme` (
+  `graphthemeid` bigint(20) unsigned NOT NULL,
+  `theme` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `backgroundcolor` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `graphcolor` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `gridcolor` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `maingridcolor` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `gridbordercolor` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `textcolor` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `highlightcolor` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `leftpercentilecolor` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `rightpercentilecolor` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `nonworktimecolor` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`graphthemeid`),
+  UNIQUE KEY `graph_theme_1` (`theme`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `graph_theme`
@@ -251,14 +844,77 @@ INSERT INTO `graph_theme` VALUES (1,'blue-theme','FFFFFF','FFFFFF','CCD5D9','ACB
 UNLOCK TABLES;
 
 --
+-- Table structure for table `graphs`
+--
+
+DROP TABLE IF EXISTS `graphs`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `graphs` (
+  `graphid` bigint(20) unsigned NOT NULL,
+  `name` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `width` int(11) NOT NULL DEFAULT '900',
+  `height` int(11) NOT NULL DEFAULT '200',
+  `yaxismin` double(16,4) NOT NULL DEFAULT '0.0000',
+  `yaxismax` double(16,4) NOT NULL DEFAULT '100.0000',
+  `templateid` bigint(20) unsigned DEFAULT NULL,
+  `show_work_period` int(11) NOT NULL DEFAULT '1',
+  `show_triggers` int(11) NOT NULL DEFAULT '1',
+  `graphtype` int(11) NOT NULL DEFAULT '0',
+  `show_legend` int(11) NOT NULL DEFAULT '1',
+  `show_3d` int(11) NOT NULL DEFAULT '0',
+  `percent_left` double(16,4) NOT NULL DEFAULT '0.0000',
+  `percent_right` double(16,4) NOT NULL DEFAULT '0.0000',
+  `ymin_type` int(11) NOT NULL DEFAULT '0',
+  `ymax_type` int(11) NOT NULL DEFAULT '0',
+  `ymin_itemid` bigint(20) unsigned DEFAULT NULL,
+  `ymax_itemid` bigint(20) unsigned DEFAULT NULL,
+  `flags` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`graphid`),
+  KEY `graphs_1` (`name`),
+  KEY `graphs_2` (`templateid`),
+  KEY `graphs_3` (`ymin_itemid`),
+  KEY `graphs_4` (`ymax_itemid`),
+  CONSTRAINT `c_graphs_3` FOREIGN KEY (`ymax_itemid`) REFERENCES `items` (`itemid`),
+  CONSTRAINT `c_graphs_1` FOREIGN KEY (`templateid`) REFERENCES `graphs` (`graphid`) ON DELETE CASCADE,
+  CONSTRAINT `c_graphs_2` FOREIGN KEY (`ymin_itemid`) REFERENCES `items` (`itemid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `graphs`
 --
 
 LOCK TABLES `graphs` WRITE;
 /*!40000 ALTER TABLE `graphs` DISABLE KEYS */;
-INSERT INTO `graphs` VALUES (535,'Disk:{#DISK}: write read',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,2),(540,'Traffic on interface {#SNMPVALUE}',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,2),(541,'Traffic on interface {#SNMPVALUE}',900,200,0.0000,100.0000,540,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,2),(545,'CPU jumps',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(548,'CPU load',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,1,0,NULL,NULL,0),(550,'CPU utilization',900,200,0.0000,100.0000,NULL,1,0,1,1,0,0.0000,0.0000,1,1,NULL,NULL,0),(552,'Memory usage',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,1,2,NULL,23881,0),(561,'Swap usage',600,340,0.0000,100.0000,NULL,0,0,2,1,1,0.0000,0.0000,0,0,NULL,NULL,0),(562,'Value cache effectiveness',900,200,0.0000,100.0000,NULL,1,1,1,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(563,'Ceph Volumes Read Write Speed',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(564,'Zabbix cache usage, % free',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,1,1,NULL,NULL,0),(565,'Zabbix cache usage, % free',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,1,1,NULL,NULL,0),(566,'Zabbix data gathering process busy %',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,1,1,NULL,NULL,0),(567,'Zabbix data gathering process busy %',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,1,1,NULL,NULL,0),(568,'Zabbix internal process busy %',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,1,1,NULL,NULL,0),(569,'Zabbix internal process busy %',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,1,1,NULL,NULL,0),(570,'Zabbix proxy performance',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(571,'Zabbix server performance',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(572,'ceph osd latency',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,2),(573,'Ceph Read Write Speed',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(574,'RabbitMQ Messages Unacknowledged',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(575,'RabbitMQ Messages Ready',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(576,'RabbitMQ Sockets Used',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(577,'Network traffic on {#IFNAME}',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,2),(578,'{#UUID} Disk Read Write Speed',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,2),(579,'{#UUID} Interface Read Write Speed',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,2),(580,'Ceph Rados Free Space',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(581,'Zabbix internal process busy %',900,200,0.0000,100.0000,568,1,1,0,1,0,0.0000,0.0000,1,1,NULL,NULL,0),(582,'Zabbix data gathering process busy %',900,200,0.0000,100.0000,567,1,1,0,1,0,0.0000,0.0000,1,1,NULL,NULL,0),(583,'Zabbix server performance',900,200,0.0000,100.0000,571,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(584,'Zabbix cache usage, % free',900,200,0.0000,100.0000,564,1,1,0,1,0,0.0000,0.0000,1,1,NULL,NULL,0),(585,'Value cache effectiveness',900,200,0.0000,100.0000,562,1,1,1,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(586,'CPU jumps',900,200,0.0000,100.0000,545,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(587,'CPU load',900,200,0.0000,100.0000,548,1,1,0,1,0,0.0000,0.0000,1,0,NULL,NULL,0),(588,'CPU utilization',900,200,0.0000,100.0000,550,1,0,1,1,0,0.0000,0.0000,1,1,NULL,NULL,0),(589,'Swap usage',600,340,0.0000,100.0000,561,0,0,2,1,1,0.0000,0.0000,0,0,NULL,NULL,0),(590,'Memory usage',900,200,0.0000,100.0000,552,1,1,0,1,0,0.0000,0.0000,1,2,NULL,24062,0);
+INSERT INTO `graphs` VALUES (535,'Disk:{#DISK}: write read',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,2),(540,'Traffic on interface {#SNMPVALUE}',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,2),(541,'Traffic on interface {#SNMPVALUE}',900,200,0.0000,100.0000,540,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,2),(545,'CPU jumps',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(548,'CPU load',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,1,0,NULL,NULL,0),(550,'CPU utilization',900,200,0.0000,100.0000,NULL,1,0,1,1,0,0.0000,0.0000,1,1,NULL,NULL,0),(552,'Memory usage',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,1,2,NULL,23881,0),(561,'Swap usage',600,340,0.0000,100.0000,NULL,0,0,2,1,1,0.0000,0.0000,0,0,NULL,NULL,0),(562,'Value cache effectiveness',900,200,0.0000,100.0000,NULL,1,1,1,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(563,'Ceph Volumes Read Write Speed',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(564,'Zabbix cache usage, % free',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,1,1,NULL,NULL,0),(565,'Zabbix cache usage, % free',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,1,1,NULL,NULL,0),(566,'Zabbix data gathering process busy %',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,1,1,NULL,NULL,0),(567,'Zabbix data gathering process busy %',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,1,1,NULL,NULL,0),(568,'Zabbix internal process busy %',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,1,1,NULL,NULL,0),(569,'Zabbix internal process busy %',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,1,1,NULL,NULL,0),(570,'Zabbix proxy performance',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(571,'Zabbix server performance',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(572,'ceph osd latency',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,2),(573,'Ceph Read Write Speed',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(574,'RabbitMQ Messages Unacknowledged',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(575,'RabbitMQ Messages Ready',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(576,'RabbitMQ Sockets Used',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0),(577,'Network traffic on {#IFNAME}',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,2),(578,'{#UUID} Disk Read Write Speed',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,2),(579,'{#UUID} Interface Read Write Speed',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,2),(580,'Ceph Rados Free Space',900,200,0.0000,100.0000,NULL,1,1,0,1,0,0.0000,0.0000,0,0,NULL,NULL,0);
 /*!40000 ALTER TABLE `graphs` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `graphs_items`
+--
+
+DROP TABLE IF EXISTS `graphs_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `graphs_items` (
+  `gitemid` bigint(20) unsigned NOT NULL,
+  `graphid` bigint(20) unsigned NOT NULL,
+  `itemid` bigint(20) unsigned NOT NULL,
+  `drawtype` int(11) NOT NULL DEFAULT '0',
+  `sortorder` int(11) NOT NULL DEFAULT '0',
+  `color` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT '009600',
+  `yaxisside` int(11) NOT NULL DEFAULT '0',
+  `calc_fnc` int(11) NOT NULL DEFAULT '2',
+  `type` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`gitemid`),
+  KEY `graphs_items_1` (`itemid`),
+  KEY `graphs_items_2` (`graphid`),
+  CONSTRAINT `c_graphs_items_2` FOREIGN KEY (`itemid`) REFERENCES `items` (`itemid`) ON DELETE CASCADE,
+  CONSTRAINT `c_graphs_items_1` FOREIGN KEY (`graphid`) REFERENCES `graphs` (`graphid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `graphs_items`
@@ -266,9 +922,29 @@ UNLOCK TABLES;
 
 LOCK TABLES `graphs_items` WRITE;
 /*!40000 ALTER TABLE `graphs_items` DISABLE KEYS */;
-INSERT INTO `graphs_items` VALUES (1793,535,23946,0,0,'1A7C11',0,2,0),(1794,535,23949,0,1,'F63100',0,2,0),(1803,540,23968,5,0,'00AA00',0,2,0),(1804,540,23971,5,1,'3333FF',0,2,0),(1805,541,23976,5,0,'00AA00',0,2,0),(1806,541,23979,5,1,'3333FF',0,2,0),(1814,545,23862,0,0,'009900',0,2,0),(1815,545,23858,0,1,'000099',0,2,0),(1821,548,23859,0,0,'009900',0,2,0),(1822,548,23860,0,1,'000099',0,2,0),(1823,548,23861,0,2,'990000',0,2,0),(1832,550,23868,1,0,'FF5555',0,2,0),(1833,550,23867,1,1,'55FF55',0,2,0),(1834,550,23864,1,2,'009999',0,2,0),(1835,550,23866,1,3,'990099',0,2,0),(1836,550,23865,1,4,'999900',0,2,0),(1837,550,23869,1,5,'990000',0,2,0),(1838,550,23870,1,6,'000099',0,2,0),(1839,550,23863,1,7,'009900',0,2,0),(1841,552,23880,5,0,'00C800',0,2,0),(1865,561,23875,0,0,'AA0000',0,2,2),(1867,562,23783,0,0,'C80000',0,2,0),(1868,562,23782,0,1,'00C800',0,2,0),(1869,563,23680,0,0,'F63100',0,2,0),(1870,563,23679,0,1,'1A7C11',0,2,0),(1871,564,23788,0,0,'009900',0,2,0),(1872,564,23780,0,1,'DD0000',0,2,0),(1873,564,23787,0,2,'00DDDD',0,2,0),(1874,564,23786,0,3,'3333FF',0,2,0),(1875,564,23781,0,4,'999900',0,2,0),(1877,565,23755,0,0,'DD0000',0,2,0),(1878,565,23757,0,1,'00DDDD',0,2,0),(1879,565,23756,0,2,'3333FF',0,2,0),(1880,566,23751,0,0,'990099',0,2,0),(1881,566,23748,0,1,'990000',0,2,0),(1882,566,23746,0,2,'0000EE',0,2,0),(1883,566,23740,0,3,'FF33FF',0,2,0),(1884,566,23745,0,4,'00EE00',0,2,0),(1885,566,23744,0,5,'003300',0,2,0),(1886,566,23752,0,6,'33FFFF',0,2,0),(1887,566,23747,0,7,'DD0000',0,2,0),(1888,566,23750,0,8,'000099',0,7,0),(1889,567,23775,0,0,'990099',0,2,0),(1890,567,23770,0,1,'990000',0,2,0),(1892,567,23762,0,3,'FF33FF',0,2,0),(1893,567,23767,0,4,'009600',0,2,0),(1894,567,23766,0,5,'003300',0,2,0),(1895,567,23771,0,6,'CCCC00',0,2,0),(1896,567,23776,0,7,'33FFFF',0,2,0),(1900,568,23774,0,0,'00EE00',0,2,0),(1901,568,23763,0,1,'0000EE',0,2,0),(1902,568,23765,0,2,'FFAA00',0,2,0),(1903,568,23759,0,3,'00EEEE',0,2,0),(1904,568,23760,0,4,'990099',0,2,0),(1905,568,23761,0,5,'666600',0,2,0),(1906,568,23764,0,6,'EE0000',0,2,0),(1907,568,23772,0,7,'FF66FF',0,2,0),(1908,569,23743,0,0,'FFAA00',0,2,0),(1909,569,23738,0,1,'990099',0,2,0),(1910,569,23742,0,2,'EE0000',0,2,0),(1911,569,23749,0,3,'FF66FF',0,2,0),(1912,569,23741,0,4,'960000',0,2,0),(1913,569,23739,0,5,'009600',0,2,0),(1914,570,23758,5,0,'00C800',0,2,0),(1915,570,23754,5,1,'C80000',1,2,0),(1916,571,23789,5,0,'00C800',0,2,0),(1917,571,23779,5,1,'C80000',1,2,0),(1918,572,23940,0,0,'1A7C11',0,2,0),(1919,572,23941,0,1,'F63100',0,2,0),(1920,573,23993,0,0,'1A7C11',0,2,0),(1921,573,23992,0,1,'F63100',0,2,0),(1922,574,23730,0,0,'1A7C11',0,2,0),(1923,575,23729,0,0,'1A7C11',0,2,0),(1924,576,23731,0,0,'1A7C11',0,2,0),(1925,577,23998,0,0,'1A7C11',0,2,0),(1926,577,23999,0,1,'F63100',0,2,0),(1927,578,24001,0,0,'1A7C11',0,2,0),(1928,578,24002,0,1,'F63100',0,2,0),(1929,579,24003,0,0,'1A7C11',0,2,0),(1930,579,24004,0,1,'F63100',0,2,0),(1931,580,24006,0,0,'1A7C11',0,2,0),(1932,581,24020,0,0,'00EE00',0,2,0),(1933,581,24012,0,1,'0000EE',0,2,0),(1934,581,24014,0,2,'FFAA00',0,2,0),(1935,581,24008,0,3,'00EEEE',0,2,0),(1936,581,24009,0,4,'990099',0,2,0),(1937,581,24010,0,5,'666600',0,2,0),(1938,581,24013,0,6,'EE0000',0,2,0),(1939,581,24019,0,7,'FF66FF',0,2,0),(1940,582,24021,0,0,'990099',0,2,0),(1941,582,24017,0,1,'990000',0,2,0),(1942,582,24011,0,3,'FF33FF',0,2,0),(1943,582,24016,0,4,'009600',0,2,0),(1944,582,24015,0,5,'003300',0,2,0),(1945,582,24018,0,6,'CCCC00',0,2,0),(1946,582,24022,0,7,'33FFFF',0,2,0),(1947,583,24033,5,0,'00C800',0,2,0),(1948,583,24024,5,1,'C80000',1,2,0),(1949,584,24032,0,0,'009900',0,2,0),(1950,584,24025,0,1,'DD0000',0,2,0),(1951,584,24031,0,2,'00DDDD',0,2,0),(1952,584,24030,0,3,'3333FF',0,2,0),(1953,584,24026,0,4,'999900',0,2,0),(1954,585,24028,0,0,'C80000',0,2,0),(1955,585,24027,0,1,'00C800',0,2,0),(1956,586,24048,0,0,'009900',0,2,0),(1957,586,24044,0,1,'000099',0,2,0),(1958,587,24046,0,0,'009900',0,2,0),(1959,587,24047,0,1,'000099',0,2,0),(1960,587,24045,0,2,'990000',0,2,0),(1961,588,24054,1,0,'FF5555',0,2,0),(1962,588,24053,1,1,'55FF55',0,2,0),(1963,588,24050,1,2,'009999',0,2,0),(1964,588,24052,1,3,'990099',0,2,0),(1965,588,24051,1,4,'999900',0,2,0),(1966,588,24055,1,5,'990000',0,2,0),(1967,588,24056,1,6,'000099',0,2,0),(1968,588,24049,1,7,'009900',0,2,0),(1969,589,24058,0,0,'AA0000',0,2,2),(1970,590,24061,5,0,'00C800',0,2,0);
+INSERT INTO `graphs_items` VALUES (1793,535,23946,0,0,'1A7C11',0,2,0),(1794,535,23949,0,1,'F63100',0,2,0),(1803,540,23968,5,0,'00AA00',0,2,0),(1804,540,23971,5,1,'3333FF',0,2,0),(1805,541,23976,5,0,'00AA00',0,2,0),(1806,541,23979,5,1,'3333FF',0,2,0),(1814,545,23862,0,0,'009900',0,2,0),(1815,545,23858,0,1,'000099',0,2,0),(1821,548,23859,0,0,'009900',0,2,0),(1822,548,23860,0,1,'000099',0,2,0),(1823,548,23861,0,2,'990000',0,2,0),(1832,550,23868,1,0,'FF5555',0,2,0),(1833,550,23867,1,1,'55FF55',0,2,0),(1834,550,23864,1,2,'009999',0,2,0),(1835,550,23866,1,3,'990099',0,2,0),(1836,550,23865,1,4,'999900',0,2,0),(1837,550,23869,1,5,'990000',0,2,0),(1838,550,23870,1,6,'000099',0,2,0),(1839,550,23863,1,7,'009900',0,2,0),(1841,552,23880,5,0,'00C800',0,2,0),(1865,561,23875,0,0,'AA0000',0,2,2),(1867,562,23783,0,0,'C80000',0,2,0),(1868,562,23782,0,1,'00C800',0,2,0),(1869,563,23680,0,0,'F63100',0,2,0),(1870,563,23679,0,1,'1A7C11',0,2,0),(1871,564,23788,0,0,'009900',0,2,0),(1872,564,23780,0,1,'DD0000',0,2,0),(1873,564,23787,0,2,'00DDDD',0,2,0),(1874,564,23786,0,3,'3333FF',0,2,0),(1875,564,23781,0,4,'999900',0,2,0),(1877,565,23755,0,0,'DD0000',0,2,0),(1878,565,23757,0,1,'00DDDD',0,2,0),(1879,565,23756,0,2,'3333FF',0,2,0),(1880,566,23751,0,0,'990099',0,2,0),(1881,566,23748,0,1,'990000',0,2,0),(1882,566,23746,0,2,'0000EE',0,2,0),(1883,566,23740,0,3,'FF33FF',0,2,0),(1884,566,23745,0,4,'00EE00',0,2,0),(1885,566,23744,0,5,'003300',0,2,0),(1886,566,23752,0,6,'33FFFF',0,2,0),(1887,566,23747,0,7,'DD0000',0,2,0),(1888,566,23750,0,8,'000099',0,7,0),(1889,567,23775,0,0,'990099',0,2,0),(1890,567,23770,0,1,'990000',0,2,0),(1892,567,23762,0,3,'FF33FF',0,2,0),(1893,567,23767,0,4,'009600',0,2,0),(1894,567,23766,0,5,'003300',0,2,0),(1895,567,23771,0,6,'CCCC00',0,2,0),(1896,567,23776,0,7,'33FFFF',0,2,0),(1900,568,23774,0,0,'00EE00',0,2,0),(1901,568,23763,0,1,'0000EE',0,2,0),(1902,568,23765,0,2,'FFAA00',0,2,0),(1903,568,23759,0,3,'00EEEE',0,2,0),(1904,568,23760,0,4,'990099',0,2,0),(1905,568,23761,0,5,'666600',0,2,0),(1906,568,23764,0,6,'EE0000',0,2,0),(1907,568,23772,0,7,'FF66FF',0,2,0),(1908,569,23743,0,0,'FFAA00',0,2,0),(1909,569,23738,0,1,'990099',0,2,0),(1910,569,23742,0,2,'EE0000',0,2,0),(1911,569,23749,0,3,'FF66FF',0,2,0),(1912,569,23741,0,4,'960000',0,2,0),(1913,569,23739,0,5,'009600',0,2,0),(1914,570,23758,5,0,'00C800',0,2,0),(1915,570,23754,5,1,'C80000',1,2,0),(1916,571,23789,5,0,'00C800',0,2,0),(1917,571,23779,5,1,'C80000',1,2,0),(1918,572,23940,0,0,'1A7C11',0,2,0),(1919,572,23941,0,1,'F63100',0,2,0),(1920,573,23993,0,0,'1A7C11',0,2,0),(1921,573,23992,0,1,'F63100',0,2,0),(1922,574,23730,0,0,'1A7C11',0,2,0),(1923,575,23729,0,0,'1A7C11',0,2,0),(1924,576,23731,0,0,'1A7C11',0,2,0),(1925,577,23998,0,0,'1A7C11',0,2,0),(1926,577,23999,0,1,'F63100',0,2,0),(1927,578,24001,0,0,'1A7C11',0,2,0),(1928,578,24002,0,1,'F63100',0,2,0),(1929,579,24003,0,0,'1A7C11',0,2,0),(1930,579,24004,0,1,'F63100',0,2,0),(1931,580,24006,0,0,'1A7C11',0,2,0);
 /*!40000 ALTER TABLE `graphs_items` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `group_discovery`
+--
+
+DROP TABLE IF EXISTS `group_discovery`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `group_discovery` (
+  `groupid` bigint(20) unsigned NOT NULL,
+  `parent_group_prototypeid` bigint(20) unsigned NOT NULL,
+  `name` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `lastcheck` int(11) NOT NULL DEFAULT '0',
+  `ts_delete` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`groupid`),
+  KEY `c_group_discovery_2` (`parent_group_prototypeid`),
+  CONSTRAINT `c_group_discovery_2` FOREIGN KEY (`parent_group_prototypeid`) REFERENCES `group_prototype` (`group_prototypeid`),
+  CONSTRAINT `c_group_discovery_1` FOREIGN KEY (`groupid`) REFERENCES `groups` (`groupid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `group_discovery`
@@ -280,6 +956,29 @@ LOCK TABLES `group_discovery` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `group_prototype`
+--
+
+DROP TABLE IF EXISTS `group_prototype`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `group_prototype` (
+  `group_prototypeid` bigint(20) unsigned NOT NULL,
+  `hostid` bigint(20) unsigned NOT NULL,
+  `name` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `groupid` bigint(20) unsigned DEFAULT NULL,
+  `templateid` bigint(20) unsigned DEFAULT NULL,
+  PRIMARY KEY (`group_prototypeid`),
+  KEY `group_prototype_1` (`hostid`),
+  KEY `c_group_prototype_2` (`groupid`),
+  KEY `c_group_prototype_3` (`templateid`),
+  CONSTRAINT `c_group_prototype_3` FOREIGN KEY (`templateid`) REFERENCES `group_prototype` (`group_prototypeid`) ON DELETE CASCADE,
+  CONSTRAINT `c_group_prototype_1` FOREIGN KEY (`hostid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE,
+  CONSTRAINT `c_group_prototype_2` FOREIGN KEY (`groupid`) REFERENCES `groups` (`groupid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `group_prototype`
 --
 
@@ -287,6 +986,23 @@ LOCK TABLES `group_prototype` WRITE;
 /*!40000 ALTER TABLE `group_prototype` DISABLE KEYS */;
 /*!40000 ALTER TABLE `group_prototype` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `groups`
+--
+
+DROP TABLE IF EXISTS `groups`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `groups` (
+  `groupid` bigint(20) unsigned NOT NULL,
+  `name` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `internal` int(11) NOT NULL DEFAULT '0',
+  `flags` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`groupid`),
+  KEY `groups_1` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `groups`
@@ -299,6 +1015,22 @@ INSERT INTO `groups` VALUES (1,'Templates',0,0),(2,'Linux servers',0,0),(4,'Zabb
 UNLOCK TABLES;
 
 --
+-- Table structure for table `history`
+--
+
+DROP TABLE IF EXISTS `history`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `history` (
+  `itemid` bigint(20) unsigned NOT NULL,
+  `clock` int(11) NOT NULL DEFAULT '0',
+  `value` double(16,4) NOT NULL DEFAULT '0.0000',
+  `ns` int(11) NOT NULL DEFAULT '0',
+  KEY `history_1` (`itemid`,`clock`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `history`
 --
 
@@ -306,6 +1038,29 @@ LOCK TABLES `history` WRITE;
 /*!40000 ALTER TABLE `history` DISABLE KEYS */;
 /*!40000 ALTER TABLE `history` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `history_log`
+--
+
+DROP TABLE IF EXISTS `history_log`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `history_log` (
+  `id` bigint(20) unsigned NOT NULL,
+  `itemid` bigint(20) unsigned NOT NULL,
+  `clock` int(11) NOT NULL DEFAULT '0',
+  `timestamp` int(11) NOT NULL DEFAULT '0',
+  `source` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `severity` int(11) NOT NULL DEFAULT '0',
+  `value` text COLLATE utf8_bin NOT NULL,
+  `logeventid` int(11) NOT NULL DEFAULT '0',
+  `ns` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `history_log_2` (`itemid`,`id`),
+  KEY `history_log_1` (`itemid`,`clock`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `history_log`
@@ -317,6 +1072,22 @@ LOCK TABLES `history_log` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `history_str`
+--
+
+DROP TABLE IF EXISTS `history_str`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `history_str` (
+  `itemid` bigint(20) unsigned NOT NULL,
+  `clock` int(11) NOT NULL DEFAULT '0',
+  `value` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `ns` int(11) NOT NULL DEFAULT '0',
+  KEY `history_str_1` (`itemid`,`clock`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `history_str`
 --
 
@@ -324,6 +1095,25 @@ LOCK TABLES `history_str` WRITE;
 /*!40000 ALTER TABLE `history_str` DISABLE KEYS */;
 /*!40000 ALTER TABLE `history_str` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `history_text`
+--
+
+DROP TABLE IF EXISTS `history_text`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `history_text` (
+  `id` bigint(20) unsigned NOT NULL,
+  `itemid` bigint(20) unsigned NOT NULL,
+  `clock` int(11) NOT NULL DEFAULT '0',
+  `value` text COLLATE utf8_bin NOT NULL,
+  `ns` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `history_text_2` (`itemid`,`id`),
+  KEY `history_text_1` (`itemid`,`clock`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `history_text`
@@ -335,6 +1125,22 @@ LOCK TABLES `history_text` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `history_uint`
+--
+
+DROP TABLE IF EXISTS `history_uint`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `history_uint` (
+  `itemid` bigint(20) unsigned NOT NULL,
+  `clock` int(11) NOT NULL DEFAULT '0',
+  `value` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `ns` int(11) NOT NULL DEFAULT '0',
+  KEY `history_uint_1` (`itemid`,`clock`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `history_uint`
 --
 
@@ -342,6 +1148,29 @@ LOCK TABLES `history_uint` WRITE;
 /*!40000 ALTER TABLE `history_uint` DISABLE KEYS */;
 /*!40000 ALTER TABLE `history_uint` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `host_discovery`
+--
+
+DROP TABLE IF EXISTS `host_discovery`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `host_discovery` (
+  `hostid` bigint(20) unsigned NOT NULL,
+  `parent_hostid` bigint(20) unsigned DEFAULT NULL,
+  `parent_itemid` bigint(20) unsigned DEFAULT NULL,
+  `host` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `lastcheck` int(11) NOT NULL DEFAULT '0',
+  `ts_delete` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`hostid`),
+  KEY `c_host_discovery_2` (`parent_hostid`),
+  KEY `c_host_discovery_3` (`parent_itemid`),
+  CONSTRAINT `c_host_discovery_3` FOREIGN KEY (`parent_itemid`) REFERENCES `items` (`itemid`),
+  CONSTRAINT `c_host_discovery_1` FOREIGN KEY (`hostid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE,
+  CONSTRAINT `c_host_discovery_2` FOREIGN KEY (`parent_hostid`) REFERENCES `hosts` (`hostid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `host_discovery`
@@ -353,6 +1182,91 @@ LOCK TABLES `host_discovery` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `host_inventory`
+--
+
+DROP TABLE IF EXISTS `host_inventory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `host_inventory` (
+  `hostid` bigint(20) unsigned NOT NULL,
+  `inventory_mode` int(11) NOT NULL DEFAULT '0',
+  `type` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `type_full` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `name` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `alias` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `os` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `os_full` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `os_short` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `serialno_a` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `serialno_b` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `tag` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `asset_tag` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `macaddress_a` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `macaddress_b` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `hardware` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `hardware_full` text COLLATE utf8_bin NOT NULL,
+  `software` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `software_full` text COLLATE utf8_bin NOT NULL,
+  `software_app_a` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `software_app_b` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `software_app_c` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `software_app_d` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `software_app_e` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `contact` text COLLATE utf8_bin NOT NULL,
+  `location` text COLLATE utf8_bin NOT NULL,
+  `location_lat` varchar(16) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `location_lon` varchar(16) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `notes` text COLLATE utf8_bin NOT NULL,
+  `chassis` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `model` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `hw_arch` varchar(32) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `vendor` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `contract_number` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `installer_name` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `deployment_status` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `url_a` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `url_b` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `url_c` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `host_networks` text COLLATE utf8_bin NOT NULL,
+  `host_netmask` varchar(39) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `host_router` varchar(39) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `oob_ip` varchar(39) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `oob_netmask` varchar(39) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `oob_router` varchar(39) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `date_hw_purchase` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `date_hw_install` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `date_hw_expiry` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `date_hw_decomm` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `site_address_a` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `site_address_b` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `site_address_c` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `site_city` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `site_state` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `site_country` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `site_zip` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `site_rack` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `site_notes` text COLLATE utf8_bin NOT NULL,
+  `poc_1_name` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `poc_1_email` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `poc_1_phone_a` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `poc_1_phone_b` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `poc_1_cell` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `poc_1_screen` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `poc_1_notes` text COLLATE utf8_bin NOT NULL,
+  `poc_2_name` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `poc_2_email` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `poc_2_phone_a` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `poc_2_phone_b` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `poc_2_cell` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `poc_2_screen` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `poc_2_notes` text COLLATE utf8_bin NOT NULL,
+  PRIMARY KEY (`hostid`),
+  CONSTRAINT `c_host_inventory_1` FOREIGN KEY (`hostid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `host_inventory`
 --
 
@@ -360,6 +1274,24 @@ LOCK TABLES `host_inventory` WRITE;
 /*!40000 ALTER TABLE `host_inventory` DISABLE KEYS */;
 /*!40000 ALTER TABLE `host_inventory` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `hostmacro`
+--
+
+DROP TABLE IF EXISTS `hostmacro`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `hostmacro` (
+  `hostmacroid` bigint(20) unsigned NOT NULL,
+  `hostid` bigint(20) unsigned NOT NULL,
+  `macro` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `value` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`hostmacroid`),
+  UNIQUE KEY `hostmacro_1` (`hostid`,`macro`),
+  CONSTRAINT `c_hostmacro_1` FOREIGN KEY (`hostid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `hostmacro`
@@ -371,14 +1303,93 @@ LOCK TABLES `hostmacro` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `hosts`
+--
+
+DROP TABLE IF EXISTS `hosts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `hosts` (
+  `hostid` bigint(20) unsigned NOT NULL,
+  `proxy_hostid` bigint(20) unsigned DEFAULT NULL,
+  `host` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `status` int(11) NOT NULL DEFAULT '0',
+  `disable_until` int(11) NOT NULL DEFAULT '0',
+  `error` varchar(2048) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `available` int(11) NOT NULL DEFAULT '0',
+  `errors_from` int(11) NOT NULL DEFAULT '0',
+  `lastaccess` int(11) NOT NULL DEFAULT '0',
+  `ipmi_authtype` int(11) NOT NULL DEFAULT '0',
+  `ipmi_privilege` int(11) NOT NULL DEFAULT '2',
+  `ipmi_username` varchar(16) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `ipmi_password` varchar(20) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `ipmi_disable_until` int(11) NOT NULL DEFAULT '0',
+  `ipmi_available` int(11) NOT NULL DEFAULT '0',
+  `snmp_disable_until` int(11) NOT NULL DEFAULT '0',
+  `snmp_available` int(11) NOT NULL DEFAULT '0',
+  `maintenanceid` bigint(20) unsigned DEFAULT NULL,
+  `maintenance_status` int(11) NOT NULL DEFAULT '0',
+  `maintenance_type` int(11) NOT NULL DEFAULT '0',
+  `maintenance_from` int(11) NOT NULL DEFAULT '0',
+  `ipmi_errors_from` int(11) NOT NULL DEFAULT '0',
+  `snmp_errors_from` int(11) NOT NULL DEFAULT '0',
+  `ipmi_error` varchar(2048) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `snmp_error` varchar(2048) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `jmx_disable_until` int(11) NOT NULL DEFAULT '0',
+  `jmx_available` int(11) NOT NULL DEFAULT '0',
+  `jmx_errors_from` int(11) NOT NULL DEFAULT '0',
+  `jmx_error` varchar(2048) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `name` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `flags` int(11) NOT NULL DEFAULT '0',
+  `templateid` bigint(20) unsigned DEFAULT NULL,
+  `description` text COLLATE utf8_bin NOT NULL,
+  `tls_connect` int(11) NOT NULL DEFAULT '1',
+  `tls_accept` int(11) NOT NULL DEFAULT '1',
+  `tls_issuer` varchar(1024) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `tls_subject` varchar(1024) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `tls_psk_identity` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `tls_psk` varchar(512) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`hostid`),
+  KEY `hosts_1` (`host`),
+  KEY `hosts_2` (`status`),
+  KEY `hosts_3` (`proxy_hostid`),
+  KEY `hosts_4` (`name`),
+  KEY `hosts_5` (`maintenanceid`),
+  KEY `c_hosts_3` (`templateid`),
+  CONSTRAINT `c_hosts_3` FOREIGN KEY (`templateid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE,
+  CONSTRAINT `c_hosts_1` FOREIGN KEY (`proxy_hostid`) REFERENCES `hosts` (`hostid`),
+  CONSTRAINT `c_hosts_2` FOREIGN KEY (`maintenanceid`) REFERENCES `maintenances` (`maintenanceid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `hosts`
 --
 
 LOCK TABLES `hosts` WRITE;
 /*!40000 ALTER TABLE `hosts` DISABLE KEYS */;
-INSERT INTO `hosts` VALUES (10085,NULL,'Templace Ceph Cluster',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Templace Ceph Cluster',0,NULL,'',1,1,'','','',''),(10086,NULL,'Templace Ceph OSD',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Templace Ceph OSD',0,NULL,'',1,1,'','','',''),(10088,NULL,'Template App HAProxy',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template App HAProxy',0,NULL,'',1,1,'','','',''),(10091,NULL,'Template App MySQL',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template App MySQL',0,NULL,'',1,1,'','','',''),(10093,NULL,'Template App RabbitMQ',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template App RabbitMQ',0,NULL,'',1,1,'','','',''),(10096,NULL,'Template App Zabbix Agent',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template App Zabbix Agent',0,NULL,'',1,1,'','','',''),(10097,NULL,'Template App Zabbix Proxy',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template App Zabbix Proxy',0,NULL,'',1,1,'','','',''),(10098,NULL,'Template App Zabbix Server',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template App Zabbix Server',0,NULL,'',1,1,'','','',''),(10099,NULL,'Template ICMP Ping',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template ICMP Ping',0,NULL,'',1,1,'','','',''),(10100,NULL,'Template Linux Disk IO',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template Linux Disk IO',0,NULL,'',1,1,'','','',''),(10101,NULL,'Template OpenStack all services',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template OpenStack all services',0,NULL,'',1,1,'','','',''),(10102,NULL,'Template OpenStack Compute Nodes',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template OpenStack Compute Nodes',0,NULL,'',1,1,'','','',''),(10103,NULL,'Template OpenStack Control Nodes',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template OpenStack Control Nodes',0,NULL,'',1,1,'','','',''),(10104,NULL,'Template OpenStack Network Nodes',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template OpenStack Network Nodes',0,NULL,'',1,1,'','','',''),(10105,NULL,'Template SNMP Generic',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template SNMP Generic',0,NULL,'',1,1,'','','',''),(10106,NULL,'Template SNMP Interfaces',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template SNMP Interfaces',0,NULL,'',1,1,'','','',''),(10107,NULL,'Template OS Linux',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template OS Linux',0,NULL,'',1,1,'','','',''),(10109,NULL,'Template SNMP Device',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template SNMP Device',0,NULL,'',1,1,'','','',''),(10110,NULL,'Template App SSH Service',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template App SSH Service',0,NULL,'',1,1,'','','',''),(10111,NULL,'Templace Test',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Templace Test',0,NULL,'',1,1,'','','',''),(10112,NULL,'Template Network interface',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template Network interface',0,NULL,'',1,1,'','','',''),(10113,NULL,'Templace Libvirt',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Templace Libvirt',0,NULL,'',1,1,'','','',''),(10114,NULL,'Zabbix server',0,1465211246,'Get value from agent failed: cannot connect to [[127.0.0.1]:10050]: [111] Connection refused',2,1465211081,0,-1,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Zabbix server',0,NULL,'',1,1,'','','','');
+INSERT INTO `hosts` VALUES (10085,NULL,'Templace Ceph Cluster',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Templace Ceph Cluster',0,NULL,'',1,1,'','','',''),(10086,NULL,'Templace Ceph OSD',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Templace Ceph OSD',0,NULL,'',1,1,'','','',''),(10088,NULL,'Template App HAProxy',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template App HAProxy',0,NULL,'',1,1,'','','',''),(10091,NULL,'Template App MySQL',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template App MySQL',0,NULL,'',1,1,'','','',''),(10093,NULL,'Template App RabbitMQ',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template App RabbitMQ',0,NULL,'',1,1,'','','',''),(10096,NULL,'Template App Zabbix Agent',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template App Zabbix Agent',0,NULL,'',1,1,'','','',''),(10097,NULL,'Template App Zabbix Proxy',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template App Zabbix Proxy',0,NULL,'',1,1,'','','',''),(10098,NULL,'Template App Zabbix Server',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template App Zabbix Server',0,NULL,'',1,1,'','','',''),(10099,NULL,'Template ICMP Ping',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template ICMP Ping',0,NULL,'',1,1,'','','',''),(10100,NULL,'Template Linux Disk IO',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template Linux Disk IO',0,NULL,'',1,1,'','','',''),(10101,NULL,'Template OpenStack all services',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template OpenStack all services',0,NULL,'',1,1,'','','',''),(10102,NULL,'Template OpenStack Compute Nodes',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template OpenStack Compute Nodes',0,NULL,'',1,1,'','','',''),(10103,NULL,'Template OpenStack Control Nodes',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template OpenStack Control Nodes',0,NULL,'',1,1,'','','',''),(10104,NULL,'Template OpenStack Network Nodes',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template OpenStack Network Nodes',0,NULL,'',1,1,'','','',''),(10105,NULL,'Template SNMP Generic',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template SNMP Generic',0,NULL,'',1,1,'','','',''),(10106,NULL,'Template SNMP Interfaces',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template SNMP Interfaces',0,NULL,'',1,1,'','','',''),(10107,NULL,'Template OS Linux',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template OS Linux',0,NULL,'',1,1,'','','',''),(10109,NULL,'Template SNMP Device',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template SNMP Device',0,NULL,'',1,1,'','','',''),(10110,NULL,'Template App SSH Service',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template App SSH Service',0,NULL,'',1,1,'','','',''),(10111,NULL,'Templace Test',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Templace Test',0,NULL,'',1,1,'','','',''),(10112,NULL,'Template Network interface',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Template Network interface',0,NULL,'',1,1,'','','',''),(10113,NULL,'Templace Libvirt',3,0,'',0,0,0,0,2,'','',0,0,0,0,NULL,0,0,0,0,0,'','',0,0,0,'','Templace Libvirt',0,NULL,'',1,1,'','','','');
 /*!40000 ALTER TABLE `hosts` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `hosts_groups`
+--
+
+DROP TABLE IF EXISTS `hosts_groups`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `hosts_groups` (
+  `hostgroupid` bigint(20) unsigned NOT NULL,
+  `hostid` bigint(20) unsigned NOT NULL,
+  `groupid` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`hostgroupid`),
+  UNIQUE KEY `hosts_groups_1` (`hostid`,`groupid`),
+  KEY `hosts_groups_2` (`groupid`),
+  CONSTRAINT `c_hosts_groups_2` FOREIGN KEY (`groupid`) REFERENCES `groups` (`groupid`) ON DELETE CASCADE,
+  CONSTRAINT `c_hosts_groups_1` FOREIGN KEY (`hostid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `hosts_groups`
@@ -386,9 +1397,28 @@ UNLOCK TABLES;
 
 LOCK TABLES `hosts_groups` WRITE;
 /*!40000 ALTER TABLE `hosts_groups` DISABLE KEYS */;
-INSERT INTO `hosts_groups` VALUES (93,10085,1),(94,10086,1),(96,10088,1),(99,10091,1),(101,10093,1),(104,10096,1),(105,10097,1),(106,10098,1),(107,10099,1),(108,10100,1),(109,10101,1),(110,10102,1),(111,10103,1),(112,10104,1),(113,10105,1),(114,10106,1),(115,10107,1),(117,10109,1),(118,10110,1),(119,10111,1),(120,10112,1),(121,10113,1),(122,10114,4);
+INSERT INTO `hosts_groups` VALUES (93,10085,1),(94,10086,1),(96,10088,1),(99,10091,1),(101,10093,1),(104,10096,1),(105,10097,1),(106,10098,1),(107,10099,1),(108,10100,1),(109,10101,1),(110,10102,1),(111,10103,1),(112,10104,1),(113,10105,1),(114,10106,1),(115,10107,1),(117,10109,1),(118,10110,1),(119,10111,1),(120,10112,1),(121,10113,1);
 /*!40000 ALTER TABLE `hosts_groups` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `hosts_templates`
+--
+
+DROP TABLE IF EXISTS `hosts_templates`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `hosts_templates` (
+  `hosttemplateid` bigint(20) unsigned NOT NULL,
+  `hostid` bigint(20) unsigned NOT NULL,
+  `templateid` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`hosttemplateid`),
+  UNIQUE KEY `hosts_templates_1` (`hostid`,`templateid`),
+  KEY `hosts_templates_2` (`templateid`),
+  CONSTRAINT `c_hosts_templates_2` FOREIGN KEY (`templateid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE,
+  CONSTRAINT `c_hosts_templates_1` FOREIGN KEY (`hostid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `hosts_templates`
@@ -396,9 +1426,25 @@ UNLOCK TABLES;
 
 LOCK TABLES `hosts_templates` WRITE;
 /*!40000 ALTER TABLE `hosts_templates` DISABLE KEYS */;
-INSERT INTO `hosts_templates` VALUES (1,10107,10096),(3,10109,10105),(4,10109,10106),(5,10114,10098),(6,10114,10107);
+INSERT INTO `hosts_templates` VALUES (1,10107,10096),(3,10109,10105),(4,10109,10106);
 /*!40000 ALTER TABLE `hosts_templates` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `housekeeper`
+--
+
+DROP TABLE IF EXISTS `housekeeper`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `housekeeper` (
+  `housekeeperid` bigint(20) unsigned NOT NULL,
+  `tablename` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `field` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `value` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`housekeeperid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `housekeeper`
@@ -406,9 +1452,35 @@ UNLOCK TABLES;
 
 LOCK TABLES `housekeeper` WRITE;
 /*!40000 ALTER TABLE `housekeeper` DISABLE KEYS */;
-INSERT INTO `housekeeper` VALUES (4544,'trends','itemid',23980),(4545,'trends_uint','itemid',23980),(4546,'history_text','itemid',23980),(4547,'history_log','itemid',23980),(4548,'history_uint','itemid',23980),(4549,'history_str','itemid',23980),(4550,'history','itemid',23980),(4551,'trends','itemid',23981),(4552,'trends_uint','itemid',23981),(4553,'history_text','itemid',23981),(4554,'history_log','itemid',23981),(4555,'history_uint','itemid',23981),(4556,'history_str','itemid',23981),(4557,'history','itemid',23981),(4558,'trends','itemid',23982),(4559,'trends_uint','itemid',23982),(4560,'history_text','itemid',23982),(4561,'history_log','itemid',23982),(4562,'history_uint','itemid',23982),(4563,'history_str','itemid',23982),(4564,'history','itemid',23982),(4565,'trends','itemid',23983),(4566,'trends_uint','itemid',23983),(4567,'history_text','itemid',23983),(4568,'history_log','itemid',23983),(4569,'history_uint','itemid',23983),(4570,'history_str','itemid',23983),(4571,'history','itemid',23983),(4572,'trends','itemid',23984),(4573,'trends_uint','itemid',23984),(4574,'history_text','itemid',23984),(4575,'history_log','itemid',23984),(4576,'history_uint','itemid',23984),(4577,'history_str','itemid',23984),(4578,'history','itemid',23984),(4579,'trends','itemid',23985),(4580,'trends_uint','itemid',23985),(4581,'history_text','itemid',23985),(4582,'history_log','itemid',23985),(4583,'history_uint','itemid',23985),(4584,'history_str','itemid',23985),(4585,'history','itemid',23985);
 /*!40000 ALTER TABLE `housekeeper` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `httpstep`
+--
+
+DROP TABLE IF EXISTS `httpstep`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `httpstep` (
+  `httpstepid` bigint(20) unsigned NOT NULL,
+  `httptestid` bigint(20) unsigned NOT NULL,
+  `name` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `no` int(11) NOT NULL DEFAULT '0',
+  `url` varchar(2048) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `timeout` int(11) NOT NULL DEFAULT '15',
+  `posts` text COLLATE utf8_bin NOT NULL,
+  `required` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `status_codes` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `variables` text COLLATE utf8_bin NOT NULL,
+  `follow_redirects` int(11) NOT NULL DEFAULT '1',
+  `retrieve_mode` int(11) NOT NULL DEFAULT '0',
+  `headers` text COLLATE utf8_bin NOT NULL,
+  PRIMARY KEY (`httpstepid`),
+  KEY `httpstep_1` (`httptestid`),
+  CONSTRAINT `c_httpstep_1` FOREIGN KEY (`httptestid`) REFERENCES `httptest` (`httptestid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `httpstep`
@@ -421,6 +1493,26 @@ INSERT INTO `httpstep` VALUES (2,2,'index',1,'https://{HOST.NAME}/dashboard',15,
 UNLOCK TABLES;
 
 --
+-- Table structure for table `httpstepitem`
+--
+
+DROP TABLE IF EXISTS `httpstepitem`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `httpstepitem` (
+  `httpstepitemid` bigint(20) unsigned NOT NULL,
+  `httpstepid` bigint(20) unsigned NOT NULL,
+  `itemid` bigint(20) unsigned NOT NULL,
+  `type` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`httpstepitemid`),
+  UNIQUE KEY `httpstepitem_1` (`httpstepid`,`itemid`),
+  KEY `httpstepitem_2` (`itemid`),
+  CONSTRAINT `c_httpstepitem_2` FOREIGN KEY (`itemid`) REFERENCES `items` (`itemid`) ON DELETE CASCADE,
+  CONSTRAINT `c_httpstepitem_1` FOREIGN KEY (`httpstepid`) REFERENCES `httpstep` (`httpstepid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `httpstepitem`
 --
 
@@ -429,6 +1521,46 @@ LOCK TABLES `httpstepitem` WRITE;
 INSERT INTO `httpstepitem` VALUES (4,2,23989,2),(5,2,23990,1),(6,2,23991,0);
 /*!40000 ALTER TABLE `httpstepitem` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `httptest`
+--
+
+DROP TABLE IF EXISTS `httptest`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `httptest` (
+  `httptestid` bigint(20) unsigned NOT NULL,
+  `name` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `applicationid` bigint(20) unsigned DEFAULT NULL,
+  `nextcheck` int(11) NOT NULL DEFAULT '0',
+  `delay` int(11) NOT NULL DEFAULT '60',
+  `status` int(11) NOT NULL DEFAULT '0',
+  `variables` text COLLATE utf8_bin NOT NULL,
+  `agent` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT 'Zabbix',
+  `authentication` int(11) NOT NULL DEFAULT '0',
+  `http_user` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `http_password` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `hostid` bigint(20) unsigned NOT NULL,
+  `templateid` bigint(20) unsigned DEFAULT NULL,
+  `http_proxy` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `retries` int(11) NOT NULL DEFAULT '1',
+  `ssl_cert_file` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `ssl_key_file` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `ssl_key_password` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `verify_peer` int(11) NOT NULL DEFAULT '0',
+  `verify_host` int(11) NOT NULL DEFAULT '0',
+  `headers` text COLLATE utf8_bin NOT NULL,
+  PRIMARY KEY (`httptestid`),
+  UNIQUE KEY `httptest_2` (`hostid`,`name`),
+  KEY `httptest_1` (`applicationid`),
+  KEY `httptest_3` (`status`),
+  KEY `httptest_4` (`templateid`),
+  CONSTRAINT `c_httptest_3` FOREIGN KEY (`templateid`) REFERENCES `httptest` (`httptestid`) ON DELETE CASCADE,
+  CONSTRAINT `c_httptest_1` FOREIGN KEY (`applicationid`) REFERENCES `applications` (`applicationid`),
+  CONSTRAINT `c_httptest_2` FOREIGN KEY (`hostid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `httptest`
@@ -441,6 +1573,26 @@ INSERT INTO `httptest` VALUES (2,'OpenStack Dashboard',374,0,60,0,'','Zabbix',0,
 UNLOCK TABLES;
 
 --
+-- Table structure for table `httptestitem`
+--
+
+DROP TABLE IF EXISTS `httptestitem`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `httptestitem` (
+  `httptestitemid` bigint(20) unsigned NOT NULL,
+  `httptestid` bigint(20) unsigned NOT NULL,
+  `itemid` bigint(20) unsigned NOT NULL,
+  `type` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`httptestitemid`),
+  UNIQUE KEY `httptestitem_1` (`httptestid`,`itemid`),
+  KEY `httptestitem_2` (`itemid`),
+  CONSTRAINT `c_httptestitem_2` FOREIGN KEY (`itemid`) REFERENCES `items` (`itemid`) ON DELETE CASCADE,
+  CONSTRAINT `c_httptestitem_1` FOREIGN KEY (`httptestid`) REFERENCES `httptest` (`httptestid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `httptestitem`
 --
 
@@ -449,6 +1601,24 @@ LOCK TABLES `httptestitem` WRITE;
 INSERT INTO `httptestitem` VALUES (4,2,23986,2),(5,2,23987,3),(6,2,23988,4);
 /*!40000 ALTER TABLE `httptestitem` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `icon_map`
+--
+
+DROP TABLE IF EXISTS `icon_map`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `icon_map` (
+  `iconmapid` bigint(20) unsigned NOT NULL,
+  `name` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `default_iconid` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`iconmapid`),
+  UNIQUE KEY `icon_map_1` (`name`),
+  KEY `icon_map_2` (`default_iconid`),
+  CONSTRAINT `c_icon_map_1` FOREIGN KEY (`default_iconid`) REFERENCES `images` (`imageid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `icon_map`
@@ -460,6 +1630,28 @@ LOCK TABLES `icon_map` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `icon_mapping`
+--
+
+DROP TABLE IF EXISTS `icon_mapping`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `icon_mapping` (
+  `iconmappingid` bigint(20) unsigned NOT NULL,
+  `iconmapid` bigint(20) unsigned NOT NULL,
+  `iconid` bigint(20) unsigned NOT NULL,
+  `inventory_link` int(11) NOT NULL DEFAULT '0',
+  `expression` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `sortorder` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`iconmappingid`),
+  KEY `icon_mapping_1` (`iconmapid`),
+  KEY `icon_mapping_2` (`iconid`),
+  CONSTRAINT `c_icon_mapping_2` FOREIGN KEY (`iconid`) REFERENCES `images` (`imageid`),
+  CONSTRAINT `c_icon_mapping_1` FOREIGN KEY (`iconmapid`) REFERENCES `icon_map` (`iconmapid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `icon_mapping`
 --
 
@@ -469,14 +1661,46 @@ LOCK TABLES `icon_mapping` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `ids`
+--
+
+DROP TABLE IF EXISTS `ids`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ids` (
+  `table_name` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `field_name` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `nextid` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`table_name`,`field_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `ids`
 --
 
 LOCK TABLES `ids` WRITE;
 /*!40000 ALTER TABLE `ids` DISABLE KEYS */;
-INSERT INTO `ids` VALUES ('actions','actionid',15),('application_template','application_templateid',14),('applications','applicationid',413),('auditlog','auditid',959),('auditlog_details','auditdetailid',106),('conditions','conditionid',31),('functions','functionid',13461),('globalmacro','globalmacroid',3),('graphs','graphid',590),('graphs_items','gitemid',1970),('groups','groupid',12),('hosts','hostid',10114),('hosts_groups','hostgroupid',122),('hosts_templates','hosttemplateid',6),('housekeeper','housekeeperid',4585),('httpstep','httpstepid',2),('httpstepitem','httpstepitemid',6),('httptest','httptestid',2),('httptestitem','httptestitemid',6),('interface','interfaceid',1),('item_condition','item_conditionid',26),('item_discovery','itemdiscoveryid',242),('items','itemid',24062),('items_applications','itemappid',6351),('mappings','mappingid',167),('media','mediaid',49),('opcommand_hst','opcommand_hstid',1),('opconditions','opconditionid',11),('operations','operationid',24),('opmessage_grp','opmessage_grpid',24),('opmessage_usr','opmessage_usrid',3),('optemplate','optemplateid',3),('profiles','profileid',160),('rights','rightid',81),('screens','screenid',21),('screens_items','screenitemid',69),('trigger_depends','triggerdepid',2),('triggers','triggerid',13785),('users','userid',27),('users_groups','id',48),('usrgrp','usrgrpid',22),('valuemaps','valuemapid',18);
+INSERT INTO `ids` VALUES ('actions','actionid',15),('application_template','application_templateid',14),('applications','applicationid',413),('auditlog','auditid',996),('auditlog_details','auditdetailid',106),('conditions','conditionid',31),('functions','functionid',13461),('globalmacro','globalmacroid',3),('graphs','graphid',590),('graphs_items','gitemid',1970),('groups','groupid',12),('hosts','hostid',10114),('hosts_groups','hostgroupid',122),('hosts_templates','hosttemplateid',6),('housekeeper','housekeeperid',4935),('httpstep','httpstepid',2),('httpstepitem','httpstepitemid',6),('httptest','httptestid',2),('httptestitem','httptestitemid',6),('interface','interfaceid',1),('item_condition','item_conditionid',26),('item_discovery','itemdiscoveryid',242),('items','itemid',24062),('items_applications','itemappid',6351),('mappings','mappingid',167),('media','mediaid',49),('opcommand_hst','opcommand_hstid',1),('opconditions','opconditionid',11),('operations','operationid',24),('opmessage_grp','opmessage_grpid',24),('opmessage_usr','opmessage_usrid',3),('optemplate','optemplateid',3),('profiles','profileid',160),('rights','rightid',81),('screens','screenid',21),('screens_items','screenitemid',69),('trigger_depends','triggerdepid',2),('triggers','triggerid',13785),('users','userid',27),('users_groups','id',48),('usrgrp','usrgrpid',22),('valuemaps','valuemapid',18);
 /*!40000 ALTER TABLE `ids` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `images`
+--
+
+DROP TABLE IF EXISTS `images`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `images` (
+  `imageid` bigint(20) unsigned NOT NULL,
+  `imagetype` int(11) NOT NULL DEFAULT '0',
+  `name` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '0',
+  `image` longblob NOT NULL,
+  PRIMARY KEY (`imageid`),
+  UNIQUE KEY `images_1` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `images`
@@ -489,14 +1713,54 @@ INSERT INTO `images` VALUES (1,1,'Cloud_(128)','�PNG\r\n\Z\n\0\0\0\rIHDR\0\0\0�\
 UNLOCK TABLES;
 
 --
+-- Table structure for table `interface`
+--
+
+DROP TABLE IF EXISTS `interface`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `interface` (
+  `interfaceid` bigint(20) unsigned NOT NULL,
+  `hostid` bigint(20) unsigned NOT NULL,
+  `main` int(11) NOT NULL DEFAULT '0',
+  `type` int(11) NOT NULL DEFAULT '0',
+  `useip` int(11) NOT NULL DEFAULT '1',
+  `ip` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '127.0.0.1',
+  `dns` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `port` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '10050',
+  `bulk` int(11) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`interfaceid`),
+  KEY `interface_1` (`hostid`,`type`),
+  KEY `interface_2` (`ip`,`dns`),
+  CONSTRAINT `c_interface_1` FOREIGN KEY (`hostid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `interface`
 --
 
 LOCK TABLES `interface` WRITE;
 /*!40000 ALTER TABLE `interface` DISABLE KEYS */;
-INSERT INTO `interface` VALUES (1,10114,1,1,1,'127.0.0.1','','10050',1);
 /*!40000 ALTER TABLE `interface` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `interface_discovery`
+--
+
+DROP TABLE IF EXISTS `interface_discovery`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `interface_discovery` (
+  `interfaceid` bigint(20) unsigned NOT NULL,
+  `parent_interfaceid` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`interfaceid`),
+  KEY `c_interface_discovery_2` (`parent_interfaceid`),
+  CONSTRAINT `c_interface_discovery_2` FOREIGN KEY (`parent_interfaceid`) REFERENCES `interface` (`interfaceid`) ON DELETE CASCADE,
+  CONSTRAINT `c_interface_discovery_1` FOREIGN KEY (`interfaceid`) REFERENCES `interface` (`interfaceid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `interface_discovery`
@@ -508,6 +1772,25 @@ LOCK TABLES `interface_discovery` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `item_application_prototype`
+--
+
+DROP TABLE IF EXISTS `item_application_prototype`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `item_application_prototype` (
+  `item_application_prototypeid` bigint(20) unsigned NOT NULL,
+  `application_prototypeid` bigint(20) unsigned NOT NULL,
+  `itemid` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`item_application_prototypeid`),
+  UNIQUE KEY `item_application_prototype_1` (`application_prototypeid`,`itemid`),
+  KEY `item_application_prototype_2` (`itemid`),
+  CONSTRAINT `c_item_application_prototype_2` FOREIGN KEY (`itemid`) REFERENCES `items` (`itemid`) ON DELETE CASCADE,
+  CONSTRAINT `c_item_application_prototype_1` FOREIGN KEY (`application_prototypeid`) REFERENCES `application_prototype` (`application_prototypeid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `item_application_prototype`
 --
 
@@ -517,14 +1800,55 @@ LOCK TABLES `item_application_prototype` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `item_condition`
+--
+
+DROP TABLE IF EXISTS `item_condition`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `item_condition` (
+  `item_conditionid` bigint(20) unsigned NOT NULL,
+  `itemid` bigint(20) unsigned NOT NULL,
+  `operator` int(11) NOT NULL DEFAULT '8',
+  `macro` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `value` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`item_conditionid`),
+  KEY `item_condition_1` (`itemid`),
+  CONSTRAINT `c_item_condition_1` FOREIGN KEY (`itemid`) REFERENCES `items` (`itemid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `item_condition`
 --
 
 LOCK TABLES `item_condition` WRITE;
 /*!40000 ALTER TABLE `item_condition` DISABLE KEYS */;
-INSERT INTO `item_condition` VALUES (21,23930,8,'{#DISK}','^(sd.*|dm.*)$'),(23,23932,8,'{#FSTYPE}','@File systems for discovery'),(26,24034,8,'{#FSTYPE}','@File systems for discovery');
+INSERT INTO `item_condition` VALUES (21,23930,8,'{#DISK}','^(sd.*|dm.*)$'),(23,23932,8,'{#FSTYPE}','@File systems for discovery');
 /*!40000 ALTER TABLE `item_condition` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `item_discovery`
+--
+
+DROP TABLE IF EXISTS `item_discovery`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `item_discovery` (
+  `itemdiscoveryid` bigint(20) unsigned NOT NULL,
+  `itemid` bigint(20) unsigned NOT NULL,
+  `parent_itemid` bigint(20) unsigned NOT NULL,
+  `key_` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `lastcheck` int(11) NOT NULL DEFAULT '0',
+  `ts_delete` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`itemdiscoveryid`),
+  UNIQUE KEY `item_discovery_1` (`itemid`,`parent_itemid`),
+  KEY `item_discovery_2` (`parent_itemid`),
+  CONSTRAINT `c_item_discovery_2` FOREIGN KEY (`parent_itemid`) REFERENCES `items` (`itemid`) ON DELETE CASCADE,
+  CONSTRAINT `c_item_discovery_1` FOREIGN KEY (`itemid`) REFERENCES `items` (`itemid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `item_discovery`
@@ -532,9 +1856,77 @@ UNLOCK TABLES;
 
 LOCK TABLES `item_discovery` WRITE;
 /*!40000 ALTER TABLE `item_discovery` DISABLE KEYS */;
-INSERT INTO `item_discovery` VALUES (189,23937,23929,'',0,0),(192,23940,23929,'',0,0),(193,23941,23929,'',0,0),(198,23946,23930,'',0,0),(201,23949,23930,'',0,0),(204,23952,23932,'',0,0),(205,23953,23932,'',0,0),(206,23954,23932,'',0,0),(208,23956,23932,'',0,0),(216,23964,23935,'',0,0),(217,23965,23935,'',0,0),(218,23966,23935,'',0,0),(219,23967,23935,'',0,0),(220,23968,23935,'',0,0),(221,23969,23935,'',0,0),(222,23970,23935,'',0,0),(223,23971,23935,'',0,0),(224,23972,23936,'',0,0),(225,23973,23936,'',0,0),(226,23974,23936,'',0,0),(227,23975,23936,'',0,0),(228,23976,23936,'',0,0),(229,23977,23936,'',0,0),(230,23978,23936,'',0,0),(231,23979,23936,'',0,0),(232,23998,23997,'',0,0),(233,23999,23997,'',0,0),(234,24001,24000,'',0,0),(235,24002,24000,'',0,0),(236,24003,24000,'',0,0),(237,24004,24000,'',0,0),(238,24005,24000,'',0,0),(239,24035,24034,'',0,0),(240,24036,24034,'',0,0),(241,24037,24034,'',0,0),(242,24038,24034,'',0,0);
+INSERT INTO `item_discovery` VALUES (189,23937,23929,'',0,0),(192,23940,23929,'',0,0),(193,23941,23929,'',0,0),(198,23946,23930,'',0,0),(201,23949,23930,'',0,0),(204,23952,23932,'',0,0),(205,23953,23932,'',0,0),(206,23954,23932,'',0,0),(208,23956,23932,'',0,0),(216,23964,23935,'',0,0),(217,23965,23935,'',0,0),(218,23966,23935,'',0,0),(219,23967,23935,'',0,0),(220,23968,23935,'',0,0),(221,23969,23935,'',0,0),(222,23970,23935,'',0,0),(223,23971,23935,'',0,0),(224,23972,23936,'',0,0),(225,23973,23936,'',0,0),(226,23974,23936,'',0,0),(227,23975,23936,'',0,0),(228,23976,23936,'',0,0),(229,23977,23936,'',0,0),(230,23978,23936,'',0,0),(231,23979,23936,'',0,0),(232,23998,23997,'',0,0),(233,23999,23997,'',0,0),(234,24001,24000,'',0,0),(235,24002,24000,'',0,0),(236,24003,24000,'',0,0),(237,24004,24000,'',0,0),(238,24005,24000,'',0,0);
 /*!40000 ALTER TABLE `item_discovery` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `items`
+--
+
+DROP TABLE IF EXISTS `items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `items` (
+  `itemid` bigint(20) unsigned NOT NULL,
+  `type` int(11) NOT NULL DEFAULT '0',
+  `snmp_community` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `snmp_oid` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `hostid` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `key_` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `delay` int(11) NOT NULL DEFAULT '0',
+  `history` int(11) NOT NULL DEFAULT '90',
+  `trends` int(11) NOT NULL DEFAULT '365',
+  `status` int(11) NOT NULL DEFAULT '0',
+  `value_type` int(11) NOT NULL DEFAULT '0',
+  `trapper_hosts` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `units` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `multiplier` int(11) NOT NULL DEFAULT '0',
+  `delta` int(11) NOT NULL DEFAULT '0',
+  `snmpv3_securityname` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `snmpv3_securitylevel` int(11) NOT NULL DEFAULT '0',
+  `snmpv3_authpassphrase` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `snmpv3_privpassphrase` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `formula` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `error` varchar(2048) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `lastlogsize` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `logtimefmt` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `templateid` bigint(20) unsigned DEFAULT NULL,
+  `valuemapid` bigint(20) unsigned DEFAULT NULL,
+  `delay_flex` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `params` text COLLATE utf8_bin NOT NULL,
+  `ipmi_sensor` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `data_type` int(11) NOT NULL DEFAULT '0',
+  `authtype` int(11) NOT NULL DEFAULT '0',
+  `username` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `password` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `publickey` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `privatekey` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `mtime` int(11) NOT NULL DEFAULT '0',
+  `flags` int(11) NOT NULL DEFAULT '0',
+  `interfaceid` bigint(20) unsigned DEFAULT NULL,
+  `port` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `description` text COLLATE utf8_bin NOT NULL,
+  `inventory_link` int(11) NOT NULL DEFAULT '0',
+  `lifetime` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '30',
+  `snmpv3_authprotocol` int(11) NOT NULL DEFAULT '0',
+  `snmpv3_privprotocol` int(11) NOT NULL DEFAULT '0',
+  `state` int(11) NOT NULL DEFAULT '0',
+  `snmpv3_contextname` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `evaltype` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`itemid`),
+  UNIQUE KEY `items_1` (`hostid`,`key_`),
+  KEY `items_3` (`status`),
+  KEY `items_4` (`templateid`),
+  KEY `items_5` (`valuemapid`),
+  KEY `items_6` (`interfaceid`),
+  CONSTRAINT `c_items_4` FOREIGN KEY (`interfaceid`) REFERENCES `interface` (`interfaceid`),
+  CONSTRAINT `c_items_1` FOREIGN KEY (`hostid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE,
+  CONSTRAINT `c_items_2` FOREIGN KEY (`templateid`) REFERENCES `items` (`itemid`) ON DELETE CASCADE,
+  CONSTRAINT `c_items_3` FOREIGN KEY (`valuemapid`) REFERENCES `valuemaps` (`valuemapid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `items`
@@ -542,9 +1934,28 @@ UNLOCK TABLES;
 
 LOCK TABLES `items` WRITE;
 /*!40000 ALTER TABLE `items` DISABLE KEYS */;
-INSERT INTO `items` VALUES (23679,0,'','',10085,'Ceph Volumes Read Speed','ceph.osd_volumes_read',60,3,365,0,3,'','B/s',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23680,0,'','',10085,'Ceph Volumes Write Speed','ceph.osd_volumes_write',60,3,365,0,3,'','B/s',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23710,0,'','',10088,'status','haproxy.status',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23713,0,'','',10091,'MySQL status','mysql.ping',60,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,1,'','','',0,0,'','','','',0,0,NULL,'','It requires user parameter mysql.ping, which is defined in userparameter_mysql.conf.\r\n\r\n0 - MySQL server is down\r\n1 - MySQL server is up',0,'30',0,0,0,'',0),(23714,0,'','',10091,'MySQL Process Num','mysql.processnum',60,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23729,0,'','',10093,'RabbitMQ Messages Ready','rabbitmq.messages_ready',60,7,30,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23730,0,'','',10093,'RabbitMQ Messages Unacknowledged','rabbitmq.messages_unacknowledged',60,7,30,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23731,0,'','',10093,'RabbitMQ Sockets Used','rabbitmq.sockets_used',60,7,30,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23732,0,'','',10093,'RabbitMQ Systemctl Status','rabbitmq.status',60,7,30,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',3,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23735,0,'','',10096,'Host name of zabbix_agentd running','agent.hostname',86400,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23736,0,'','',10096,'Agent ping','agent.ping',120,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,10,'','','',0,0,'','','','',0,0,NULL,'','The agent always returns 1 for this item. It could be used in combination with nodata() for availability check.',0,'30',0,0,0,'',0),(23737,0,'','',10096,'Version of zabbix_agent(d) running','agent.version',86400,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23738,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,configuration syncer,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23739,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,data sender,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23740,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,discoverer,avg,busy]',60,3,365,0,0,'localhost','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23741,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,heartbeat sender,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23742,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,history syncer,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23743,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,housekeeper,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23744,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,http poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23745,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,icmp pinger,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23746,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,ipmi poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23747,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,java poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23748,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,poller,avg,busy]',60,3,365,0,0,'localhost','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23749,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,self-monitoring,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23750,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,snmp trapper,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23751,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,trapper,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23752,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,unreachable poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23753,5,'','',10097,'Zabbix queue over $2','zabbix[queue,10m]',600,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23754,5,'','',10097,'Zabbix queue','zabbix[queue]',60,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23755,5,'','',10097,'Zabbix configuration cache, % free','zabbix[rcache,buffer,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23756,5,'','',10097,'Zabbix $2 write cache, % free','zabbix[wcache,history,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23757,5,'','',10097,'Zabbix history index cache, % free','zabbix[wcache,index,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23758,5,'','',10097,'Values processed by Zabbix proxy per second','zabbix[wcache,values]',60,3,365,0,0,'','',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23759,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,alerter,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23760,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,configuration syncer,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23761,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,db watchdog,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23762,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,discoverer,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23763,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,escalator,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23764,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,history syncer,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23765,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,housekeeper,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23766,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,http poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23767,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,icmp pinger,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23770,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23771,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,proxy poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23772,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,self-monitoring,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23774,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,timer,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23775,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,trapper,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23776,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,unreachable poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23778,5,'','',10098,'Zabbix queue over $2','zabbix[queue,10m]',600,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23779,5,'','',10098,'Zabbix queue','zabbix[queue]',600,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23780,5,'','',10098,'Zabbix configuration cache, % free','zabbix[rcache,buffer,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23781,5,'','',10098,'Zabbix value cache, % free','zabbix[vcache,buffer,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23782,5,'','',10098,'Zabbix value cache hits','zabbix[vcache,cache,hits]',60,3,365,0,0,'','vps',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23783,5,'','',10098,'Zabbix value cache misses','zabbix[vcache,cache,misses]',60,3,365,0,0,'','vps',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23784,5,'','',10098,'Zabbix value cache operating mode','zabbix[vcache,cache,mode]',60,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,15,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23786,5,'','',10098,'Zabbix $2 write cache, % free','zabbix[wcache,history,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23787,5,'','',10098,'Zabbix history index cache, % free','zabbix[wcache,index,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23788,5,'','',10098,'Zabbix $2 write cache, % free','zabbix[wcache,trend,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23789,5,'','',10098,'Values processed by Zabbix server per second','zabbix[wcache,values]',60,3,365,0,0,'','',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23790,3,'','',10099,'ICMP ping','icmpping',60,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,1,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23791,3,'','',10099,'ICMP loss','icmppingloss',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23792,3,'','',10099,'ICMP response time','icmppingsec',60,3,365,0,0,'','s',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23793,0,'','',10101,'openstack-dashboard','openstack.dashboard.status',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23794,0,'','',10101,'dbus','openstack.status[dbus]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23795,0,'','',10101,'libvirtd','openstack.status[libvirtd]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23796,0,'','',10101,'memcached','openstack.status[memcached]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23797,0,'','',10101,'neutron-dhcp-agent','openstack.status[neutron-dhcp-agent]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23798,0,'','',10101,'neutron-l3-agent','openstack.status[neutron-l3-agent]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23799,0,'','',10101,'neutron-lbaas-agent','openstack.status[neutron-lbaas-agent]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23800,0,'','',10101,'neutron-metadata-agent','openstack.status[neutron-metadata-agent]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23801,0,'','',10101,'neutron-server','openstack.status[neutron-server]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23802,0,'','',10101,'openstack-cinder-api','openstack.status[openstack-cinder-api]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23803,0,'','',10101,'openstack-cinder-backup','openstack.status[openstack-cinder-backup]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23804,0,'','',10101,'openstack-cinder-scheduler','openstack.status[openstack-cinder-scheduler]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23805,0,'','',10101,'openstack-cinder-volume','openstack.status[openstack-cinder-volume]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23806,0,'','',10101,'openstack-glance-api','openstack.status[openstack-glance-api]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23807,0,'','',10101,'openstack-glance-registry','openstack.status[openstack-glance-registry]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23808,0,'','',10101,'openstack-keystone','openstack.status[openstack-keystone]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23809,0,'','',10101,'openstack-nova-api','openstack.status[openstack-nova-api]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23810,0,'','',10101,'openstack-nova-cert','openstack.status[openstack-nova-cert]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23811,0,'','',10101,'openstack-nova-compute','openstack.status[openstack-nova-compute]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23812,0,'','',10101,'openstack-nova-conductor','openstack.status[openstack-nova-conductor]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23813,0,'','',10101,'openstack-nova-network','openstack.status[openstack-nova-network]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23814,0,'','',10101,'openvswitch','openstack.status[openvswitch]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23815,0,'','',10101,'rabbitmq-server','openstack.status[rabbitmq-server]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23816,0,'','',10101,'target','openstack.status[target]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23817,0,'','',10102,'dbus','openstack.status[dbus]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23818,0,'','',10102,'libvirtd','openstack.status[libvirtd]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23823,0,'','',10102,'neutron-metadata-agent','openstack.status[neutron-metadata-agent]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23824,0,'','',10102,'neutron-openvswitch-agent','openstack.status[neutron-openvswitch-agent]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23827,0,'','',10102,'openstack-nova-compute','openstack.status[openstack-nova-compute]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23830,0,'','',10102,'openvswitch','openstack.status[openvswitch]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23833,0,'','',10103,'dbus','openstack.status[dbus]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23834,0,'','',10103,'memcached','openstack.status[memcached]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23835,0,'','',10103,'neutron-server','openstack.status[neutron-server]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23836,0,'','',10103,'openstack-cinder-api','openstack.status[openstack-cinder-api]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23837,0,'','',10103,'openstack-cinder-volume','openstack.status[openstack-cinder-volume]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23838,0,'','',10103,'openstack-glance-api','openstack.status[openstack-glance-api]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23839,0,'','',10103,'openstack-glance-registry','openstack.status[openstack-glance-registry]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23840,0,'','',10103,'openstack-keystone','openstack.status[openstack-keystone]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23841,0,'','',10103,'openstack-nova-api','openstack.status[openstack-nova-api]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23842,0,'','',10103,'openstack-nova-cert','openstack.status[openstack-nova-cert]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23843,0,'','',10103,'openstack-nova-conductor','openstack.status[openstack-nova-conductor]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23845,0,'','',10103,'target','openstack.status[target]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23846,13,'','',10103,'openstack net-list','ssh.run[openstack cmd,{HOST.NAME},22,]',60,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,18,'','source /root/keystonerc_admin && nova net-list | grep -c fx_pub_net','',3,0,'root','RDC','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23847,0,'','',10104,'dbus','openstack.status[dbus]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23848,0,'','',10104,'neutron-dhcp-agent','openstack.status[neutron-dhcp-agent]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23849,0,'','',10104,'neutron-l3-agent','openstack.status[neutron-l3-agent]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23850,0,'','',10104,'neutron-metadata-agent','openstack.status[neutron-metadata-agent]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23851,0,'','',10104,'neutron-openvswitch-agent','openstack.status[neutron-openvswitch-agent]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23852,0,'','',10104,'openvswitch','openstack.status[openvswitch]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23855,0,'','',10107,'Number of running processes','proc.num[,,run]',120,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','Number of processes in running state.',0,'30',0,0,0,'',0),(23856,0,'','',10107,'Number of processes','proc.num[]',120,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','Total number of processes in any state.',0,'30',0,0,0,'',0),(23858,0,'','',10107,'Interrupts per second','system.cpu.intr',120,3,365,0,3,'','ips',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23859,0,'','',10107,'Processor load (1 min average per core)','system.cpu.load[percpu,avg1]',120,3,365,0,0,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The processor load is calculated as system CPU load divided by number of CPU cores.',0,'30',0,0,0,'',0),(23860,0,'','',10107,'Processor load (5 min average per core)','system.cpu.load[percpu,avg5]',120,3,365,0,0,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The processor load is calculated as system CPU load divided by number of CPU cores.',0,'30',0,0,0,'',0),(23861,0,'','',10107,'Processor load (15 min average per core)','system.cpu.load[percpu,avg15]',120,3,365,0,0,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The processor load is calculated as system CPU load divided by number of CPU cores.',0,'30',0,0,0,'',0),(23862,0,'','',10107,'Context switches per second','system.cpu.switches',120,3,365,0,3,'','sps',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23863,0,'','',10107,'CPU $2 time','system.cpu.util[,idle]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The time the CPU has spent doing nothing.',0,'30',0,0,0,'',0),(23864,0,'','',10107,'CPU $2 time','system.cpu.util[,interrupt]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The amount of time the CPU has been servicing hardware interrupts.',0,'30',0,0,0,'',0),(23865,0,'','',10107,'CPU $2 time','system.cpu.util[,iowait]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','Amount of time the CPU has been waiting for I/O to complete.',0,'30',0,0,0,'',0),(23866,0,'','',10107,'CPU $2 time','system.cpu.util[,nice]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The time the CPU has spent running users\' processes that have been niced.',0,'30',0,0,0,'',0),(23867,0,'','',10107,'CPU $2 time','system.cpu.util[,softirq]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The amount of time the CPU has been servicing software interrupts.',0,'30',0,0,0,'',0),(23868,0,'','',10107,'CPU $2 time','system.cpu.util[,steal]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The amount of CPU \'stolen\' from this virtual machine by the hypervisor for other tasks (such as running another virtual machine).',0,'30',0,0,0,'',0),(23869,0,'','',10107,'CPU $2 time','system.cpu.util[,system]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The time the CPU has spent running the kernel and its processes.',0,'30',0,0,0,'',0),(23870,0,'','',10107,'CPU $2 time','system.cpu.util[,user]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The time the CPU has spent running users\' processes that are not niced.',0,'30',0,0,0,'',0),(23874,0,'','',10107,'Free swap space in %','system.swap.size[,pfree]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23875,0,'','',10107,'Total swap space','system.swap.size[,total]',86400,3,365,0,3,'','B',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23879,0,'','',10107,'Checksum of $1','vfs.file.cksum[/etc/passwd]',3600,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23880,0,'','',10107,'Available memory','vm.memory.size[available]',120,3,365,0,3,'','B',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','Available memory is defined as free+cached+buffers memory.',0,'30',0,0,0,'',0),(23881,0,'','',10107,'Total memory','vm.memory.size[total]',86400,3,365,0,3,'','B',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23911,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysContact.0',10105,'Device contact details','sysContact',3600,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The textual identification of the contact person for this managed node, together with information on how to contact this person.  If no contact information is known, the value is the zero-length string.',23,'30',0,0,0,'',0),(23912,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysDescr.0',10105,'Device description','sysDescr',3600,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','A textual description of the entity.  This value should include the full name and version identification of the system\'s hardware type, software operating-system, and networking software.',14,'30',0,0,0,'',0),(23913,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysLocation.0',10105,'Device location','sysLocation',3600,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The physical location of this node (e.g., `telephone closet, 3rd floor\').  If the location is unknown, the value is the zero-length string.',24,'30',0,0,0,'',0),(23914,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysName.0',10105,'Device name','sysName',3600,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','An administratively-assigned name for this managed node. By convention, this is the node\'s fully-qualified domain name.  If the name is unknown, the value is the zero-length string.',3,'30',0,0,0,'',0),(23915,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysUpTime.0',10105,'Device uptime','sysUpTime',3600,7,365,0,3,'','uptime',1,0,'',0,'','','0.01','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The time since the network management portion of the system was last re-initialized.',0,'30',0,0,0,'',0),(23916,4,'{$SNMP_COMMUNITY}','IF-MIB::ifNumber.0',10106,'Number of network interfaces','ifNumber',3600,7,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The number of network interfaces (regardless of their current state) present on this system.',0,'30',0,0,0,'',0),(23917,0,'','',10107,'Host name of zabbix_agentd running','agent.hostname',86400,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',23735,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23918,0,'','',10107,'Agent ping','agent.ping',120,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',23736,10,'','','',0,0,'','','','',0,0,NULL,'','The agent always returns 1 for this item. It could be used in combination with nodata() for availability check.',0,'30',0,0,0,'',0),(23919,0,'','',10107,'Version of zabbix_agent(d) running','agent.version',86400,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',23737,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23923,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysContact.0',10109,'Device contact details','sysContact',3600,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',23911,NULL,'','','',0,0,'','','','',0,0,NULL,'','The textual identification of the contact person for this managed node, together with information on how to contact this person.  If no contact information is known, the value is the zero-length string.',23,'30',0,0,0,'',0),(23924,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysDescr.0',10109,'Device description','sysDescr',3600,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',23912,NULL,'','','',0,0,'','','','',0,0,NULL,'','A textual description of the entity.  This value should include the full name and version identification of the system\'s hardware type, software operating-system, and networking software.',14,'30',0,0,0,'',0),(23925,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysLocation.0',10109,'Device location','sysLocation',3600,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',23913,NULL,'','','',0,0,'','','','',0,0,NULL,'','The physical location of this node (e.g., `telephone closet, 3rd floor\').  If the location is unknown, the value is the zero-length string.',24,'30',0,0,0,'',0),(23926,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysName.0',10109,'Device name','sysName',3600,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',23914,NULL,'','','',0,0,'','','','',0,0,NULL,'','An administratively-assigned name for this managed node. By convention, this is the node\'s fully-qualified domain name.  If the name is unknown, the value is the zero-length string.',3,'30',0,0,0,'',0),(23927,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysUpTime.0',10109,'Device uptime','sysUpTime',3600,7,365,0,3,'','uptime',1,0,'',0,'','','0.01','',0,'',23915,NULL,'','','',0,0,'','','','',0,0,NULL,'','The time since the network management portion of the system was last re-initialized.',0,'30',0,0,0,'',0),(23928,4,'{$SNMP_COMMUNITY}','IF-MIB::ifNumber.0',10109,'Number of network interfaces','ifNumber',3600,7,365,0,3,'','',0,0,'',0,'','','1','',0,'',23916,NULL,'','','',0,0,'','','','',0,0,NULL,'','The number of network interfaces (regardless of their current state) present on this system.',0,'30',0,0,0,'',0),(23929,0,'','',10086,'Ceph OSD Discovery','ceph.osd_discovery',3600,90,0,0,4,'','',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,1,NULL,'','',0,'1',0,0,0,'',0),(23930,0,'','',10100,'Disk device discovery','custom.vfs.dev.discovery',3600,90,0,0,4,'','',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,1,NULL,'','Discovery of disk devices on Linux',0,'1',0,0,0,'',0),(23932,0,'','',10107,'Mounted filesystem discovery','vfs.fs.discovery',3600,90,0,0,4,'','',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,1,NULL,'','Discovery of file systems of different types as defined in global regular expression \"File systems for discovery\".',0,'1',0,0,0,'',0),(23935,4,'{$SNMP_COMMUNITY}','discovery[{#SNMPVALUE},IF-MIB::ifDescr]',10106,'Network interfaces','ifDescr',3600,90,0,0,4,'','',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,1,NULL,'','You may also consider using IF-MIB::ifType or IF-MIB::ifAlias for discovery depending on your filtering needs.\r\n\r\n{$SNMP_COMMUNITY} is a global macro.',0,'1',0,0,0,'',0),(23936,4,'{$SNMP_COMMUNITY}','discovery[{#SNMPVALUE},IF-MIB::ifDescr]',10109,'Network interfaces','ifDescr',3600,90,0,0,4,'','',0,0,'',0,'','','','',0,'',23935,NULL,'','','',0,0,'','','','',0,1,NULL,'','You may also consider using IF-MIB::ifType or IF-MIB::ifAlias for discovery depending on your filtering needs.\r\n\r\n{$SNMP_COMMUNITY} is a global macro.',0,'1',0,0,0,'',0),(23937,0,'','',10086,'Status of osd.{#OSD_NAME}','ceph.osd_status[{#OSD_NAME}]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23940,0,'','',10086,'fs apply latency of osd.{#OSD_NAME}','ceph.perf_apply[{#OSD_NAME}]',60,3,365,0,3,'','ms',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23941,0,'','',10086,'fs commit latency of osd.{#OSD_NAME}','ceph.perf_commit[{#OSD_NAME}]',60,3,365,0,3,'','ms',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23946,0,'','',10100,'Disk:{#DISK}:sectors read per second','custom.vfs.dev.read.sectors[{#DISK}]',60,3,365,0,3,'','Rs/s',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23949,0,'','',10100,'Disk:{#DISK}:sectors written per second','custom.vfs.dev.write.sectors[{#DISK}]',60,3,365,0,3,'','Ws/s',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23952,0,'','',10107,'Free inodes on $1 (percentage)','vfs.fs.inode[{#FSNAME},pfree]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23953,0,'','',10107,'Free disk space on $1','vfs.fs.size[{#FSNAME},free]',120,3,365,0,3,'','B',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23954,0,'','',10107,'Free disk space on $1 (percentage)','vfs.fs.size[{#FSNAME},pfree]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23956,0,'','',10107,'Used disk space on $1','vfs.fs.size[{#FSNAME},used]',120,3,365,0,3,'','B',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23964,4,'{$SNMP_COMMUNITY}','IF-MIB::ifAdminStatus.{#SNMPINDEX}',10106,'Admin status of interface $1','ifAdminStatus[{#SNMPVALUE}]',120,7,14,1,3,'','',0,0,'',0,'','','1','',0,'',NULL,11,'','','',0,0,'','','','',0,2,NULL,'','The desired state of the interface.',0,'30',0,0,0,'',0),(23965,4,'{$SNMP_COMMUNITY}','IF-MIB::ifAlias.{#SNMPINDEX}',10106,'Alias of interface $1','ifAlias[{#SNMPVALUE}]',86400,3,0,1,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23966,4,'{$SNMP_COMMUNITY}','IF-MIB::ifDescr.{#SNMPINDEX}',10106,'Description of interface $1','ifDescr[{#SNMPVALUE}]',86400,3,0,1,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','A textual string containing information about the interface.  This string should include the name of the manufacturer, the product name and the version of the interface hardware/software.',0,'30',0,0,0,'',0),(23967,4,'{$SNMP_COMMUNITY}','IF-MIB::ifInErrors.{#SNMPINDEX}',10106,'Inbound errors on interface $1','ifInErrors[{#SNMPVALUE}]',120,7,14,1,3,'','',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','For packet-oriented interfaces, the number of inbound packets that contained errors preventing them from being deliverable to a higher-layer protocol.  For character-oriented or fixed-length interfaces, the number of inbound transmission units that contained errors preventing them from being deliverable to a higher-layer protocol.',0,'30',0,0,0,'',0),(23968,4,'{$SNMP_COMMUNITY}','IF-MIB::ifInOctets.{#SNMPINDEX}',10106,'Incoming traffic on interface $1','ifInOctets[{#SNMPVALUE}]',120,7,14,0,3,'','bps',1,1,'',0,'','','8','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','The number of octets in valid MAC frames received on this interface, including the MAC header and FCS.',0,'30',0,0,0,'',0),(23969,4,'{$SNMP_COMMUNITY}','IF-MIB::ifOperStatus.{#SNMPINDEX}',10106,'Operational status of interface $1','ifOperStatus[{#SNMPVALUE}]',120,7,14,1,3,'','',0,0,'',0,'','','1','',0,'',NULL,8,'','','',0,0,'','','','',0,2,NULL,'','The current operational state of the interface.',0,'30',0,0,0,'',0),(23970,4,'{$SNMP_COMMUNITY}','IF-MIB::ifOutErrors.{#SNMPINDEX}',10106,'Outbound errors on interface $1','ifOutErrors[{#SNMPVALUE}]',120,7,14,1,3,'','',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','For packet-oriented interfaces, the number of outbound packets that could not be transmitted because of errors. For character-oriented or fixed-length interfaces, the number of outbound transmission units that could not be transmitted because of errors.',0,'30',0,0,0,'',0),(23971,4,'{$SNMP_COMMUNITY}','IF-MIB::ifOutOctets.{#SNMPINDEX}',10106,'Outgoing traffic on interface $1','ifOutOctets[{#SNMPVALUE}]',120,7,14,0,3,'','bps',1,1,'',0,'','','8','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','The number of octets transmitted in MAC frames on this interface, including the MAC header and FCS.',0,'30',0,0,0,'',0),(23972,4,'{$SNMP_COMMUNITY}','IF-MIB::ifAdminStatus.{#SNMPINDEX}',10109,'Admin status of interface $1','ifAdminStatus[{#SNMPVALUE}]',120,7,14,1,3,'','',0,0,'',0,'','','1','',0,'',23964,11,'','','',0,0,'','','','',0,2,NULL,'','The desired state of the interface.',0,'30',0,0,0,'',0),(23973,4,'{$SNMP_COMMUNITY}','IF-MIB::ifAlias.{#SNMPINDEX}',10109,'Alias of interface $1','ifAlias[{#SNMPVALUE}]',86400,3,0,1,1,'','',0,0,'',0,'','','1','',0,'',23965,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23974,4,'{$SNMP_COMMUNITY}','IF-MIB::ifDescr.{#SNMPINDEX}',10109,'Description of interface $1','ifDescr[{#SNMPVALUE}]',86400,3,0,1,1,'','',0,0,'',0,'','','1','',0,'',23966,NULL,'','','',0,0,'','','','',0,2,NULL,'','A textual string containing information about the interface.  This string should include the name of the manufacturer, the product name and the version of the interface hardware/software.',0,'30',0,0,0,'',0),(23975,4,'{$SNMP_COMMUNITY}','IF-MIB::ifInErrors.{#SNMPINDEX}',10109,'Inbound errors on interface $1','ifInErrors[{#SNMPVALUE}]',120,7,14,1,3,'','',0,1,'',0,'','','1','',0,'',23967,NULL,'','','',0,0,'','','','',0,2,NULL,'','For packet-oriented interfaces, the number of inbound packets that contained errors preventing them from being deliverable to a higher-layer protocol.  For character-oriented or fixed-length interfaces, the number of inbound transmission units that contained errors preventing them from being deliverable to a higher-layer protocol.',0,'30',0,0,0,'',0),(23976,4,'{$SNMP_COMMUNITY}','IF-MIB::ifInOctets.{#SNMPINDEX}',10109,'Incoming traffic on interface $1','ifInOctets[{#SNMPVALUE}]',120,7,14,0,3,'','bps',1,1,'',0,'','','8','',0,'',23968,NULL,'','','',0,0,'','','','',0,2,NULL,'','The number of octets in valid MAC frames received on this interface, including the MAC header and FCS.',0,'30',0,0,0,'',0),(23977,4,'{$SNMP_COMMUNITY}','IF-MIB::ifOperStatus.{#SNMPINDEX}',10109,'Operational status of interface $1','ifOperStatus[{#SNMPVALUE}]',120,7,14,1,3,'','',0,0,'',0,'','','1','',0,'',23969,8,'','','',0,0,'','','','',0,2,NULL,'','The current operational state of the interface.',0,'30',0,0,0,'',0),(23978,4,'{$SNMP_COMMUNITY}','IF-MIB::ifOutErrors.{#SNMPINDEX}',10109,'Outbound errors on interface $1','ifOutErrors[{#SNMPVALUE}]',120,7,14,1,3,'','',0,1,'',0,'','','1','',0,'',23970,NULL,'','','',0,0,'','','','',0,2,NULL,'','For packet-oriented interfaces, the number of outbound packets that could not be transmitted because of errors. For character-oriented or fixed-length interfaces, the number of outbound transmission units that could not be transmitted because of errors.',0,'30',0,0,0,'',0),(23979,4,'{$SNMP_COMMUNITY}','IF-MIB::ifOutOctets.{#SNMPINDEX}',10109,'Outgoing traffic on interface $1','ifOutOctets[{#SNMPVALUE}]',120,7,14,0,3,'','bps',1,1,'',0,'','','8','',0,'',23971,NULL,'','','',0,0,'','','','',0,2,NULL,'','The number of octets transmitted in MAC frames on this interface, including the MAC header and FCS.',0,'30',0,0,0,'',0),(23986,9,'','',10103,'Download speed for scenario \"$1\".','web.test.in[OpenStack Dashboard,,bps]',60,30,90,0,0,'','Bps',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23987,9,'','',10103,'Failed step of scenario \"$1\".','web.test.fail[OpenStack Dashboard]',60,30,90,0,3,'','',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23988,9,'','',10103,'Last error message of scenario \"$1\".','web.test.error[OpenStack Dashboard]',60,30,90,0,1,'','',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23989,9,'','',10103,'Download speed for step \"$2\" of scenario \"$1\".','web.test.in[OpenStack Dashboard,index,bps]',60,30,90,0,0,'','Bps',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23990,9,'','',10103,'Response time for step \"$2\" of scenario \"$1\".','web.test.time[OpenStack Dashboard,index,resp]',60,30,90,0,0,'','s',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23991,9,'','',10103,'Response code for step \"$2\" of scenario \"$1\".','web.test.rspcode[OpenStack Dashboard,index]',60,30,90,0,3,'','',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23992,0,'','',10085,'Ceph Write Speed','ceph.wrbps',60,3,365,0,3,'','B/s',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23993,0,'','',10085,'Ceph Read Speed','ceph.rdbps',60,3,365,0,3,'','B/s',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23994,0,'','',10085,'Ceph Operation','ceph.ops',60,3,365,0,3,'','op/s',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23995,3,'','',10110,'SSH service is running','net.tcp.service[ssh]',60,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,1,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23996,0,'','',10111,'Test','vfs.file.exists[/opt/test]',60,1,7,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',3,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23997,0,'','',10112,'Network interface discovery','net.if.discovery',3600,90,0,0,4,'','',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,1,NULL,'','Discovery of network interfaces as defined in global regular expression \"Network interfaces for discovery\".',0,'1',0,0,0,'',0),(23998,0,'','',10112,'Incoming network traffic on $1','net.if.in[{#IFNAME}]',60,3,365,0,3,'','bps',1,1,'',0,'','','8','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23999,0,'','',10112,'Outgoing network traffic on $1','net.if.out[{#IFNAME}]',60,3,365,0,3,'','bps',1,1,'',0,'','','8','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(24000,0,'','',10113,'Instances Discovery','instance.discovery',600,90,0,0,4,'','',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,1,NULL,'','',0,'0',0,0,0,'',0),(24001,0,'','',10113,'{#UUID} Disk Read Speed','instance.operation[{#UUID},disk_read]',60,3,365,0,3,'','b/s',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(24002,0,'','',10113,'{#UUID} Disk Write Speed','instance.operation[{#UUID},disk_write]',60,3,365,0,3,'','b/s',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(24003,0,'','',10113,'{#UUID} Interface Read Speed','instance.operation[{#UUID},interface_read]',60,3,365,0,3,'','b/s',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(24004,0,'','',10113,'{#UUID} Interface Write Speed','instance.operation[{#UUID},interface_write]',60,3,365,0,3,'','b/s',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(24005,0,'','',10113,'{#UUID} State','instance.operation[{#UUID},state]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(24006,0,'','',10085,'Ceph rados free space','ceph.rados_free',3600,3,365,0,3,'','B',1,0,'',0,'','','1024','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24007,0,'','',10107,'Checksum of $1','vfs.file.cksum[/etc/shadow]',3600,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24008,5,'','',10114,'Zabbix $4 $2 processes, in %','zabbix[process,alerter,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23759,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24009,5,'','',10114,'Zabbix $4 $2 processes, in %','zabbix[process,configuration syncer,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23760,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24010,5,'','',10114,'Zabbix $4 $2 processes, in %','zabbix[process,db watchdog,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23761,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24011,5,'','',10114,'Zabbix $4 $2 processes, in %','zabbix[process,discoverer,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23762,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24012,5,'','',10114,'Zabbix $4 $2 processes, in %','zabbix[process,escalator,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23763,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24013,5,'','',10114,'Zabbix $4 $2 processes, in %','zabbix[process,history syncer,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23764,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24014,5,'','',10114,'Zabbix $4 $2 processes, in %','zabbix[process,housekeeper,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23765,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24015,5,'','',10114,'Zabbix $4 $2 processes, in %','zabbix[process,http poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23766,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24016,5,'','',10114,'Zabbix $4 $2 processes, in %','zabbix[process,icmp pinger,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23767,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24017,5,'','',10114,'Zabbix $4 $2 processes, in %','zabbix[process,poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23770,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24018,5,'','',10114,'Zabbix $4 $2 processes, in %','zabbix[process,proxy poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23771,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24019,5,'','',10114,'Zabbix $4 $2 processes, in %','zabbix[process,self-monitoring,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23772,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24020,5,'','',10114,'Zabbix $4 $2 processes, in %','zabbix[process,timer,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23774,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24021,5,'','',10114,'Zabbix $4 $2 processes, in %','zabbix[process,trapper,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23775,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24022,5,'','',10114,'Zabbix $4 $2 processes, in %','zabbix[process,unreachable poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23776,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24023,5,'','',10114,'Zabbix queue over $2','zabbix[queue,10m]',600,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',23778,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24024,5,'','',10114,'Zabbix queue','zabbix[queue]',600,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',23779,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24025,5,'','',10114,'Zabbix configuration cache, % free','zabbix[rcache,buffer,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23780,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24026,5,'','',10114,'Zabbix value cache, % free','zabbix[vcache,buffer,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23781,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24027,5,'','',10114,'Zabbix value cache hits','zabbix[vcache,cache,hits]',60,3,365,0,0,'','vps',0,1,'',0,'','','1','',0,'',23782,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24028,5,'','',10114,'Zabbix value cache misses','zabbix[vcache,cache,misses]',60,3,365,0,0,'','vps',0,1,'',0,'','','1','',0,'',23783,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24029,5,'','',10114,'Zabbix value cache operating mode','zabbix[vcache,cache,mode]',60,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',23784,15,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24030,5,'','',10114,'Zabbix $2 write cache, % free','zabbix[wcache,history,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23786,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24031,5,'','',10114,'Zabbix history index cache, % free','zabbix[wcache,index,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23787,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24032,5,'','',10114,'Zabbix $2 write cache, % free','zabbix[wcache,trend,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23788,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24033,5,'','',10114,'Values processed by Zabbix server per second','zabbix[wcache,values]',60,3,365,0,0,'','',0,1,'',0,'','','1','',0,'',23789,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24034,0,'','',10114,'Mounted filesystem discovery','vfs.fs.discovery',3600,90,0,0,4,'','',0,0,'',0,'','','','',0,'',23932,NULL,'','','',0,0,'','','','',0,1,1,'','Discovery of file systems of different types as defined in global regular expression \"File systems for discovery\".',0,'1',0,0,0,'',0),(24035,0,'','',10114,'Free inodes on $1 (percentage)','vfs.fs.inode[{#FSNAME},pfree]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23952,NULL,'','','',0,0,'','','','',0,2,1,'','',0,'30',0,0,0,'',0),(24036,0,'','',10114,'Free disk space on $1','vfs.fs.size[{#FSNAME},free]',120,3,365,0,3,'','B',0,0,'',0,'','','1','',0,'',23953,NULL,'','','',0,0,'','','','',0,2,1,'','',0,'30',0,0,0,'',0),(24037,0,'','',10114,'Free disk space on $1 (percentage)','vfs.fs.size[{#FSNAME},pfree]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23954,NULL,'','','',0,0,'','','','',0,2,1,'','',0,'30',0,0,0,'',0),(24038,0,'','',10114,'Used disk space on $1','vfs.fs.size[{#FSNAME},used]',120,3,365,0,3,'','B',0,0,'',0,'','','1','',0,'',23956,NULL,'','','',0,0,'','','','',0,2,1,'','',0,'30',0,0,0,'',0),(24039,0,'','',10114,'Host name of zabbix_agentd running','agent.hostname',86400,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',23917,NULL,'','','',0,0,'','','','',0,0,1,'','',0,'30',0,0,0,'',0),(24040,0,'','',10114,'Agent ping','agent.ping',120,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',23918,10,'','','',0,0,'','','','',0,0,1,'','The agent always returns 1 for this item. It could be used in combination with nodata() for availability check.',0,'30',0,0,0,'',0),(24041,0,'','',10114,'Version of zabbix_agent(d) running','agent.version',86400,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',23919,NULL,'','','',0,0,'','','','',0,0,1,'','',0,'30',0,0,0,'',0),(24042,0,'','',10114,'Number of running processes','proc.num[,,run]',120,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',23855,NULL,'','','',0,0,'','','','',0,0,1,'','Number of processes in running state.',0,'30',0,0,0,'',0),(24043,0,'','',10114,'Number of processes','proc.num[]',120,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',23856,NULL,'','','',0,0,'','','','',0,0,1,'','Total number of processes in any state.',0,'30',0,0,0,'',0),(24044,0,'','',10114,'Interrupts per second','system.cpu.intr',120,3,365,0,3,'','ips',0,1,'',0,'','','1','',0,'',23858,NULL,'','','',0,0,'','','','',0,0,1,'','',0,'30',0,0,0,'',0),(24045,0,'','',10114,'Processor load (15 min average per core)','system.cpu.load[percpu,avg15]',120,3,365,0,0,'','',0,0,'',0,'','','1','',0,'',23861,NULL,'','','',0,0,'','','','',0,0,1,'','The processor load is calculated as system CPU load divided by number of CPU cores.',0,'30',0,0,0,'',0),(24046,0,'','',10114,'Processor load (1 min average per core)','system.cpu.load[percpu,avg1]',120,3,365,0,0,'','',0,0,'',0,'','','1','',0,'',23859,NULL,'','','',0,0,'','','','',0,0,1,'','The processor load is calculated as system CPU load divided by number of CPU cores.',0,'30',0,0,0,'',0),(24047,0,'','',10114,'Processor load (5 min average per core)','system.cpu.load[percpu,avg5]',120,3,365,0,0,'','',0,0,'',0,'','','1','',0,'',23860,NULL,'','','',0,0,'','','','',0,0,1,'','The processor load is calculated as system CPU load divided by number of CPU cores.',0,'30',0,0,0,'',0),(24048,0,'','',10114,'Context switches per second','system.cpu.switches',120,3,365,0,3,'','sps',0,1,'',0,'','','1','',0,'',23862,NULL,'','','',0,0,'','','','',0,0,1,'','',0,'30',0,0,0,'',0),(24049,0,'','',10114,'CPU $2 time','system.cpu.util[,idle]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23863,NULL,'','','',0,0,'','','','',0,0,1,'','The time the CPU has spent doing nothing.',0,'30',0,0,0,'',0),(24050,0,'','',10114,'CPU $2 time','system.cpu.util[,interrupt]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23864,NULL,'','','',0,0,'','','','',0,0,1,'','The amount of time the CPU has been servicing hardware interrupts.',0,'30',0,0,0,'',0),(24051,0,'','',10114,'CPU $2 time','system.cpu.util[,iowait]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23865,NULL,'','','',0,0,'','','','',0,0,1,'','Amount of time the CPU has been waiting for I/O to complete.',0,'30',0,0,0,'',0),(24052,0,'','',10114,'CPU $2 time','system.cpu.util[,nice]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23866,NULL,'','','',0,0,'','','','',0,0,1,'','The time the CPU has spent running users\' processes that have been niced.',0,'30',0,0,0,'',0),(24053,0,'','',10114,'CPU $2 time','system.cpu.util[,softirq]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23867,NULL,'','','',0,0,'','','','',0,0,1,'','The amount of time the CPU has been servicing software interrupts.',0,'30',0,0,0,'',0),(24054,0,'','',10114,'CPU $2 time','system.cpu.util[,steal]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23868,NULL,'','','',0,0,'','','','',0,0,1,'','The amount of CPU \'stolen\' from this virtual machine by the hypervisor for other tasks (such as running another virtual machine).',0,'30',0,0,0,'',0),(24055,0,'','',10114,'CPU $2 time','system.cpu.util[,system]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23869,NULL,'','','',0,0,'','','','',0,0,1,'','The time the CPU has spent running the kernel and its processes.',0,'30',0,0,0,'',0),(24056,0,'','',10114,'CPU $2 time','system.cpu.util[,user]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23870,NULL,'','','',0,0,'','','','',0,0,1,'','The time the CPU has spent running users\' processes that are not niced.',0,'30',0,0,0,'',0),(24057,0,'','',10114,'Free swap space in %','system.swap.size[,pfree]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',23874,NULL,'','','',0,0,'','','','',0,0,1,'','',0,'30',0,0,0,'',0),(24058,0,'','',10114,'Total swap space','system.swap.size[,total]',86400,3,365,0,3,'','B',0,0,'',0,'','','1','',0,'',23875,NULL,'','','',0,0,'','','','',0,0,1,'','',0,'30',0,0,0,'',0),(24059,0,'','',10114,'Checksum of $1','vfs.file.cksum[/etc/passwd]',3600,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',23879,NULL,'','','',0,0,'','','','',0,0,1,'','',0,'30',0,0,0,'',0),(24060,0,'','',10114,'Checksum of $1','vfs.file.cksum[/etc/shadow]',3600,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',24007,NULL,'','','',0,0,'','','','',0,0,1,'','',0,'30',0,0,0,'',0),(24061,0,'','',10114,'Available memory','vm.memory.size[available]',120,3,365,0,3,'','B',0,0,'',0,'','','1','',0,'',23880,NULL,'','','',0,0,'','','','',0,0,1,'','Available memory is defined as free+cached+buffers memory.',0,'30',0,0,0,'',0),(24062,0,'','',10114,'Total memory','vm.memory.size[total]',86400,3,365,0,3,'','B',0,0,'',0,'','','1','',0,'',23881,NULL,'','','',0,0,'','','','',0,0,1,'','',0,'30',0,0,0,'',0);
+INSERT INTO `items` VALUES (23679,0,'','',10085,'Ceph Volumes Read Speed','ceph.osd_volumes_read',60,3,365,0,3,'','B/s',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23680,0,'','',10085,'Ceph Volumes Write Speed','ceph.osd_volumes_write',60,3,365,0,3,'','B/s',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23710,0,'','',10088,'status','haproxy.status',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23713,0,'','',10091,'MySQL status','mysql.ping',60,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,1,'','','',0,0,'','','','',0,0,NULL,'','It requires user parameter mysql.ping, which is defined in userparameter_mysql.conf.\r\n\r\n0 - MySQL server is down\r\n1 - MySQL server is up',0,'30',0,0,0,'',0),(23714,0,'','',10091,'MySQL Process Num','mysql.processnum',60,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23729,0,'','',10093,'RabbitMQ Messages Ready','rabbitmq.messages_ready',60,7,30,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23730,0,'','',10093,'RabbitMQ Messages Unacknowledged','rabbitmq.messages_unacknowledged',60,7,30,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23731,0,'','',10093,'RabbitMQ Sockets Used','rabbitmq.sockets_used',60,7,30,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23732,0,'','',10093,'RabbitMQ Systemctl Status','rabbitmq.status',60,7,30,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',3,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23735,0,'','',10096,'Host name of zabbix_agentd running','agent.hostname',86400,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23736,0,'','',10096,'Agent ping','agent.ping',120,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,10,'','','',0,0,'','','','',0,0,NULL,'','The agent always returns 1 for this item. It could be used in combination with nodata() for availability check.',0,'30',0,0,0,'',0),(23737,0,'','',10096,'Version of zabbix_agent(d) running','agent.version',86400,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23738,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,configuration syncer,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23739,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,data sender,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23740,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,discoverer,avg,busy]',60,3,365,0,0,'localhost','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23741,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,heartbeat sender,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23742,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,history syncer,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23743,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,housekeeper,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23744,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,http poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23745,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,icmp pinger,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23746,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,ipmi poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23747,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,java poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23748,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,poller,avg,busy]',60,3,365,0,0,'localhost','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23749,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,self-monitoring,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23750,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,snmp trapper,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23751,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,trapper,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23752,5,'','',10097,'Zabbix $4 $2 processes, in %','zabbix[process,unreachable poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23753,5,'','',10097,'Zabbix queue over $2','zabbix[queue,10m]',600,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23754,5,'','',10097,'Zabbix queue','zabbix[queue]',60,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23755,5,'','',10097,'Zabbix configuration cache, % free','zabbix[rcache,buffer,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23756,5,'','',10097,'Zabbix $2 write cache, % free','zabbix[wcache,history,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23757,5,'','',10097,'Zabbix history index cache, % free','zabbix[wcache,index,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23758,5,'','',10097,'Values processed by Zabbix proxy per second','zabbix[wcache,values]',60,3,365,0,0,'','',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23759,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,alerter,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23760,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,configuration syncer,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23761,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,db watchdog,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23762,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,discoverer,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23763,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,escalator,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23764,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,history syncer,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23765,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,housekeeper,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23766,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,http poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23767,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,icmp pinger,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23770,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23771,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,proxy poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23772,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,self-monitoring,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23774,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,timer,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23775,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,trapper,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23776,5,'','',10098,'Zabbix $4 $2 processes, in %','zabbix[process,unreachable poller,avg,busy]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23778,5,'','',10098,'Zabbix queue over $2','zabbix[queue,10m]',600,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23779,5,'','',10098,'Zabbix queue','zabbix[queue]',600,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23780,5,'','',10098,'Zabbix configuration cache, % free','zabbix[rcache,buffer,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23781,5,'','',10098,'Zabbix value cache, % free','zabbix[vcache,buffer,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23782,5,'','',10098,'Zabbix value cache hits','zabbix[vcache,cache,hits]',60,3,365,0,0,'','vps',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23783,5,'','',10098,'Zabbix value cache misses','zabbix[vcache,cache,misses]',60,3,365,0,0,'','vps',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23784,5,'','',10098,'Zabbix value cache operating mode','zabbix[vcache,cache,mode]',60,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,15,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23786,5,'','',10098,'Zabbix $2 write cache, % free','zabbix[wcache,history,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23787,5,'','',10098,'Zabbix history index cache, % free','zabbix[wcache,index,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23788,5,'','',10098,'Zabbix $2 write cache, % free','zabbix[wcache,trend,pfree]',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23789,5,'','',10098,'Values processed by Zabbix server per second','zabbix[wcache,values]',60,3,365,0,0,'','',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23790,3,'','',10099,'ICMP ping','icmpping',60,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,1,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23791,3,'','',10099,'ICMP loss','icmppingloss',60,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23792,3,'','',10099,'ICMP response time','icmppingsec',60,3,365,0,0,'','s',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23793,0,'','',10101,'openstack-dashboard','openstack.dashboard.status',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23794,0,'','',10101,'dbus','openstack.status[dbus]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23795,0,'','',10101,'libvirtd','openstack.status[libvirtd]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23796,0,'','',10101,'memcached','openstack.status[memcached]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23797,0,'','',10101,'neutron-dhcp-agent','openstack.status[neutron-dhcp-agent]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23798,0,'','',10101,'neutron-l3-agent','openstack.status[neutron-l3-agent]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23799,0,'','',10101,'neutron-lbaas-agent','openstack.status[neutron-lbaas-agent]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23800,0,'','',10101,'neutron-metadata-agent','openstack.status[neutron-metadata-agent]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23801,0,'','',10101,'neutron-server','openstack.status[neutron-server]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23802,0,'','',10101,'openstack-cinder-api','openstack.status[openstack-cinder-api]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23803,0,'','',10101,'openstack-cinder-backup','openstack.status[openstack-cinder-backup]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23804,0,'','',10101,'openstack-cinder-scheduler','openstack.status[openstack-cinder-scheduler]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23805,0,'','',10101,'openstack-cinder-volume','openstack.status[openstack-cinder-volume]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23806,0,'','',10101,'openstack-glance-api','openstack.status[openstack-glance-api]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23807,0,'','',10101,'openstack-glance-registry','openstack.status[openstack-glance-registry]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23808,0,'','',10101,'openstack-keystone','openstack.status[openstack-keystone]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23809,0,'','',10101,'openstack-nova-api','openstack.status[openstack-nova-api]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23810,0,'','',10101,'openstack-nova-cert','openstack.status[openstack-nova-cert]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23811,0,'','',10101,'openstack-nova-compute','openstack.status[openstack-nova-compute]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23812,0,'','',10101,'openstack-nova-conductor','openstack.status[openstack-nova-conductor]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23813,0,'','',10101,'openstack-nova-network','openstack.status[openstack-nova-network]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23814,0,'','',10101,'openvswitch','openstack.status[openvswitch]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23815,0,'','',10101,'rabbitmq-server','openstack.status[rabbitmq-server]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23816,0,'','',10101,'target','openstack.status[target]',60,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23817,0,'','',10102,'dbus','openstack.status[dbus]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23818,0,'','',10102,'libvirtd','openstack.status[libvirtd]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23823,0,'','',10102,'neutron-metadata-agent','openstack.status[neutron-metadata-agent]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23824,0,'','',10102,'neutron-openvswitch-agent','openstack.status[neutron-openvswitch-agent]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23827,0,'','',10102,'openstack-nova-compute','openstack.status[openstack-nova-compute]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23830,0,'','',10102,'openvswitch','openstack.status[openvswitch]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23833,0,'','',10103,'dbus','openstack.status[dbus]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23834,0,'','',10103,'memcached','openstack.status[memcached]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23835,0,'','',10103,'neutron-server','openstack.status[neutron-server]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23836,0,'','',10103,'openstack-cinder-api','openstack.status[openstack-cinder-api]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23837,0,'','',10103,'openstack-cinder-volume','openstack.status[openstack-cinder-volume]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23838,0,'','',10103,'openstack-glance-api','openstack.status[openstack-glance-api]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23839,0,'','',10103,'openstack-glance-registry','openstack.status[openstack-glance-registry]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23840,0,'','',10103,'openstack-keystone','openstack.status[openstack-keystone]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23841,0,'','',10103,'openstack-nova-api','openstack.status[openstack-nova-api]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23842,0,'','',10103,'openstack-nova-cert','openstack.status[openstack-nova-cert]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23843,0,'','',10103,'openstack-nova-conductor','openstack.status[openstack-nova-conductor]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23845,0,'','',10103,'target','openstack.status[target]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23846,13,'','',10103,'openstack net-list','ssh.run[openstack cmd,{HOST.NAME},22,]',60,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,18,'','source /root/keystonerc_admin && nova net-list | grep -c fx_pub_net','',3,0,'root','RDC','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23847,0,'','',10104,'dbus','openstack.status[dbus]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23848,0,'','',10104,'neutron-dhcp-agent','openstack.status[neutron-dhcp-agent]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23849,0,'','',10104,'neutron-l3-agent','openstack.status[neutron-l3-agent]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23850,0,'','',10104,'neutron-metadata-agent','openstack.status[neutron-metadata-agent]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23851,0,'','',10104,'neutron-openvswitch-agent','openstack.status[neutron-openvswitch-agent]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23852,0,'','',10104,'openvswitch','openstack.status[openvswitch]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23855,0,'','',10107,'Number of running processes','proc.num[,,run]',120,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','Number of processes in running state.',0,'30',0,0,0,'',0),(23856,0,'','',10107,'Number of processes','proc.num[]',120,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','Total number of processes in any state.',0,'30',0,0,0,'',0),(23858,0,'','',10107,'Interrupts per second','system.cpu.intr',120,3,365,0,3,'','ips',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23859,0,'','',10107,'Processor load (1 min average per core)','system.cpu.load[percpu,avg1]',120,3,365,0,0,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The processor load is calculated as system CPU load divided by number of CPU cores.',0,'30',0,0,0,'',0),(23860,0,'','',10107,'Processor load (5 min average per core)','system.cpu.load[percpu,avg5]',120,3,365,0,0,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The processor load is calculated as system CPU load divided by number of CPU cores.',0,'30',0,0,0,'',0),(23861,0,'','',10107,'Processor load (15 min average per core)','system.cpu.load[percpu,avg15]',120,3,365,0,0,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The processor load is calculated as system CPU load divided by number of CPU cores.',0,'30',0,0,0,'',0),(23862,0,'','',10107,'Context switches per second','system.cpu.switches',120,3,365,0,3,'','sps',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23863,0,'','',10107,'CPU $2 time','system.cpu.util[,idle]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The time the CPU has spent doing nothing.',0,'30',0,0,0,'',0),(23864,0,'','',10107,'CPU $2 time','system.cpu.util[,interrupt]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The amount of time the CPU has been servicing hardware interrupts.',0,'30',0,0,0,'',0),(23865,0,'','',10107,'CPU $2 time','system.cpu.util[,iowait]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','Amount of time the CPU has been waiting for I/O to complete.',0,'30',0,0,0,'',0),(23866,0,'','',10107,'CPU $2 time','system.cpu.util[,nice]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The time the CPU has spent running users\' processes that have been niced.',0,'30',0,0,0,'',0),(23867,0,'','',10107,'CPU $2 time','system.cpu.util[,softirq]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The amount of time the CPU has been servicing software interrupts.',0,'30',0,0,0,'',0),(23868,0,'','',10107,'CPU $2 time','system.cpu.util[,steal]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The amount of CPU \'stolen\' from this virtual machine by the hypervisor for other tasks (such as running another virtual machine).',0,'30',0,0,0,'',0),(23869,0,'','',10107,'CPU $2 time','system.cpu.util[,system]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The time the CPU has spent running the kernel and its processes.',0,'30',0,0,0,'',0),(23870,0,'','',10107,'CPU $2 time','system.cpu.util[,user]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The time the CPU has spent running users\' processes that are not niced.',0,'30',0,0,0,'',0),(23874,0,'','',10107,'Free swap space in %','system.swap.size[,pfree]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23875,0,'','',10107,'Total swap space','system.swap.size[,total]',86400,3,365,0,3,'','B',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23879,0,'','',10107,'Checksum of $1','vfs.file.cksum[/etc/passwd]',3600,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23880,0,'','',10107,'Available memory','vm.memory.size[available]',120,3,365,0,3,'','B',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','Available memory is defined as free+cached+buffers memory.',0,'30',0,0,0,'',0),(23881,0,'','',10107,'Total memory','vm.memory.size[total]',86400,3,365,0,3,'','B',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23911,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysContact.0',10105,'Device contact details','sysContact',3600,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The textual identification of the contact person for this managed node, together with information on how to contact this person.  If no contact information is known, the value is the zero-length string.',23,'30',0,0,0,'',0),(23912,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysDescr.0',10105,'Device description','sysDescr',3600,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','A textual description of the entity.  This value should include the full name and version identification of the system\'s hardware type, software operating-system, and networking software.',14,'30',0,0,0,'',0),(23913,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysLocation.0',10105,'Device location','sysLocation',3600,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The physical location of this node (e.g., `telephone closet, 3rd floor\').  If the location is unknown, the value is the zero-length string.',24,'30',0,0,0,'',0),(23914,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysName.0',10105,'Device name','sysName',3600,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','An administratively-assigned name for this managed node. By convention, this is the node\'s fully-qualified domain name.  If the name is unknown, the value is the zero-length string.',3,'30',0,0,0,'',0),(23915,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysUpTime.0',10105,'Device uptime','sysUpTime',3600,7,365,0,3,'','uptime',1,0,'',0,'','','0.01','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The time since the network management portion of the system was last re-initialized.',0,'30',0,0,0,'',0),(23916,4,'{$SNMP_COMMUNITY}','IF-MIB::ifNumber.0',10106,'Number of network interfaces','ifNumber',3600,7,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','The number of network interfaces (regardless of their current state) present on this system.',0,'30',0,0,0,'',0),(23917,0,'','',10107,'Host name of zabbix_agentd running','agent.hostname',86400,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',23735,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23918,0,'','',10107,'Agent ping','agent.ping',120,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',23736,10,'','','',0,0,'','','','',0,0,NULL,'','The agent always returns 1 for this item. It could be used in combination with nodata() for availability check.',0,'30',0,0,0,'',0),(23919,0,'','',10107,'Version of zabbix_agent(d) running','agent.version',86400,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',23737,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23923,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysContact.0',10109,'Device contact details','sysContact',3600,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',23911,NULL,'','','',0,0,'','','','',0,0,NULL,'','The textual identification of the contact person for this managed node, together with information on how to contact this person.  If no contact information is known, the value is the zero-length string.',23,'30',0,0,0,'',0),(23924,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysDescr.0',10109,'Device description','sysDescr',3600,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',23912,NULL,'','','',0,0,'','','','',0,0,NULL,'','A textual description of the entity.  This value should include the full name and version identification of the system\'s hardware type, software operating-system, and networking software.',14,'30',0,0,0,'',0),(23925,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysLocation.0',10109,'Device location','sysLocation',3600,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',23913,NULL,'','','',0,0,'','','','',0,0,NULL,'','The physical location of this node (e.g., `telephone closet, 3rd floor\').  If the location is unknown, the value is the zero-length string.',24,'30',0,0,0,'',0),(23926,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysName.0',10109,'Device name','sysName',3600,7,0,0,1,'','',0,0,'',0,'','','1','',0,'',23914,NULL,'','','',0,0,'','','','',0,0,NULL,'','An administratively-assigned name for this managed node. By convention, this is the node\'s fully-qualified domain name.  If the name is unknown, the value is the zero-length string.',3,'30',0,0,0,'',0),(23927,4,'{$SNMP_COMMUNITY}','SNMPv2-MIB::sysUpTime.0',10109,'Device uptime','sysUpTime',3600,7,365,0,3,'','uptime',1,0,'',0,'','','0.01','',0,'',23915,NULL,'','','',0,0,'','','','',0,0,NULL,'','The time since the network management portion of the system was last re-initialized.',0,'30',0,0,0,'',0),(23928,4,'{$SNMP_COMMUNITY}','IF-MIB::ifNumber.0',10109,'Number of network interfaces','ifNumber',3600,7,365,0,3,'','',0,0,'',0,'','','1','',0,'',23916,NULL,'','','',0,0,'','','','',0,0,NULL,'','The number of network interfaces (regardless of their current state) present on this system.',0,'30',0,0,0,'',0),(23929,0,'','',10086,'Ceph OSD Discovery','ceph.osd_discovery',3600,90,0,0,4,'','',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,1,NULL,'','',0,'1',0,0,0,'',0),(23930,0,'','',10100,'Disk device discovery','custom.vfs.dev.discovery',3600,90,0,0,4,'','',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,1,NULL,'','Discovery of disk devices on Linux',0,'1',0,0,0,'',0),(23932,0,'','',10107,'Mounted filesystem discovery','vfs.fs.discovery',3600,90,0,0,4,'','',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,1,NULL,'','Discovery of file systems of different types as defined in global regular expression \"File systems for discovery\".',0,'1',0,0,0,'',0),(23935,4,'{$SNMP_COMMUNITY}','discovery[{#SNMPVALUE},IF-MIB::ifDescr]',10106,'Network interfaces','ifDescr',3600,90,0,0,4,'','',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,1,NULL,'','You may also consider using IF-MIB::ifType or IF-MIB::ifAlias for discovery depending on your filtering needs.\r\n\r\n{$SNMP_COMMUNITY} is a global macro.',0,'1',0,0,0,'',0),(23936,4,'{$SNMP_COMMUNITY}','discovery[{#SNMPVALUE},IF-MIB::ifDescr]',10109,'Network interfaces','ifDescr',3600,90,0,0,4,'','',0,0,'',0,'','','','',0,'',23935,NULL,'','','',0,0,'','','','',0,1,NULL,'','You may also consider using IF-MIB::ifType or IF-MIB::ifAlias for discovery depending on your filtering needs.\r\n\r\n{$SNMP_COMMUNITY} is a global macro.',0,'1',0,0,0,'',0),(23937,0,'','',10086,'Status of osd.{#OSD_NAME}','ceph.osd_status[{#OSD_NAME}]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23940,0,'','',10086,'fs apply latency of osd.{#OSD_NAME}','ceph.perf_apply[{#OSD_NAME}]',60,3,365,0,3,'','ms',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23941,0,'','',10086,'fs commit latency of osd.{#OSD_NAME}','ceph.perf_commit[{#OSD_NAME}]',60,3,365,0,3,'','ms',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23946,0,'','',10100,'Disk:{#DISK}:sectors read per second','custom.vfs.dev.read.sectors[{#DISK}]',60,3,365,0,3,'','Rs/s',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23949,0,'','',10100,'Disk:{#DISK}:sectors written per second','custom.vfs.dev.write.sectors[{#DISK}]',60,3,365,0,3,'','Ws/s',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23952,0,'','',10107,'Free inodes on $1 (percentage)','vfs.fs.inode[{#FSNAME},pfree]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23953,0,'','',10107,'Free disk space on $1','vfs.fs.size[{#FSNAME},free]',120,3,365,0,3,'','B',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23954,0,'','',10107,'Free disk space on $1 (percentage)','vfs.fs.size[{#FSNAME},pfree]',120,3,365,0,0,'','%',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23956,0,'','',10107,'Used disk space on $1','vfs.fs.size[{#FSNAME},used]',120,3,365,0,3,'','B',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23964,4,'{$SNMP_COMMUNITY}','IF-MIB::ifAdminStatus.{#SNMPINDEX}',10106,'Admin status of interface $1','ifAdminStatus[{#SNMPVALUE}]',120,7,14,1,3,'','',0,0,'',0,'','','1','',0,'',NULL,11,'','','',0,0,'','','','',0,2,NULL,'','The desired state of the interface.',0,'30',0,0,0,'',0),(23965,4,'{$SNMP_COMMUNITY}','IF-MIB::ifAlias.{#SNMPINDEX}',10106,'Alias of interface $1','ifAlias[{#SNMPVALUE}]',86400,3,0,1,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23966,4,'{$SNMP_COMMUNITY}','IF-MIB::ifDescr.{#SNMPINDEX}',10106,'Description of interface $1','ifDescr[{#SNMPVALUE}]',86400,3,0,1,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','A textual string containing information about the interface.  This string should include the name of the manufacturer, the product name and the version of the interface hardware/software.',0,'30',0,0,0,'',0),(23967,4,'{$SNMP_COMMUNITY}','IF-MIB::ifInErrors.{#SNMPINDEX}',10106,'Inbound errors on interface $1','ifInErrors[{#SNMPVALUE}]',120,7,14,1,3,'','',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','For packet-oriented interfaces, the number of inbound packets that contained errors preventing them from being deliverable to a higher-layer protocol.  For character-oriented or fixed-length interfaces, the number of inbound transmission units that contained errors preventing them from being deliverable to a higher-layer protocol.',0,'30',0,0,0,'',0),(23968,4,'{$SNMP_COMMUNITY}','IF-MIB::ifInOctets.{#SNMPINDEX}',10106,'Incoming traffic on interface $1','ifInOctets[{#SNMPVALUE}]',120,7,14,0,3,'','bps',1,1,'',0,'','','8','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','The number of octets in valid MAC frames received on this interface, including the MAC header and FCS.',0,'30',0,0,0,'',0),(23969,4,'{$SNMP_COMMUNITY}','IF-MIB::ifOperStatus.{#SNMPINDEX}',10106,'Operational status of interface $1','ifOperStatus[{#SNMPVALUE}]',120,7,14,1,3,'','',0,0,'',0,'','','1','',0,'',NULL,8,'','','',0,0,'','','','',0,2,NULL,'','The current operational state of the interface.',0,'30',0,0,0,'',0),(23970,4,'{$SNMP_COMMUNITY}','IF-MIB::ifOutErrors.{#SNMPINDEX}',10106,'Outbound errors on interface $1','ifOutErrors[{#SNMPVALUE}]',120,7,14,1,3,'','',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','For packet-oriented interfaces, the number of outbound packets that could not be transmitted because of errors. For character-oriented or fixed-length interfaces, the number of outbound transmission units that could not be transmitted because of errors.',0,'30',0,0,0,'',0),(23971,4,'{$SNMP_COMMUNITY}','IF-MIB::ifOutOctets.{#SNMPINDEX}',10106,'Outgoing traffic on interface $1','ifOutOctets[{#SNMPVALUE}]',120,7,14,0,3,'','bps',1,1,'',0,'','','8','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','The number of octets transmitted in MAC frames on this interface, including the MAC header and FCS.',0,'30',0,0,0,'',0),(23972,4,'{$SNMP_COMMUNITY}','IF-MIB::ifAdminStatus.{#SNMPINDEX}',10109,'Admin status of interface $1','ifAdminStatus[{#SNMPVALUE}]',120,7,14,1,3,'','',0,0,'',0,'','','1','',0,'',23964,11,'','','',0,0,'','','','',0,2,NULL,'','The desired state of the interface.',0,'30',0,0,0,'',0),(23973,4,'{$SNMP_COMMUNITY}','IF-MIB::ifAlias.{#SNMPINDEX}',10109,'Alias of interface $1','ifAlias[{#SNMPVALUE}]',86400,3,0,1,1,'','',0,0,'',0,'','','1','',0,'',23965,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23974,4,'{$SNMP_COMMUNITY}','IF-MIB::ifDescr.{#SNMPINDEX}',10109,'Description of interface $1','ifDescr[{#SNMPVALUE}]',86400,3,0,1,1,'','',0,0,'',0,'','','1','',0,'',23966,NULL,'','','',0,0,'','','','',0,2,NULL,'','A textual string containing information about the interface.  This string should include the name of the manufacturer, the product name and the version of the interface hardware/software.',0,'30',0,0,0,'',0),(23975,4,'{$SNMP_COMMUNITY}','IF-MIB::ifInErrors.{#SNMPINDEX}',10109,'Inbound errors on interface $1','ifInErrors[{#SNMPVALUE}]',120,7,14,1,3,'','',0,1,'',0,'','','1','',0,'',23967,NULL,'','','',0,0,'','','','',0,2,NULL,'','For packet-oriented interfaces, the number of inbound packets that contained errors preventing them from being deliverable to a higher-layer protocol.  For character-oriented or fixed-length interfaces, the number of inbound transmission units that contained errors preventing them from being deliverable to a higher-layer protocol.',0,'30',0,0,0,'',0),(23976,4,'{$SNMP_COMMUNITY}','IF-MIB::ifInOctets.{#SNMPINDEX}',10109,'Incoming traffic on interface $1','ifInOctets[{#SNMPVALUE}]',120,7,14,0,3,'','bps',1,1,'',0,'','','8','',0,'',23968,NULL,'','','',0,0,'','','','',0,2,NULL,'','The number of octets in valid MAC frames received on this interface, including the MAC header and FCS.',0,'30',0,0,0,'',0),(23977,4,'{$SNMP_COMMUNITY}','IF-MIB::ifOperStatus.{#SNMPINDEX}',10109,'Operational status of interface $1','ifOperStatus[{#SNMPVALUE}]',120,7,14,1,3,'','',0,0,'',0,'','','1','',0,'',23969,8,'','','',0,0,'','','','',0,2,NULL,'','The current operational state of the interface.',0,'30',0,0,0,'',0),(23978,4,'{$SNMP_COMMUNITY}','IF-MIB::ifOutErrors.{#SNMPINDEX}',10109,'Outbound errors on interface $1','ifOutErrors[{#SNMPVALUE}]',120,7,14,1,3,'','',0,1,'',0,'','','1','',0,'',23970,NULL,'','','',0,0,'','','','',0,2,NULL,'','For packet-oriented interfaces, the number of outbound packets that could not be transmitted because of errors. For character-oriented or fixed-length interfaces, the number of outbound transmission units that could not be transmitted because of errors.',0,'30',0,0,0,'',0),(23979,4,'{$SNMP_COMMUNITY}','IF-MIB::ifOutOctets.{#SNMPINDEX}',10109,'Outgoing traffic on interface $1','ifOutOctets[{#SNMPVALUE}]',120,7,14,0,3,'','bps',1,1,'',0,'','','8','',0,'',23971,NULL,'','','',0,0,'','','','',0,2,NULL,'','The number of octets transmitted in MAC frames on this interface, including the MAC header and FCS.',0,'30',0,0,0,'',0),(23986,9,'','',10103,'Download speed for scenario \"$1\".','web.test.in[OpenStack Dashboard,,bps]',60,30,90,0,0,'','Bps',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23987,9,'','',10103,'Failed step of scenario \"$1\".','web.test.fail[OpenStack Dashboard]',60,30,90,0,3,'','',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23988,9,'','',10103,'Last error message of scenario \"$1\".','web.test.error[OpenStack Dashboard]',60,30,90,0,1,'','',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23989,9,'','',10103,'Download speed for step \"$2\" of scenario \"$1\".','web.test.in[OpenStack Dashboard,index,bps]',60,30,90,0,0,'','Bps',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23990,9,'','',10103,'Response time for step \"$2\" of scenario \"$1\".','web.test.time[OpenStack Dashboard,index,resp]',60,30,90,0,0,'','s',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23991,9,'','',10103,'Response code for step \"$2\" of scenario \"$1\".','web.test.rspcode[OpenStack Dashboard,index]',60,30,90,0,3,'','',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23992,0,'','',10085,'Ceph Write Speed','ceph.wrbps',60,3,365,0,3,'','B/s',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23993,0,'','',10085,'Ceph Read Speed','ceph.rdbps',60,3,365,0,3,'','B/s',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23994,0,'','',10085,'Ceph Operation','ceph.ops',60,3,365,0,3,'','op/s',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23995,3,'','',10110,'SSH service is running','net.tcp.service[ssh]',60,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,1,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23996,0,'','',10111,'Test','vfs.file.exists[/opt/test]',60,1,7,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',3,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(23997,0,'','',10112,'Network interface discovery','net.if.discovery',3600,90,0,0,4,'','',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,1,NULL,'','Discovery of network interfaces as defined in global regular expression \"Network interfaces for discovery\".',0,'1',0,0,0,'',0),(23998,0,'','',10112,'Incoming network traffic on $1','net.if.in[{#IFNAME}]',60,3,365,0,3,'','bps',1,1,'',0,'','','8','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(23999,0,'','',10112,'Outgoing network traffic on $1','net.if.out[{#IFNAME}]',60,3,365,0,3,'','bps',1,1,'',0,'','','8','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(24000,0,'','',10113,'Instances Discovery','instance.discovery',600,90,0,0,4,'','',0,0,'',0,'','','','',0,'',NULL,NULL,'','','',0,0,'','','','',0,1,NULL,'','',0,'0',0,0,0,'',0),(24001,0,'','',10113,'{#UUID} Disk Read Speed','instance.operation[{#UUID},disk_read]',60,3,365,0,3,'','b/s',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(24002,0,'','',10113,'{#UUID} Disk Write Speed','instance.operation[{#UUID},disk_write]',60,3,365,0,3,'','b/s',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(24003,0,'','',10113,'{#UUID} Interface Read Speed','instance.operation[{#UUID},interface_read]',60,3,365,0,3,'','b/s',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(24004,0,'','',10113,'{#UUID} Interface Write Speed','instance.operation[{#UUID},interface_write]',60,3,365,0,3,'','b/s',0,1,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(24005,0,'','',10113,'{#UUID} State','instance.operation[{#UUID},state]',60,3,0,0,1,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,2,NULL,'','',0,'30',0,0,0,'',0),(24006,0,'','',10085,'Ceph rados free space','ceph.rados_free',3600,3,365,0,3,'','B',1,0,'',0,'','','1024','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0),(24007,0,'','',10107,'Checksum of $1','vfs.file.cksum[/etc/shadow]',3600,3,365,0,3,'','',0,0,'',0,'','','1','',0,'',NULL,NULL,'','','',0,0,'','','','',0,0,NULL,'','',0,'30',0,0,0,'',0);
 /*!40000 ALTER TABLE `items` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `items_applications`
+--
+
+DROP TABLE IF EXISTS `items_applications`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `items_applications` (
+  `itemappid` bigint(20) unsigned NOT NULL,
+  `applicationid` bigint(20) unsigned NOT NULL,
+  `itemid` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`itemappid`),
+  UNIQUE KEY `items_applications_1` (`applicationid`,`itemid`),
+  KEY `items_applications_2` (`itemid`),
+  CONSTRAINT `c_items_applications_2` FOREIGN KEY (`itemid`) REFERENCES `items` (`itemid`) ON DELETE CASCADE,
+  CONSTRAINT `c_items_applications_1` FOREIGN KEY (`applicationid`) REFERENCES `applications` (`applicationid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `items_applications`
@@ -552,9 +1963,29 @@ UNLOCK TABLES;
 
 LOCK TABLES `items_applications` WRITE;
 /*!40000 ALTER TABLE `items_applications` DISABLE KEYS */;
-INSERT INTO `items_applications` VALUES (6253,356,23679),(6252,356,23680),(6245,356,23992),(6246,356,23993),(6247,356,23994),(6283,356,24006),(6256,357,23937),(6254,357,23940),(6255,357,23941),(6257,359,23710),(5935,362,23713),(5936,362,23714),(5951,364,23729),(5952,364,23730),(5953,364,23731),(5954,364,23732),(6265,367,23735),(6269,367,23736),(6267,367,23737),(5960,368,23738),(5961,368,23739),(5962,368,23740),(5963,368,23741),(5964,368,23742),(5965,368,23743),(5966,368,23744),(5967,368,23745),(5968,368,23746),(5969,368,23747),(5970,368,23748),(5971,368,23749),(5972,368,23750),(5973,368,23751),(5974,368,23752),(6271,368,23753),(5976,368,23754),(5977,368,23755),(5978,368,23756),(5979,368,23757),(5980,368,23758),(5981,369,23759),(5982,369,23760),(5983,369,23761),(5984,369,23762),(5985,369,23763),(5986,369,23764),(5987,369,23765),(5988,369,23766),(5989,369,23767),(5992,369,23770),(5993,369,23771),(5994,369,23772),(5996,369,23774),(5997,369,23775),(5998,369,23776),(6000,369,23778),(6001,369,23779),(6002,369,23780),(6003,369,23781),(6004,369,23782),(6005,369,23783),(6006,369,23784),(6008,369,23786),(6009,369,23787),(6010,369,23788),(6011,369,23789),(6012,370,23790),(6013,370,23791),(6014,370,23792),(6258,371,23946),(6259,371,23949),(6015,372,23793),(6016,372,23794),(6017,372,23795),(6018,372,23796),(6019,372,23797),(6020,372,23798),(6021,372,23799),(6022,372,23800),(6023,372,23801),(6024,372,23802),(6025,372,23803),(6026,372,23804),(6027,372,23805),(6028,372,23806),(6029,372,23807),(6030,372,23808),(6031,372,23809),(6032,372,23810),(6033,372,23811),(6034,372,23812),(6035,372,23813),(6036,372,23814),(6037,372,23815),(6038,372,23816),(6039,373,23817),(6040,373,23818),(6045,373,23823),(6046,373,23824),(6049,373,23827),(6052,373,23830),(6055,374,23833),(6056,374,23834),(6057,374,23835),(6058,374,23836),(6059,374,23837),(6060,374,23838),(6061,374,23839),(6062,374,23840),(6063,374,23841),(6064,374,23842),(6065,374,23843),(6067,374,23845),(6068,374,23846),(6238,374,23986),(6239,374,23987),(6240,374,23988),(6241,374,23989),(6242,374,23990),(6243,374,23991),(6069,375,23847),(6070,375,23848),(6071,375,23849),(6072,375,23850),(6073,375,23851),(6074,375,23852),(6081,376,23858),(6083,376,23859),(6085,376,23860),(6087,376,23861),(6089,376,23862),(6091,376,23863),(6093,376,23864),(6095,376,23865),(6097,376,23866),(6099,376,23867),(6101,376,23868),(6103,376,23869),(6105,376,23870),(6263,377,23952),(6261,377,23953),(6262,377,23954),(6264,377,23956),(6112,379,23874),(6113,379,23875),(6121,379,23880),(6122,379,23881),(6082,382,23858),(6084,382,23859),(6086,382,23860),(6088,382,23861),(6090,382,23862),(6092,382,23863),(6094,382,23864),(6096,382,23865),(6098,382,23866),(6100,382,23867),(6102,382,23868),(6104,382,23869),(6106,382,23870),(6077,383,23855),(6078,383,23856),(6260,384,23879),(6284,384,24007),(6171,394,23911),(6172,394,23912),(6173,394,23913),(6174,394,23914),(6175,394,23915),(6176,395,23916),(6216,395,23964),(6217,395,23965),(6218,395,23966),(6219,395,23967),(6220,395,23968),(6221,395,23969),(6222,395,23970),(6223,395,23971),(6266,396,23917),(6270,396,23918),(6268,396,23919),(6183,398,23923),(6184,398,23924),(6185,398,23925),(6186,398,23926),(6187,398,23927),(6188,399,23928),(6224,399,23972),(6225,399,23973),(6226,399,23974),(6227,399,23975),(6228,399,23976),(6229,399,23977),(6230,399,23978),(6231,399,23979),(6274,400,23995),(6275,401,23996),(6276,402,23998),(6277,402,23999),(6278,403,24001),(6279,403,24002),(6280,403,24003),(6281,403,24004),(6282,403,24005),(6285,404,24008),(6286,404,24009),(6287,404,24010),(6288,404,24011),(6289,404,24012),(6290,404,24013),(6291,404,24014),(6292,404,24015),(6293,404,24016),(6294,404,24017),(6295,404,24018),(6296,404,24019),(6297,404,24020),(6298,404,24021),(6299,404,24022),(6300,404,24023),(6301,404,24024),(6302,404,24025),(6303,404,24026),(6304,404,24027),(6305,404,24028),(6306,404,24029),(6307,404,24030),(6308,404,24031),(6309,404,24032),(6310,404,24033),(6320,405,24044),(6322,405,24045),(6324,405,24046),(6326,405,24047),(6328,405,24048),(6330,405,24049),(6332,405,24050),(6334,405,24051),(6336,405,24052),(6338,405,24053),(6340,405,24054),(6342,405,24055),(6344,405,24056),(6311,406,24035),(6312,406,24036),(6313,406,24037),(6314,406,24038),(6346,408,24057),(6347,408,24058),(6350,408,24061),(6351,408,24062),(6321,410,24044),(6323,410,24045),(6325,410,24046),(6327,410,24047),(6329,410,24048),(6331,410,24049),(6333,410,24050),(6335,410,24051),(6337,410,24052),(6339,410,24053),(6341,410,24054),(6343,410,24055),(6345,410,24056),(6318,411,24042),(6319,411,24043),(6348,412,24059),(6349,412,24060),(6315,413,24039),(6316,413,24040),(6317,413,24041);
+INSERT INTO `items_applications` VALUES (6253,356,23679),(6252,356,23680),(6245,356,23992),(6246,356,23993),(6247,356,23994),(6283,356,24006),(6256,357,23937),(6254,357,23940),(6255,357,23941),(6257,359,23710),(5935,362,23713),(5936,362,23714),(5951,364,23729),(5952,364,23730),(5953,364,23731),(5954,364,23732),(6265,367,23735),(6269,367,23736),(6267,367,23737),(5960,368,23738),(5961,368,23739),(5962,368,23740),(5963,368,23741),(5964,368,23742),(5965,368,23743),(5966,368,23744),(5967,368,23745),(5968,368,23746),(5969,368,23747),(5970,368,23748),(5971,368,23749),(5972,368,23750),(5973,368,23751),(5974,368,23752),(6271,368,23753),(5976,368,23754),(5977,368,23755),(5978,368,23756),(5979,368,23757),(5980,368,23758),(5981,369,23759),(5982,369,23760),(5983,369,23761),(5984,369,23762),(5985,369,23763),(5986,369,23764),(5987,369,23765),(5988,369,23766),(5989,369,23767),(5992,369,23770),(5993,369,23771),(5994,369,23772),(5996,369,23774),(5997,369,23775),(5998,369,23776),(6000,369,23778),(6001,369,23779),(6002,369,23780),(6003,369,23781),(6004,369,23782),(6005,369,23783),(6006,369,23784),(6008,369,23786),(6009,369,23787),(6010,369,23788),(6011,369,23789),(6012,370,23790),(6013,370,23791),(6014,370,23792),(6258,371,23946),(6259,371,23949),(6015,372,23793),(6016,372,23794),(6017,372,23795),(6018,372,23796),(6019,372,23797),(6020,372,23798),(6021,372,23799),(6022,372,23800),(6023,372,23801),(6024,372,23802),(6025,372,23803),(6026,372,23804),(6027,372,23805),(6028,372,23806),(6029,372,23807),(6030,372,23808),(6031,372,23809),(6032,372,23810),(6033,372,23811),(6034,372,23812),(6035,372,23813),(6036,372,23814),(6037,372,23815),(6038,372,23816),(6039,373,23817),(6040,373,23818),(6045,373,23823),(6046,373,23824),(6049,373,23827),(6052,373,23830),(6055,374,23833),(6056,374,23834),(6057,374,23835),(6058,374,23836),(6059,374,23837),(6060,374,23838),(6061,374,23839),(6062,374,23840),(6063,374,23841),(6064,374,23842),(6065,374,23843),(6067,374,23845),(6068,374,23846),(6238,374,23986),(6239,374,23987),(6240,374,23988),(6241,374,23989),(6242,374,23990),(6243,374,23991),(6069,375,23847),(6070,375,23848),(6071,375,23849),(6072,375,23850),(6073,375,23851),(6074,375,23852),(6081,376,23858),(6083,376,23859),(6085,376,23860),(6087,376,23861),(6089,376,23862),(6091,376,23863),(6093,376,23864),(6095,376,23865),(6097,376,23866),(6099,376,23867),(6101,376,23868),(6103,376,23869),(6105,376,23870),(6263,377,23952),(6261,377,23953),(6262,377,23954),(6264,377,23956),(6112,379,23874),(6113,379,23875),(6121,379,23880),(6122,379,23881),(6082,382,23858),(6084,382,23859),(6086,382,23860),(6088,382,23861),(6090,382,23862),(6092,382,23863),(6094,382,23864),(6096,382,23865),(6098,382,23866),(6100,382,23867),(6102,382,23868),(6104,382,23869),(6106,382,23870),(6077,383,23855),(6078,383,23856),(6260,384,23879),(6284,384,24007),(6171,394,23911),(6172,394,23912),(6173,394,23913),(6174,394,23914),(6175,394,23915),(6176,395,23916),(6216,395,23964),(6217,395,23965),(6218,395,23966),(6219,395,23967),(6220,395,23968),(6221,395,23969),(6222,395,23970),(6223,395,23971),(6266,396,23917),(6270,396,23918),(6268,396,23919),(6183,398,23923),(6184,398,23924),(6185,398,23925),(6186,398,23926),(6187,398,23927),(6188,399,23928),(6224,399,23972),(6225,399,23973),(6226,399,23974),(6227,399,23975),(6228,399,23976),(6229,399,23977),(6230,399,23978),(6231,399,23979),(6274,400,23995),(6275,401,23996),(6276,402,23998),(6277,402,23999),(6278,403,24001),(6279,403,24002),(6280,403,24003),(6281,403,24004),(6282,403,24005);
 /*!40000 ALTER TABLE `items_applications` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `maintenances`
+--
+
+DROP TABLE IF EXISTS `maintenances`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `maintenances` (
+  `maintenanceid` bigint(20) unsigned NOT NULL,
+  `name` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `maintenance_type` int(11) NOT NULL DEFAULT '0',
+  `description` text COLLATE utf8_bin NOT NULL,
+  `active_since` int(11) NOT NULL DEFAULT '0',
+  `active_till` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`maintenanceid`),
+  UNIQUE KEY `maintenances_2` (`name`),
+  KEY `maintenances_1` (`active_since`,`active_till`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `maintenances`
@@ -566,6 +1997,25 @@ LOCK TABLES `maintenances` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `maintenances_groups`
+--
+
+DROP TABLE IF EXISTS `maintenances_groups`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `maintenances_groups` (
+  `maintenance_groupid` bigint(20) unsigned NOT NULL,
+  `maintenanceid` bigint(20) unsigned NOT NULL,
+  `groupid` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`maintenance_groupid`),
+  UNIQUE KEY `maintenances_groups_1` (`maintenanceid`,`groupid`),
+  KEY `maintenances_groups_2` (`groupid`),
+  CONSTRAINT `c_maintenances_groups_2` FOREIGN KEY (`groupid`) REFERENCES `groups` (`groupid`) ON DELETE CASCADE,
+  CONSTRAINT `c_maintenances_groups_1` FOREIGN KEY (`maintenanceid`) REFERENCES `maintenances` (`maintenanceid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `maintenances_groups`
 --
 
@@ -573,6 +2023,25 @@ LOCK TABLES `maintenances_groups` WRITE;
 /*!40000 ALTER TABLE `maintenances_groups` DISABLE KEYS */;
 /*!40000 ALTER TABLE `maintenances_groups` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `maintenances_hosts`
+--
+
+DROP TABLE IF EXISTS `maintenances_hosts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `maintenances_hosts` (
+  `maintenance_hostid` bigint(20) unsigned NOT NULL,
+  `maintenanceid` bigint(20) unsigned NOT NULL,
+  `hostid` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`maintenance_hostid`),
+  UNIQUE KEY `maintenances_hosts_1` (`maintenanceid`,`hostid`),
+  KEY `maintenances_hosts_2` (`hostid`),
+  CONSTRAINT `c_maintenances_hosts_2` FOREIGN KEY (`hostid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE,
+  CONSTRAINT `c_maintenances_hosts_1` FOREIGN KEY (`maintenanceid`) REFERENCES `maintenances` (`maintenanceid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `maintenances_hosts`
@@ -584,6 +2053,25 @@ LOCK TABLES `maintenances_hosts` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `maintenances_windows`
+--
+
+DROP TABLE IF EXISTS `maintenances_windows`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `maintenances_windows` (
+  `maintenance_timeperiodid` bigint(20) unsigned NOT NULL,
+  `maintenanceid` bigint(20) unsigned NOT NULL,
+  `timeperiodid` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`maintenance_timeperiodid`),
+  UNIQUE KEY `maintenances_windows_1` (`maintenanceid`,`timeperiodid`),
+  KEY `maintenances_windows_2` (`timeperiodid`),
+  CONSTRAINT `c_maintenances_windows_2` FOREIGN KEY (`timeperiodid`) REFERENCES `timeperiods` (`timeperiodid`) ON DELETE CASCADE,
+  CONSTRAINT `c_maintenances_windows_1` FOREIGN KEY (`maintenanceid`) REFERENCES `maintenances` (`maintenanceid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `maintenances_windows`
 --
 
@@ -591,6 +2079,24 @@ LOCK TABLES `maintenances_windows` WRITE;
 /*!40000 ALTER TABLE `maintenances_windows` DISABLE KEYS */;
 /*!40000 ALTER TABLE `maintenances_windows` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `mappings`
+--
+
+DROP TABLE IF EXISTS `mappings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `mappings` (
+  `mappingid` bigint(20) unsigned NOT NULL,
+  `valuemapid` bigint(20) unsigned NOT NULL,
+  `value` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `newvalue` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`mappingid`),
+  KEY `mappings_1` (`valuemapid`),
+  CONSTRAINT `c_mappings_1` FOREIGN KEY (`valuemapid`) REFERENCES `valuemaps` (`valuemapid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `mappings`
@@ -603,6 +2109,29 @@ INSERT INTO `mappings` VALUES (1,1,'0','Down'),(2,1,'1','Up'),(3,2,'0','not avai
 UNLOCK TABLES;
 
 --
+-- Table structure for table `media`
+--
+
+DROP TABLE IF EXISTS `media`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `media` (
+  `mediaid` bigint(20) unsigned NOT NULL,
+  `userid` bigint(20) unsigned NOT NULL,
+  `mediatypeid` bigint(20) unsigned NOT NULL,
+  `sendto` varchar(100) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `active` int(11) NOT NULL DEFAULT '0',
+  `severity` int(11) NOT NULL DEFAULT '63',
+  `period` varchar(100) COLLATE utf8_bin NOT NULL DEFAULT '1-7,00:00-24:00',
+  PRIMARY KEY (`mediaid`),
+  KEY `media_1` (`userid`),
+  KEY `media_2` (`mediatypeid`),
+  CONSTRAINT `c_media_1` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`) ON DELETE CASCADE,
+  CONSTRAINT `c_media_2` FOREIGN KEY (`mediatypeid`) REFERENCES `media_type` (`mediatypeid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `media`
 --
 
@@ -611,6 +2140,36 @@ LOCK TABLES `media` WRITE;
 INSERT INTO `media` VALUES (3,3,1,'kui.tian@newtouch.cn',0,60,'1-7,00:00-24:00'),(4,4,1,'chuanchuan.wang@newtouch.cn',0,60,'1-7,00:00-24:00'),(5,5,1,'xiaofei1.yang@newtouch.cn',0,60,'1-7,00:00-24:00'),(6,4,4,'13262572552',0,56,'1-7,00:00-24:00'),(7,14,1,'lei.kong@newtouch.cn',0,60,'1-7,00:00-24:00'),(8,3,4,'15921419093',0,56,'1-7,00:00-24:00'),(9,5,4,'17095219595',0,56,'1-7,00:00-24:00'),(12,15,1,'yapeng.zou@newtouch.cn',0,60,'1-7,00:00-24:00'),(13,15,4,'18351941235',0,56,'1-7,00:00-24:00'),(14,13,1,'yunyi.cao@newtouch.cn',0,60,'1-7,00:00-24:00'),(15,13,4,'13661522595',0,56,'1-7,00:00-24:00'),(16,16,1,'kai.xu@newtouch.cn',0,60,'1-7,00:00-24:00'),(17,16,4,'18651915602',0,56,'1-7,00:00-24:00'),(18,17,1,'cheng.zhang@newtouch.cn',0,60,'1-7,00:00-24:00'),(19,17,4,'13564924360',0,56,'1-7,00:00-24:00'),(20,18,1,'xiaowei.liu@newtouch.cn',0,60,'1-7,00:00-24:00'),(21,18,4,'13621519151',0,56,'1-7,00:00-24:00'),(22,7,1,'chao.ma@newtouch.cn',0,60,'1-7,00:00-24:00'),(23,7,4,'18855101775',0,56,'1-7,00:00-24:00'),(24,19,1,'min.she@newtouch.cn',0,60,'1-7,00:00-24:00'),(25,19,4,'13564139148',0,56,'1-7,00:00-24:00'),(26,20,1,'qinghua.jin@newtouch.cn',0,60,'1-7,00:00-24:00'),(27,20,4,'13916742384',0,56,'1-7,00:00-24:00'),(28,11,1,'chunao.jin@newtouch.cn',0,60,'1-7,00:00-24:00'),(29,11,4,'18661106172',0,56,'1-7,00:00-24:00'),(30,9,1,'youhua.zhang@newtouch.cn',0,60,'1-7,00:00-24:00'),(31,9,4,'13564626472',0,56,'1-7,00:00-24:00'),(32,21,1,'wurui.chen@newtouch.cn',0,60,'1-7,00:00-24:00'),(33,21,4,'18721059418',0,56,'1-7,00:00-24:00'),(34,6,1,'wu.yang@newtouch.cn',0,60,'1-7,00:00-24:00'),(35,6,4,'18501603354',0,56,'1-7,00:00-24:00'),(36,8,1,'peidong.li@newtouch.cn',0,60,'1-7,00:00-24:00'),(37,8,4,'13774360511',0,56,'1-7,00:00-24:00'),(38,10,1,'yanlong.wu@newtouch.cn',0,60,'1-7,00:00-24:00'),(39,10,4,'18621850018',0,56,'1-7,00:00-24:00'),(40,12,1,'liangchen.chen@newtouch.cn',0,60,'1-7,00:00-24:00'),(41,12,4,'18616290371',0,56,'1-7,00:00-24:00'),(42,22,1,'feiming.chen@newtouch.cn',0,60,'1-7,00:00-24:00'),(43,22,4,'18516015877',0,56,'1-7,00:00-24:00'),(44,25,1,'liguo.shan@newtouch.cn',0,60,'1-7,00:00-24:00'),(45,25,4,'15800732851',0,56,'1-7,00:00-24:00'),(46,26,1,'shuanglong.he@newtouch.cn',0,60,'1-7,00:00-24:00'),(47,26,4,'18301703492',0,56,'1-7,00:00-24:00'),(48,27,1,'xingxing.bao@newtouch.cn',0,60,'1-7,00:00-24:00'),(49,27,4,'18317117049',0,56,'1-7,00:00-24:00');
 /*!40000 ALTER TABLE `media` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `media_type`
+--
+
+DROP TABLE IF EXISTS `media_type`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `media_type` (
+  `mediatypeid` bigint(20) unsigned NOT NULL,
+  `type` int(11) NOT NULL DEFAULT '0',
+  `description` varchar(100) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `smtp_server` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `smtp_helo` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `smtp_email` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `exec_path` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `gsm_modem` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `username` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `passwd` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `status` int(11) NOT NULL DEFAULT '0',
+  `smtp_port` int(11) NOT NULL DEFAULT '25',
+  `smtp_security` int(11) NOT NULL DEFAULT '0',
+  `smtp_verify_peer` int(11) NOT NULL DEFAULT '0',
+  `smtp_verify_host` int(11) NOT NULL DEFAULT '0',
+  `smtp_authentication` int(11) NOT NULL DEFAULT '0',
+  `exec_params` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`mediatypeid`),
+  UNIQUE KEY `media_type_1` (`description`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `media_type`
@@ -623,6 +2182,32 @@ INSERT INTO `media_type` VALUES (1,0,'Email','mail.newtouch.com','newtouch.com',
 UNLOCK TABLES;
 
 --
+-- Table structure for table `opcommand`
+--
+
+DROP TABLE IF EXISTS `opcommand`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `opcommand` (
+  `operationid` bigint(20) unsigned NOT NULL,
+  `type` int(11) NOT NULL DEFAULT '0',
+  `scriptid` bigint(20) unsigned DEFAULT NULL,
+  `execute_on` int(11) NOT NULL DEFAULT '0',
+  `port` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `authtype` int(11) NOT NULL DEFAULT '0',
+  `username` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `password` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `publickey` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `privatekey` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `command` text COLLATE utf8_bin NOT NULL,
+  PRIMARY KEY (`operationid`),
+  KEY `opcommand_1` (`scriptid`),
+  CONSTRAINT `c_opcommand_2` FOREIGN KEY (`scriptid`) REFERENCES `scripts` (`scriptid`),
+  CONSTRAINT `c_opcommand_1` FOREIGN KEY (`operationid`) REFERENCES `operations` (`operationid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `opcommand`
 --
 
@@ -633,6 +2218,25 @@ INSERT INTO `opcommand` VALUES (20,0,NULL,1,'',0,'','','','','echo -e \"From: <c
 UNLOCK TABLES;
 
 --
+-- Table structure for table `opcommand_grp`
+--
+
+DROP TABLE IF EXISTS `opcommand_grp`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `opcommand_grp` (
+  `opcommand_grpid` bigint(20) unsigned NOT NULL,
+  `operationid` bigint(20) unsigned NOT NULL,
+  `groupid` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`opcommand_grpid`),
+  KEY `opcommand_grp_1` (`operationid`),
+  KEY `opcommand_grp_2` (`groupid`),
+  CONSTRAINT `c_opcommand_grp_2` FOREIGN KEY (`groupid`) REFERENCES `groups` (`groupid`),
+  CONSTRAINT `c_opcommand_grp_1` FOREIGN KEY (`operationid`) REFERENCES `operations` (`operationid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `opcommand_grp`
 --
 
@@ -640,6 +2244,25 @@ LOCK TABLES `opcommand_grp` WRITE;
 /*!40000 ALTER TABLE `opcommand_grp` DISABLE KEYS */;
 /*!40000 ALTER TABLE `opcommand_grp` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `opcommand_hst`
+--
+
+DROP TABLE IF EXISTS `opcommand_hst`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `opcommand_hst` (
+  `opcommand_hstid` bigint(20) unsigned NOT NULL,
+  `operationid` bigint(20) unsigned NOT NULL,
+  `hostid` bigint(20) unsigned DEFAULT NULL,
+  PRIMARY KEY (`opcommand_hstid`),
+  KEY `opcommand_hst_1` (`operationid`),
+  KEY `opcommand_hst_2` (`hostid`),
+  CONSTRAINT `c_opcommand_hst_2` FOREIGN KEY (`hostid`) REFERENCES `hosts` (`hostid`),
+  CONSTRAINT `c_opcommand_hst_1` FOREIGN KEY (`operationid`) REFERENCES `operations` (`operationid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `opcommand_hst`
@@ -652,6 +2275,25 @@ INSERT INTO `opcommand_hst` VALUES (1,20,NULL);
 UNLOCK TABLES;
 
 --
+-- Table structure for table `opconditions`
+--
+
+DROP TABLE IF EXISTS `opconditions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `opconditions` (
+  `opconditionid` bigint(20) unsigned NOT NULL,
+  `operationid` bigint(20) unsigned NOT NULL,
+  `conditiontype` int(11) NOT NULL DEFAULT '0',
+  `operator` int(11) NOT NULL DEFAULT '0',
+  `value` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`opconditionid`),
+  KEY `opconditions_1` (`operationid`),
+  CONSTRAINT `c_opconditions_1` FOREIGN KEY (`operationid`) REFERENCES `operations` (`operationid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `opconditions`
 --
 
@@ -660,6 +2302,27 @@ LOCK TABLES `opconditions` WRITE;
 INSERT INTO `opconditions` VALUES (4,18,14,0,'0'),(5,19,14,0,'0'),(7,10,14,0,'0'),(8,24,14,0,'0'),(9,14,14,0,'0'),(10,15,14,0,'0'),(11,20,14,0,'0');
 /*!40000 ALTER TABLE `opconditions` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `operations`
+--
+
+DROP TABLE IF EXISTS `operations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `operations` (
+  `operationid` bigint(20) unsigned NOT NULL,
+  `actionid` bigint(20) unsigned NOT NULL,
+  `operationtype` int(11) NOT NULL DEFAULT '0',
+  `esc_period` int(11) NOT NULL DEFAULT '0',
+  `esc_step_from` int(11) NOT NULL DEFAULT '1',
+  `esc_step_to` int(11) NOT NULL DEFAULT '1',
+  `evaltype` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`operationid`),
+  KEY `operations_1` (`actionid`),
+  CONSTRAINT `c_operations_1` FOREIGN KEY (`actionid`) REFERENCES `actions` (`actionid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `operations`
@@ -672,6 +2335,25 @@ INSERT INTO `operations` VALUES (2,2,4,0,1,1,0),(3,3,0,0,1,1,0),(4,4,0,0,1,1,0),
 UNLOCK TABLES;
 
 --
+-- Table structure for table `opgroup`
+--
+
+DROP TABLE IF EXISTS `opgroup`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `opgroup` (
+  `opgroupid` bigint(20) unsigned NOT NULL,
+  `operationid` bigint(20) unsigned NOT NULL,
+  `groupid` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`opgroupid`),
+  UNIQUE KEY `opgroup_1` (`operationid`,`groupid`),
+  KEY `opgroup_2` (`groupid`),
+  CONSTRAINT `c_opgroup_2` FOREIGN KEY (`groupid`) REFERENCES `groups` (`groupid`),
+  CONSTRAINT `c_opgroup_1` FOREIGN KEY (`operationid`) REFERENCES `operations` (`operationid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `opgroup`
 --
 
@@ -682,6 +2364,21 @@ INSERT INTO `opgroup` VALUES (1,2,2);
 UNLOCK TABLES;
 
 --
+-- Table structure for table `opinventory`
+--
+
+DROP TABLE IF EXISTS `opinventory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `opinventory` (
+  `operationid` bigint(20) unsigned NOT NULL,
+  `inventory_mode` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`operationid`),
+  CONSTRAINT `c_opinventory_1` FOREIGN KEY (`operationid`) REFERENCES `operations` (`operationid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `opinventory`
 --
 
@@ -689,6 +2386,26 @@ LOCK TABLES `opinventory` WRITE;
 /*!40000 ALTER TABLE `opinventory` DISABLE KEYS */;
 /*!40000 ALTER TABLE `opinventory` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `opmessage`
+--
+
+DROP TABLE IF EXISTS `opmessage`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `opmessage` (
+  `operationid` bigint(20) unsigned NOT NULL,
+  `default_msg` int(11) NOT NULL DEFAULT '0',
+  `subject` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `message` text COLLATE utf8_bin NOT NULL,
+  `mediatypeid` bigint(20) unsigned DEFAULT NULL,
+  PRIMARY KEY (`operationid`),
+  KEY `opmessage_1` (`mediatypeid`),
+  CONSTRAINT `c_opmessage_2` FOREIGN KEY (`mediatypeid`) REFERENCES `media_type` (`mediatypeid`),
+  CONSTRAINT `c_opmessage_1` FOREIGN KEY (`operationid`) REFERENCES `operations` (`operationid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `opmessage`
@@ -701,6 +2418,25 @@ INSERT INTO `opmessage` VALUES (3,1,'{TRIGGER.STATUS}: {TRIGGER.NAME}','Trigger:
 UNLOCK TABLES;
 
 --
+-- Table structure for table `opmessage_grp`
+--
+
+DROP TABLE IF EXISTS `opmessage_grp`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `opmessage_grp` (
+  `opmessage_grpid` bigint(20) unsigned NOT NULL,
+  `operationid` bigint(20) unsigned NOT NULL,
+  `usrgrpid` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`opmessage_grpid`),
+  UNIQUE KEY `opmessage_grp_1` (`operationid`,`usrgrpid`),
+  KEY `opmessage_grp_2` (`usrgrpid`),
+  CONSTRAINT `c_opmessage_grp_2` FOREIGN KEY (`usrgrpid`) REFERENCES `usrgrp` (`usrgrpid`),
+  CONSTRAINT `c_opmessage_grp_1` FOREIGN KEY (`operationid`) REFERENCES `operations` (`operationid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `opmessage_grp`
 --
 
@@ -709,6 +2445,25 @@ LOCK TABLES `opmessage_grp` WRITE;
 INSERT INTO `opmessage_grp` VALUES (1,3,7),(3,5,7),(4,6,7),(6,7,14),(5,7,15),(8,8,14),(7,8,15),(9,9,14),(10,10,15),(12,11,14),(11,11,15),(13,12,14),(15,13,13),(16,13,14),(14,13,15),(17,14,15),(18,15,13),(19,16,14),(20,17,13),(21,17,14),(22,17,15),(23,18,15),(24,19,13);
 /*!40000 ALTER TABLE `opmessage_grp` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `opmessage_usr`
+--
+
+DROP TABLE IF EXISTS `opmessage_usr`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `opmessage_usr` (
+  `opmessage_usrid` bigint(20) unsigned NOT NULL,
+  `operationid` bigint(20) unsigned NOT NULL,
+  `userid` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`opmessage_usrid`),
+  UNIQUE KEY `opmessage_usr_1` (`operationid`,`userid`),
+  KEY `opmessage_usr_2` (`userid`),
+  CONSTRAINT `c_opmessage_usr_2` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`),
+  CONSTRAINT `c_opmessage_usr_1` FOREIGN KEY (`operationid`) REFERENCES `operations` (`operationid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `opmessage_usr`
@@ -721,6 +2476,25 @@ INSERT INTO `opmessage_usr` VALUES (3,4,15),(1,23,15),(2,24,15);
 UNLOCK TABLES;
 
 --
+-- Table structure for table `optemplate`
+--
+
+DROP TABLE IF EXISTS `optemplate`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `optemplate` (
+  `optemplateid` bigint(20) unsigned NOT NULL,
+  `operationid` bigint(20) unsigned NOT NULL,
+  `templateid` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`optemplateid`),
+  UNIQUE KEY `optemplate_1` (`operationid`,`templateid`),
+  KEY `optemplate_2` (`templateid`),
+  CONSTRAINT `c_optemplate_2` FOREIGN KEY (`templateid`) REFERENCES `hosts` (`hostid`),
+  CONSTRAINT `c_optemplate_1` FOREIGN KEY (`operationid`) REFERENCES `operations` (`operationid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `optemplate`
 --
 
@@ -731,14 +2505,58 @@ INSERT INTO `optemplate` VALUES (2,22,10099),(3,22,10107),(1,22,10110);
 UNLOCK TABLES;
 
 --
+-- Table structure for table `profiles`
+--
+
+DROP TABLE IF EXISTS `profiles`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `profiles` (
+  `profileid` bigint(20) unsigned NOT NULL,
+  `userid` bigint(20) unsigned NOT NULL,
+  `idx` varchar(96) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `idx2` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `value_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `value_int` int(11) NOT NULL DEFAULT '0',
+  `value_str` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `source` varchar(96) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `type` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`profileid`),
+  KEY `profiles_1` (`userid`,`idx`,`idx2`),
+  KEY `profiles_2` (`userid`,`profileid`),
+  CONSTRAINT `c_profiles_1` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `profiles`
 --
 
 LOCK TABLES `profiles` WRITE;
 /*!40000 ALTER TABLE `profiles` DISABLE KEYS */;
-INSERT INTO `profiles` VALUES (1,1,'web.menu.config.last',0,0,0,'actionconf.php','',3),(2,1,'web.templates.php.groupid',0,0,0,'','',1),(3,1,'web.latest.groupid',0,0,0,'','',1),(4,1,'web.templates.php.sort',0,0,0,'name','',3),(5,1,'web.templates.php.sortorder',0,0,0,'ASC','',3),(6,1,'web.paging.lastpage',0,0,0,'actionconf.php','',3),(7,1,'web.items.filter_groupid',0,0,0,'','',1),(8,1,'web.items.filter_hostid',0,10107,0,'','',1),(9,1,'web.items.filter_application',0,0,0,'','',3),(10,1,'web.items.filter_name',0,0,0,'','',3),(11,1,'web.items.filter_type',0,0,-1,'','',2),(12,1,'web.items.filter_key',0,0,0,'','',3),(13,1,'web.items.filter_snmp_community',0,0,0,'','',3),(14,1,'web.items.filter_snmpv3_securityname',0,0,0,'','',3),(15,1,'web.items.filter_snmp_oid',0,0,0,'','',3),(16,1,'web.items.filter_port',0,0,0,'','',3),(17,1,'web.items.filter_value_type',0,0,-1,'','',2),(18,1,'web.items.filter_data_type',0,0,-1,'','',2),(19,1,'web.items.filter_delay',0,0,0,'','',3),(20,1,'web.items.filter_history',0,0,0,'','',3),(21,1,'web.items.filter_trends',0,0,0,'','',3),(22,1,'web.items.filter_status',0,0,-1,'','',2),(23,1,'web.items.filter_state',0,0,-1,'','',2),(24,1,'web.items.filter_templated_items',0,0,-1,'','',2),(25,1,'web.items.filter_with_triggers',0,0,-1,'','',2),(26,1,'web.items.filter_ipmi_sensor',0,0,0,'','',3),(27,1,'web.items.subfilter_apps',0,0,0,'','',3),(28,1,'web.items.subfilter_types',0,0,0,'','',3),(29,1,'web.items.subfilter_value_types',0,0,0,'','',3),(30,1,'web.items.subfilter_status',0,0,0,'','',3),(31,1,'web.items.subfilter_state',0,0,0,'','',3),(32,1,'web.items.subfilter_templated_items',0,0,0,'','',3),(33,1,'web.items.subfilter_with_triggers',0,0,0,'','',3),(34,1,'web.items.subfilter_hosts',0,0,0,'','',3),(35,1,'web.items.subfilter_interval',0,0,0,'','',3),(36,1,'web.items.subfilter_history',0,0,0,'','',3),(37,1,'web.items.subfilter_trends',0,0,0,'','',3),(38,1,'web.items.php.sort',0,0,0,'status','',3),(39,1,'web.items.php.sortorder',0,0,0,'ASC','',3),(40,1,'web.config.groupid',0,0,0,'','',1),(41,1,'web.hosts.php.sort',0,0,0,'name','',3),(42,1,'web.hosts.php.sortorder',0,0,0,'ASC','',3),(43,1,'web.host_discovery.php.sort',0,0,0,'name','',3),(44,1,'web.host_discovery.php.sortorder',0,0,0,'ASC','',3),(45,1,'web.disc_prototypes.php.sort',0,0,0,'name','',3),(46,1,'web.disc_prototypes.php.sortorder',0,0,0,'ASC','',3),(47,1,'web.config.hostid',0,10114,0,'','',1),(48,1,'web.latest.hostid',0,10114,0,'','',1),(49,1,'web.graphs.php.sort',0,0,0,'name','',3),(50,1,'web.graphs.php.sortorder',0,0,0,'ASC','',3),(51,1,'web.reports.groupid',0,1,0,'','',1),(52,1,'web.reports.hostid',0,10085,0,'','',1),(53,1,'web.httpconf.php.sort',0,0,0,'name','',3),(54,1,'web.httpconf.php.sortorder',0,0,0,'ASC','',3),(55,1,'web.triggers.php.sort',0,0,0,'description','',3),(56,1,'web.triggers.php.sortorder',0,0,0,'ASC','',3),(57,1,'web.applications.php.sort',0,0,0,'name','',3),(58,1,'web.applications.php.sortorder',0,0,0,'ASC','',3),(59,1,'web.menu.view.last',0,0,0,'zabbix.php','',3),(60,1,'web.view.groupid',0,0,0,'','',1),(61,1,'web.menu.admin.last',0,0,0,'users.php','',3),(62,1,'web.actionconf.php.sort',0,0,0,'name','',3),(63,1,'web.actionconf.php.sortorder',0,0,0,'ASC','',3),(64,1,'web.discoveryconf.php.sort',0,0,0,'name','',3),(65,1,'web.discoveryconf.php.sortorder',0,0,0,'ASC','',3),(66,1,'web.usergrps.php.sort',0,0,0,'name','',3),(67,1,'web.usergrps.php.sortorder',0,0,0,'ASC','',3),(68,1,'web.media_type.php.sort',0,0,0,'description','',3),(69,1,'web.media_types.php.sortorder',0,0,0,'ASC','',3),(70,1,'web.users.filter.usrgrpid',0,0,0,'','',1),(71,1,'web.users.php.sort',0,0,0,'type','',3),(72,1,'web.users.php.sortorder',0,0,0,'ASC','',3),(73,1,'web.scripts.php.sort',0,0,0,'name','',3),(74,1,'web.scripts.php.sortorder',0,0,0,'ASC','',3),(75,1,'web.queue.config',0,0,0,'','',2),(76,1,'web.proxies.php.sort',0,0,0,'host','',3),(77,1,'web.proxies.php.sortorder',0,0,0,'ASC','',3),(78,1,'web.hostgroups.php.sort',0,0,0,'name','',3),(79,1,'web.hostgroups.php.sortorder',0,0,0,'ASC','',3),(80,1,'web.actionconf.eventsource',0,0,0,'','',2),(81,1,'web.trigger_prototypes.php.sort',0,0,0,'description','',3),(82,1,'web.trigger_prototypes.php.sortorder',0,0,0,'ASC','',3),(83,1,'web.latest.php.sort',0,0,0,'name','',3),(84,1,'web.latest.php.sortorder',0,0,0,'ASC','',3),(85,1,'web.tr_status.php.sort',0,0,0,'lastchange','',3),(86,1,'web.tr_status.php.sortorder',0,0,0,'DESC','',3),(87,1,'web.view.hostid',0,0,0,'','',1),(88,1,'web.tr_status.filter.show_details',0,0,0,'','',2),(89,1,'web.tr_status.filter.show_maintenance',0,0,1,'','',2),(90,1,'web.tr_status.filter.show_severity',0,0,2,'','',2),(91,1,'web.tr_status.filter.txt_select',0,0,0,'','',3),(92,1,'web.tr_status.filter.status_change',0,0,0,'','',2),(93,1,'web.tr_status.filter.status_change_days',0,0,14,'','',2),(94,1,'web.tr_status.filter.application',0,0,0,'','',3),(95,1,'web.tr_status.filter.show_triggers',0,0,1,'','',2),(96,1,'web.tr_status.filter.show_events',0,0,2,'','',2),(97,1,'web.tr_status.filter.ack_status',0,0,1,'','',2),(98,1,'web.events.source',0,0,0,'','',2),(99,1,'web.screenconf.config',0,0,0,'','',2),(100,1,'web.screenconf.php.sort',0,0,0,'name','',3),(101,1,'web.screenconf.php.sortorder',0,0,0,'ASC','',3),(102,1,'web.discovery.php.sort',0,0,0,'ip','',3),(103,1,'web.discovery.php.sortorder',0,0,0,'ASC','',3),(104,1,'web..druleid',0,0,0,'','',1),(105,1,'web.latest.druleid',0,0,0,'','',1),(106,1,'web.menu.login.last',0,0,0,'index.php','',3),(107,1,'web.messages',0,0,0,'1','enabled',3),(108,1,'web.messages',0,0,0,'60','timeout',3),(109,1,'web.messages',0,0,0,'1','sounds.repeat',3),(110,1,'web.messages',0,0,0,'1','triggers.recovery',3),(111,1,'web.messages',0,0,0,'no_sound.wav','sounds.recovery',3),(112,1,'web.messages',0,0,0,'a:6:{i:0;s:1:\"1\";i:1;s:1:\"1\";i:2;s:1:\"1\";i:3;s:1:\"1\";i:4;s:1:\"1\";i:5;s:1:\"1\";}','triggers.severities',3),(113,1,'web.messages',0,0,0,'no_sound.wav','sounds.0',3),(114,1,'web.messages',0,0,0,'alarm_information.wav','sounds.1',3),(115,1,'web.messages',0,0,0,'alarm_warning.wav','sounds.2',3),(116,1,'web.messages',0,0,0,'alarm_average.wav','sounds.3',3),(117,1,'web.messages',0,0,0,'alarm_high.wav','sounds.4',3),(118,1,'web.messages',0,0,0,'alarm_disaster.wav','sounds.5',3),(119,1,'web.maintenance.php.sort',0,0,0,'name','',3),(120,1,'web.maintenance.php.sortorder',0,0,0,'ASC','',3),(121,1,'web.menu.reports.last',0,0,0,'report2.php','',3),(122,1,'web.sysmaps.php.sort',0,0,0,'name','',3),(123,1,'web.sysmaps.php.sortorder',0,0,0,'ASC','',3),(124,1,'web.toptriggers.filter.severities',0,0,0,'0','',3),(125,1,'web.toptriggers.filter.severities',1,0,0,'2','',3),(126,1,'web.toptriggers.filter.severities',2,0,0,'4','',3),(127,1,'web.toptriggers.filter.severities',3,0,0,'1','',3),(130,1,'web.toptriggers.filter.from',0,0,0,'1463328000','',3),(131,1,'web.toptriggers.filter.till',0,0,0,'1464278400','',3),(133,1,'web.toptriggers.filter.severities',4,0,0,'3','',3),(134,1,'web.toptriggers.filter.severities',5,0,0,'5','',3),(135,1,'web.avail_report.mode',0,0,0,'','',2),(136,1,'web.avail_report.0.groupid',0,0,0,'','',1),(137,1,'web.avail_report.0.timesince',0,0,0,'0','',3),(138,1,'web.avail_report.0.timetill',0,0,0,'0','',3),(139,1,'web.avail_report.0.hostid',0,0,0,'','',1),(140,1,'web.messages',0,0,0,'1465211133','last.clock',3),(141,1,'web.messages',0,0,0,'0','sounds.mute',3),(142,1,'web.dashboard.widget.stszbx.state',0,0,0,'','',2),(143,1,'web.dashboard.widget.favgrph.col',0,0,0,'','',2),(144,1,'web.dashboard.widget.favgrph.row',0,0,0,'','',2),(145,1,'web.dashboard.widget.favscr.col',0,0,0,'','',2),(146,1,'web.dashboard.widget.favscr.row',0,0,1,'','',2),(147,1,'web.dashboard.widget.favmap.col',0,0,0,'','',2),(148,1,'web.dashboard.widget.favmap.row',0,0,2,'','',2),(149,1,'web.dashboard.widget.stszbx.col',0,0,1,'','',2),(150,1,'web.dashboard.widget.stszbx.row',0,0,0,'','',2),(151,1,'web.dashboard.widget.lastiss.col',0,0,1,'','',2),(152,1,'web.dashboard.widget.lastiss.row',0,0,1,'','',2),(153,1,'web.dashboard.widget.syssum.col',0,0,1,'','',2),(154,1,'web.dashboard.widget.syssum.row',0,0,2,'','',2),(155,1,'web.dashboard.widget.hoststat.col',0,0,1,'','',2),(156,1,'web.dashboard.widget.hoststat.row',0,0,3,'','',2),(157,1,'web.dashboard.widget.webovr.col',0,0,1,'','',2),(158,1,'web.dashboard.widget.webovr.row',0,0,4,'','',2),(159,1,'web.dashboard.widget.lastiss.rf_rate',0,0,30,'','',2),(160,1,'web.dashboard.widget.hoststat.rf_rate',0,0,30,'','',2);
+INSERT INTO `profiles` VALUES (1,1,'web.menu.config.last',0,0,0,'hosts.php','',3),(2,1,'web.templates.php.groupid',0,0,0,'','',1),(3,1,'web.latest.groupid',0,0,0,'','',1),(4,1,'web.templates.php.sort',0,0,0,'name','',3),(5,1,'web.templates.php.sortorder',0,0,0,'ASC','',3),(6,1,'web.paging.lastpage',0,0,0,'hosts.php','',3),(7,1,'web.items.filter_groupid',0,0,0,'','',1),(8,1,'web.items.filter_hostid',0,10107,0,'','',1),(9,1,'web.items.filter_application',0,0,0,'','',3),(10,1,'web.items.filter_name',0,0,0,'','',3),(11,1,'web.items.filter_type',0,0,-1,'','',2),(12,1,'web.items.filter_key',0,0,0,'','',3),(13,1,'web.items.filter_snmp_community',0,0,0,'','',3),(14,1,'web.items.filter_snmpv3_securityname',0,0,0,'','',3),(15,1,'web.items.filter_snmp_oid',0,0,0,'','',3),(16,1,'web.items.filter_port',0,0,0,'','',3),(17,1,'web.items.filter_value_type',0,0,-1,'','',2),(18,1,'web.items.filter_data_type',0,0,-1,'','',2),(19,1,'web.items.filter_delay',0,0,0,'','',3),(20,1,'web.items.filter_history',0,0,0,'','',3),(21,1,'web.items.filter_trends',0,0,0,'','',3),(22,1,'web.items.filter_status',0,0,-1,'','',2),(23,1,'web.items.filter_state',0,0,-1,'','',2),(24,1,'web.items.filter_templated_items',0,0,-1,'','',2),(25,1,'web.items.filter_with_triggers',0,0,-1,'','',2),(26,1,'web.items.filter_ipmi_sensor',0,0,0,'','',3),(27,1,'web.items.subfilter_apps',0,0,0,'','',3),(28,1,'web.items.subfilter_types',0,0,0,'','',3),(29,1,'web.items.subfilter_value_types',0,0,0,'','',3),(30,1,'web.items.subfilter_status',0,0,0,'','',3),(31,1,'web.items.subfilter_state',0,0,0,'','',3),(32,1,'web.items.subfilter_templated_items',0,0,0,'','',3),(33,1,'web.items.subfilter_with_triggers',0,0,0,'','',3),(34,1,'web.items.subfilter_hosts',0,0,0,'','',3),(35,1,'web.items.subfilter_interval',0,0,0,'','',3),(36,1,'web.items.subfilter_history',0,0,0,'','',3),(37,1,'web.items.subfilter_trends',0,0,0,'','',3),(38,1,'web.items.php.sort',0,0,0,'status','',3),(39,1,'web.items.php.sortorder',0,0,0,'ASC','',3),(40,1,'web.config.groupid',0,0,0,'','',1),(41,1,'web.hosts.php.sort',0,0,0,'name','',3),(42,1,'web.hosts.php.sortorder',0,0,0,'ASC','',3),(43,1,'web.host_discovery.php.sort',0,0,0,'name','',3),(44,1,'web.host_discovery.php.sortorder',0,0,0,'ASC','',3),(45,1,'web.disc_prototypes.php.sort',0,0,0,'name','',3),(46,1,'web.disc_prototypes.php.sortorder',0,0,0,'ASC','',3),(47,1,'web.config.hostid',0,10114,0,'','',1),(48,1,'web.latest.hostid',0,10114,0,'','',1),(49,1,'web.graphs.php.sort',0,0,0,'name','',3),(50,1,'web.graphs.php.sortorder',0,0,0,'ASC','',3),(51,1,'web.reports.groupid',0,1,0,'','',1),(52,1,'web.reports.hostid',0,10085,0,'','',1),(53,1,'web.httpconf.php.sort',0,0,0,'name','',3),(54,1,'web.httpconf.php.sortorder',0,0,0,'ASC','',3),(55,1,'web.triggers.php.sort',0,0,0,'description','',3),(56,1,'web.triggers.php.sortorder',0,0,0,'ASC','',3),(57,1,'web.applications.php.sort',0,0,0,'name','',3),(58,1,'web.applications.php.sortorder',0,0,0,'ASC','',3),(59,1,'web.menu.view.last',0,0,0,'tr_status.php','',3),(60,1,'web.view.groupid',0,0,0,'','',1),(61,1,'web.menu.admin.last',0,0,0,'users.php','',3),(62,1,'web.actionconf.php.sort',0,0,0,'name','',3),(63,1,'web.actionconf.php.sortorder',0,0,0,'ASC','',3),(64,1,'web.discoveryconf.php.sort',0,0,0,'name','',3),(65,1,'web.discoveryconf.php.sortorder',0,0,0,'ASC','',3),(66,1,'web.usergrps.php.sort',0,0,0,'name','',3),(67,1,'web.usergrps.php.sortorder',0,0,0,'ASC','',3),(68,1,'web.media_type.php.sort',0,0,0,'description','',3),(69,1,'web.media_types.php.sortorder',0,0,0,'ASC','',3),(70,1,'web.users.filter.usrgrpid',0,0,0,'','',1),(71,1,'web.users.php.sort',0,0,0,'type','',3),(72,1,'web.users.php.sortorder',0,0,0,'ASC','',3),(73,1,'web.scripts.php.sort',0,0,0,'name','',3),(74,1,'web.scripts.php.sortorder',0,0,0,'ASC','',3),(75,1,'web.queue.config',0,0,0,'','',2),(76,1,'web.proxies.php.sort',0,0,0,'host','',3),(77,1,'web.proxies.php.sortorder',0,0,0,'ASC','',3),(78,1,'web.hostgroups.php.sort',0,0,0,'name','',3),(79,1,'web.hostgroups.php.sortorder',0,0,0,'ASC','',3),(80,1,'web.actionconf.eventsource',0,0,0,'','',2),(81,1,'web.trigger_prototypes.php.sort',0,0,0,'description','',3),(82,1,'web.trigger_prototypes.php.sortorder',0,0,0,'ASC','',3),(83,1,'web.latest.php.sort',0,0,0,'name','',3),(84,1,'web.latest.php.sortorder',0,0,0,'ASC','',3),(85,1,'web.tr_status.php.sort',0,0,0,'lastchange','',3),(86,1,'web.tr_status.php.sortorder',0,0,0,'DESC','',3),(87,1,'web.view.hostid',0,0,0,'','',1),(88,1,'web.tr_status.filter.show_details',0,0,0,'','',2),(89,1,'web.tr_status.filter.show_maintenance',0,0,1,'','',2),(90,1,'web.tr_status.filter.show_severity',0,0,2,'','',2),(91,1,'web.tr_status.filter.txt_select',0,0,0,'','',3),(92,1,'web.tr_status.filter.status_change',0,0,0,'','',2),(93,1,'web.tr_status.filter.status_change_days',0,0,14,'','',2),(94,1,'web.tr_status.filter.application',0,0,0,'','',3),(95,1,'web.tr_status.filter.show_triggers',0,0,1,'','',2),(96,1,'web.tr_status.filter.show_events',0,0,2,'','',2),(97,1,'web.tr_status.filter.ack_status',0,0,1,'','',2),(98,1,'web.events.source',0,0,0,'','',2),(99,1,'web.screenconf.config',0,0,0,'','',2),(100,1,'web.screenconf.php.sort',0,0,0,'name','',3),(101,1,'web.screenconf.php.sortorder',0,0,0,'ASC','',3),(102,1,'web.discovery.php.sort',0,0,0,'ip','',3),(103,1,'web.discovery.php.sortorder',0,0,0,'ASC','',3),(104,1,'web..druleid',0,0,0,'','',1),(105,1,'web.latest.druleid',0,0,0,'','',1),(106,1,'web.menu.login.last',0,0,0,'index.php','',3),(107,1,'web.messages',0,0,0,'1','enabled',3),(108,1,'web.messages',0,0,0,'60','timeout',3),(109,1,'web.messages',0,0,0,'1','sounds.repeat',3),(110,1,'web.messages',0,0,0,'1','triggers.recovery',3),(111,1,'web.messages',0,0,0,'no_sound.wav','sounds.recovery',3),(112,1,'web.messages',0,0,0,'a:6:{i:0;s:1:\"1\";i:1;s:1:\"1\";i:2;s:1:\"1\";i:3;s:1:\"1\";i:4;s:1:\"1\";i:5;s:1:\"1\";}','triggers.severities',3),(113,1,'web.messages',0,0,0,'no_sound.wav','sounds.0',3),(114,1,'web.messages',0,0,0,'alarm_information.wav','sounds.1',3),(115,1,'web.messages',0,0,0,'alarm_warning.wav','sounds.2',3),(116,1,'web.messages',0,0,0,'alarm_average.wav','sounds.3',3),(117,1,'web.messages',0,0,0,'alarm_high.wav','sounds.4',3),(118,1,'web.messages',0,0,0,'alarm_disaster.wav','sounds.5',3),(119,1,'web.maintenance.php.sort',0,0,0,'name','',3),(120,1,'web.maintenance.php.sortorder',0,0,0,'ASC','',3),(121,1,'web.menu.reports.last',0,0,0,'report2.php','',3),(122,1,'web.sysmaps.php.sort',0,0,0,'name','',3),(123,1,'web.sysmaps.php.sortorder',0,0,0,'ASC','',3),(124,1,'web.toptriggers.filter.severities',0,0,0,'0','',3),(125,1,'web.toptriggers.filter.severities',1,0,0,'2','',3),(126,1,'web.toptriggers.filter.severities',2,0,0,'4','',3),(127,1,'web.toptriggers.filter.severities',3,0,0,'1','',3),(130,1,'web.toptriggers.filter.from',0,0,0,'1463328000','',3),(131,1,'web.toptriggers.filter.till',0,0,0,'1464278400','',3),(133,1,'web.toptriggers.filter.severities',4,0,0,'3','',3),(134,1,'web.toptriggers.filter.severities',5,0,0,'5','',3),(135,1,'web.avail_report.mode',0,0,0,'','',2),(136,1,'web.avail_report.0.groupid',0,0,0,'','',1),(137,1,'web.avail_report.0.timesince',0,0,0,'0','',3),(138,1,'web.avail_report.0.timetill',0,0,0,'0','',3),(139,1,'web.avail_report.0.hostid',0,0,0,'','',1),(140,1,'web.messages',0,0,0,'1465211133','last.clock',3),(141,1,'web.messages',0,0,0,'0','sounds.mute',3),(142,1,'web.dashboard.widget.stszbx.state',0,0,0,'','',2),(143,1,'web.dashboard.widget.favgrph.col',0,0,0,'','',2),(144,1,'web.dashboard.widget.favgrph.row',0,0,0,'','',2),(145,1,'web.dashboard.widget.favscr.col',0,0,0,'','',2),(146,1,'web.dashboard.widget.favscr.row',0,0,1,'','',2),(147,1,'web.dashboard.widget.favmap.col',0,0,0,'','',2),(148,1,'web.dashboard.widget.favmap.row',0,0,2,'','',2),(149,1,'web.dashboard.widget.stszbx.col',0,0,1,'','',2),(150,1,'web.dashboard.widget.stszbx.row',0,0,0,'','',2),(151,1,'web.dashboard.widget.lastiss.col',0,0,1,'','',2),(152,1,'web.dashboard.widget.lastiss.row',0,0,1,'','',2),(153,1,'web.dashboard.widget.syssum.col',0,0,1,'','',2),(154,1,'web.dashboard.widget.syssum.row',0,0,2,'','',2),(155,1,'web.dashboard.widget.hoststat.col',0,0,1,'','',2),(156,1,'web.dashboard.widget.hoststat.row',0,0,3,'','',2),(157,1,'web.dashboard.widget.webovr.col',0,0,1,'','',2),(158,1,'web.dashboard.widget.webovr.row',0,0,4,'','',2),(159,1,'web.dashboard.widget.lastiss.rf_rate',0,0,30,'','',2),(160,1,'web.dashboard.widget.hoststat.rf_rate',0,0,30,'','',2);
 /*!40000 ALTER TABLE `profiles` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `proxy_autoreg_host`
+--
+
+DROP TABLE IF EXISTS `proxy_autoreg_host`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `proxy_autoreg_host` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `clock` int(11) NOT NULL DEFAULT '0',
+  `host` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `listen_ip` varchar(39) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `listen_port` int(11) NOT NULL DEFAULT '0',
+  `listen_dns` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `host_metadata` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`),
+  KEY `proxy_autoreg_host_1` (`clock`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `proxy_autoreg_host`
@@ -750,6 +2568,30 @@ LOCK TABLES `proxy_autoreg_host` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `proxy_dhistory`
+--
+
+DROP TABLE IF EXISTS `proxy_dhistory`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `proxy_dhistory` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `clock` int(11) NOT NULL DEFAULT '0',
+  `druleid` bigint(20) unsigned NOT NULL,
+  `type` int(11) NOT NULL DEFAULT '0',
+  `ip` varchar(39) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `port` int(11) NOT NULL DEFAULT '0',
+  `key_` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `value` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `status` int(11) NOT NULL DEFAULT '0',
+  `dcheckid` bigint(20) unsigned DEFAULT NULL,
+  `dns` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`),
+  KEY `proxy_dhistory_1` (`clock`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `proxy_dhistory`
 --
 
@@ -759,6 +2601,32 @@ LOCK TABLES `proxy_dhistory` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `proxy_history`
+--
+
+DROP TABLE IF EXISTS `proxy_history`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `proxy_history` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `itemid` bigint(20) unsigned NOT NULL,
+  `clock` int(11) NOT NULL DEFAULT '0',
+  `timestamp` int(11) NOT NULL DEFAULT '0',
+  `source` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `severity` int(11) NOT NULL DEFAULT '0',
+  `value` longtext COLLATE utf8_bin NOT NULL,
+  `logeventid` int(11) NOT NULL DEFAULT '0',
+  `ns` int(11) NOT NULL DEFAULT '0',
+  `state` int(11) NOT NULL DEFAULT '0',
+  `lastlogsize` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `mtime` int(11) NOT NULL DEFAULT '0',
+  `flags` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `proxy_history_1` (`clock`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `proxy_history`
 --
 
@@ -766,6 +2634,22 @@ LOCK TABLES `proxy_history` WRITE;
 /*!40000 ALTER TABLE `proxy_history` DISABLE KEYS */;
 /*!40000 ALTER TABLE `proxy_history` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `regexps`
+--
+
+DROP TABLE IF EXISTS `regexps`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `regexps` (
+  `regexpid` bigint(20) unsigned NOT NULL,
+  `name` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `test_string` text COLLATE utf8_bin NOT NULL,
+  PRIMARY KEY (`regexpid`),
+  UNIQUE KEY `regexps_1` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `regexps`
@@ -778,6 +2662,26 @@ INSERT INTO `regexps` VALUES (1,'File systems for discovery','ext3'),(2,'Network
 UNLOCK TABLES;
 
 --
+-- Table structure for table `rights`
+--
+
+DROP TABLE IF EXISTS `rights`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `rights` (
+  `rightid` bigint(20) unsigned NOT NULL,
+  `groupid` bigint(20) unsigned NOT NULL,
+  `permission` int(11) NOT NULL DEFAULT '0',
+  `id` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`rightid`),
+  KEY `rights_1` (`groupid`),
+  KEY `rights_2` (`id`),
+  CONSTRAINT `c_rights_2` FOREIGN KEY (`id`) REFERENCES `groups` (`groupid`) ON DELETE CASCADE,
+  CONSTRAINT `c_rights_1` FOREIGN KEY (`groupid`) REFERENCES `usrgrp` (`usrgrpid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `rights`
 --
 
@@ -786,6 +2690,26 @@ LOCK TABLES `rights` WRITE;
 INSERT INTO `rights` VALUES (1,16,2,4),(2,16,2,9),(3,16,2,8),(4,16,2,10),(5,17,2,4),(6,17,2,9),(7,17,2,8),(8,17,2,10),(9,18,2,4),(10,18,2,9),(11,18,2,8),(12,18,2,10),(13,19,2,4),(14,19,2,9),(15,19,2,8),(16,19,2,10),(17,20,2,4),(18,20,2,9),(19,20,2,8),(20,20,2,10),(21,7,3,5),(22,7,3,7),(23,7,3,2),(24,7,3,1),(25,7,3,6),(26,7,3,4),(27,7,3,9),(28,7,3,8),(29,7,3,10),(30,13,2,4),(31,13,2,9),(32,13,2,8),(33,13,2,10),(40,14,3,9),(41,14,3,8),(42,14,3,10),(48,15,3,4),(49,15,3,9),(50,15,3,8),(51,15,3,10),(52,16,2,11),(53,16,2,12),(54,17,2,12),(55,17,2,11),(56,18,2,12),(57,18,2,11),(58,19,2,12),(59,19,2,11),(60,20,2,12),(61,20,2,11),(62,15,3,12),(63,15,3,11),(64,7,3,12),(65,7,3,11),(66,13,2,12),(67,13,2,11),(68,14,3,12),(69,14,3,11),(70,15,2,1),(71,22,2,5),(72,22,2,7),(73,22,2,2),(74,22,2,1),(75,22,2,6),(76,22,2,4),(77,22,2,9),(78,22,2,8),(79,22,2,12),(80,22,2,11),(81,22,2,10);
 /*!40000 ALTER TABLE `rights` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `screen_user`
+--
+
+DROP TABLE IF EXISTS `screen_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `screen_user` (
+  `screenuserid` bigint(20) unsigned NOT NULL,
+  `screenid` bigint(20) unsigned NOT NULL,
+  `userid` bigint(20) unsigned NOT NULL,
+  `permission` int(11) NOT NULL DEFAULT '2',
+  PRIMARY KEY (`screenuserid`),
+  UNIQUE KEY `screen_user_1` (`screenid`,`userid`),
+  KEY `c_screen_user_2` (`userid`),
+  CONSTRAINT `c_screen_user_2` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`) ON DELETE CASCADE,
+  CONSTRAINT `c_screen_user_1` FOREIGN KEY (`screenid`) REFERENCES `screens` (`screenid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `screen_user`
@@ -797,6 +2721,26 @@ LOCK TABLES `screen_user` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `screen_usrgrp`
+--
+
+DROP TABLE IF EXISTS `screen_usrgrp`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `screen_usrgrp` (
+  `screenusrgrpid` bigint(20) unsigned NOT NULL,
+  `screenid` bigint(20) unsigned NOT NULL,
+  `usrgrpid` bigint(20) unsigned NOT NULL,
+  `permission` int(11) NOT NULL DEFAULT '2',
+  PRIMARY KEY (`screenusrgrpid`),
+  UNIQUE KEY `screen_usrgrp_1` (`screenid`,`usrgrpid`),
+  KEY `c_screen_usrgrp_2` (`usrgrpid`),
+  CONSTRAINT `c_screen_usrgrp_2` FOREIGN KEY (`usrgrpid`) REFERENCES `usrgrp` (`usrgrpid`) ON DELETE CASCADE,
+  CONSTRAINT `c_screen_usrgrp_1` FOREIGN KEY (`screenid`) REFERENCES `screens` (`screenid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `screen_usrgrp`
 --
 
@@ -804,6 +2748,29 @@ LOCK TABLES `screen_usrgrp` WRITE;
 /*!40000 ALTER TABLE `screen_usrgrp` DISABLE KEYS */;
 /*!40000 ALTER TABLE `screen_usrgrp` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `screens`
+--
+
+DROP TABLE IF EXISTS `screens`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `screens` (
+  `screenid` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) COLLATE utf8_bin NOT NULL,
+  `hsize` int(11) NOT NULL DEFAULT '1',
+  `vsize` int(11) NOT NULL DEFAULT '1',
+  `templateid` bigint(20) unsigned DEFAULT NULL,
+  `userid` bigint(20) unsigned DEFAULT NULL,
+  `private` int(11) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`screenid`),
+  KEY `screens_1` (`templateid`),
+  KEY `c_screens_3` (`userid`),
+  CONSTRAINT `c_screens_3` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`),
+  CONSTRAINT `c_screens_1` FOREIGN KEY (`templateid`) REFERENCES `hosts` (`hostid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `screens`
@@ -816,6 +2783,39 @@ INSERT INTO `screens` VALUES (16,'Zabbix server',2,2,NULL,1,0),(17,'MySQL perfor
 UNLOCK TABLES;
 
 --
+-- Table structure for table `screens_items`
+--
+
+DROP TABLE IF EXISTS `screens_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `screens_items` (
+  `screenitemid` bigint(20) unsigned NOT NULL,
+  `screenid` bigint(20) unsigned NOT NULL,
+  `resourcetype` int(11) NOT NULL DEFAULT '0',
+  `resourceid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `width` int(11) NOT NULL DEFAULT '320',
+  `height` int(11) NOT NULL DEFAULT '200',
+  `x` int(11) NOT NULL DEFAULT '0',
+  `y` int(11) NOT NULL DEFAULT '0',
+  `colspan` int(11) NOT NULL DEFAULT '1',
+  `rowspan` int(11) NOT NULL DEFAULT '1',
+  `elements` int(11) NOT NULL DEFAULT '25',
+  `valign` int(11) NOT NULL DEFAULT '0',
+  `halign` int(11) NOT NULL DEFAULT '0',
+  `style` int(11) NOT NULL DEFAULT '0',
+  `url` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `dynamic` int(11) NOT NULL DEFAULT '0',
+  `sort_triggers` int(11) NOT NULL DEFAULT '0',
+  `application` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `max_columns` int(11) NOT NULL DEFAULT '3',
+  PRIMARY KEY (`screenitemid`),
+  KEY `screens_items_1` (`screenid`),
+  CONSTRAINT `c_screens_items_1` FOREIGN KEY (`screenid`) REFERENCES `screens` (`screenid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `screens_items`
 --
 
@@ -824,6 +2824,33 @@ LOCK TABLES `screens_items` WRITE;
 INSERT INTO `screens_items` VALUES (44,16,2,1,500,100,0,0,2,1,0,0,0,0,'',0,0,'',3),(49,18,0,570,500,212,0,0,1,1,0,1,0,0,'',0,0,'',3),(50,18,0,566,500,100,1,0,1,1,0,1,0,0,'',0,0,'',3),(51,18,0,569,500,100,0,1,1,1,0,1,0,0,'',0,0,'',3),(52,18,0,565,500,128,1,1,1,1,0,1,0,0,'',0,0,'',3),(53,19,0,571,500,212,0,0,1,1,0,1,0,0,'',0,0,'',3),(54,19,0,567,500,100,1,0,1,1,0,1,0,0,'',0,0,'',3),(55,19,0,568,555,114,0,1,1,1,0,1,0,0,'',0,0,'',3),(56,19,0,564,500,128,1,1,1,1,0,1,0,0,'',0,0,'',3),(57,19,0,562,500,160,0,2,2,1,0,0,0,0,'',0,0,'',3),(58,20,0,548,500,120,0,0,1,1,0,1,0,0,'',0,0,'',3),(59,20,0,550,500,148,1,0,1,1,0,1,0,0,'',0,0,'',3),(60,20,0,552,500,100,0,1,1,1,0,0,0,0,'',0,0,'',3),(61,20,0,561,500,300,1,1,1,1,0,0,0,0,'',0,0,'',3),(62,20,1,23856,500,100,0,2,1,1,0,0,0,0,'',0,0,'',3),(63,20,1,23855,500,100,1,2,1,1,0,0,0,0,'',0,0,'',3);
 /*!40000 ALTER TABLE `screens_items` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `scripts`
+--
+
+DROP TABLE IF EXISTS `scripts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `scripts` (
+  `scriptid` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `command` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `host_access` int(11) NOT NULL DEFAULT '2',
+  `usrgrpid` bigint(20) unsigned DEFAULT NULL,
+  `groupid` bigint(20) unsigned DEFAULT NULL,
+  `description` text COLLATE utf8_bin NOT NULL,
+  `confirmation` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `type` int(11) NOT NULL DEFAULT '0',
+  `execute_on` int(11) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`scriptid`),
+  UNIQUE KEY `scripts_3` (`name`),
+  KEY `scripts_1` (`usrgrpid`),
+  KEY `scripts_2` (`groupid`),
+  CONSTRAINT `c_scripts_2` FOREIGN KEY (`groupid`) REFERENCES `groups` (`groupid`),
+  CONSTRAINT `c_scripts_1` FOREIGN KEY (`usrgrpid`) REFERENCES `usrgrp` (`usrgrpid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `scripts`
@@ -836,6 +2863,25 @@ INSERT INTO `scripts` VALUES (1,'Ping','/bin/ping -c 3 {HOST.CONN} 2>&1',2,NULL,
 UNLOCK TABLES;
 
 --
+-- Table structure for table `service_alarms`
+--
+
+DROP TABLE IF EXISTS `service_alarms`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `service_alarms` (
+  `servicealarmid` bigint(20) unsigned NOT NULL,
+  `serviceid` bigint(20) unsigned NOT NULL,
+  `clock` int(11) NOT NULL DEFAULT '0',
+  `value` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`servicealarmid`),
+  KEY `service_alarms_1` (`serviceid`,`clock`),
+  KEY `service_alarms_2` (`clock`),
+  CONSTRAINT `c_service_alarms_1` FOREIGN KEY (`serviceid`) REFERENCES `services` (`serviceid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `service_alarms`
 --
 
@@ -843,6 +2889,28 @@ LOCK TABLES `service_alarms` WRITE;
 /*!40000 ALTER TABLE `service_alarms` DISABLE KEYS */;
 /*!40000 ALTER TABLE `service_alarms` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `services`
+--
+
+DROP TABLE IF EXISTS `services`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `services` (
+  `serviceid` bigint(20) unsigned NOT NULL,
+  `name` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `status` int(11) NOT NULL DEFAULT '0',
+  `algorithm` int(11) NOT NULL DEFAULT '0',
+  `triggerid` bigint(20) unsigned DEFAULT NULL,
+  `showsla` int(11) NOT NULL DEFAULT '0',
+  `goodsla` double(16,4) NOT NULL DEFAULT '99.9000',
+  `sortorder` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`serviceid`),
+  KEY `services_1` (`triggerid`),
+  CONSTRAINT `c_services_1` FOREIGN KEY (`triggerid`) REFERENCES `triggers` (`triggerid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `services`
@@ -854,6 +2922,26 @@ LOCK TABLES `services` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `services_links`
+--
+
+DROP TABLE IF EXISTS `services_links`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `services_links` (
+  `linkid` bigint(20) unsigned NOT NULL,
+  `serviceupid` bigint(20) unsigned NOT NULL,
+  `servicedownid` bigint(20) unsigned NOT NULL,
+  `soft` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`linkid`),
+  UNIQUE KEY `services_links_2` (`serviceupid`,`servicedownid`),
+  KEY `services_links_1` (`servicedownid`),
+  CONSTRAINT `c_services_links_2` FOREIGN KEY (`servicedownid`) REFERENCES `services` (`serviceid`) ON DELETE CASCADE,
+  CONSTRAINT `c_services_links_1` FOREIGN KEY (`serviceupid`) REFERENCES `services` (`serviceid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `services_links`
 --
 
@@ -861,6 +2949,26 @@ LOCK TABLES `services_links` WRITE;
 /*!40000 ALTER TABLE `services_links` DISABLE KEYS */;
 /*!40000 ALTER TABLE `services_links` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `services_times`
+--
+
+DROP TABLE IF EXISTS `services_times`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `services_times` (
+  `timeid` bigint(20) unsigned NOT NULL,
+  `serviceid` bigint(20) unsigned NOT NULL,
+  `type` int(11) NOT NULL DEFAULT '0',
+  `ts_from` int(11) NOT NULL DEFAULT '0',
+  `ts_to` int(11) NOT NULL DEFAULT '0',
+  `note` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`timeid`),
+  KEY `services_times_1` (`serviceid`,`type`,`ts_from`,`ts_to`),
+  CONSTRAINT `c_services_times_1` FOREIGN KEY (`serviceid`) REFERENCES `services` (`serviceid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `services_times`
@@ -872,6 +2980,24 @@ LOCK TABLES `services_times` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `sessions`
+--
+
+DROP TABLE IF EXISTS `sessions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sessions` (
+  `sessionid` varchar(32) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `userid` bigint(20) unsigned NOT NULL,
+  `lastaccess` int(11) NOT NULL DEFAULT '0',
+  `status` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`sessionid`),
+  KEY `sessions_1` (`userid`,`status`),
+  CONSTRAINT `c_sessions_1` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `sessions`
 --
 
@@ -879,6 +3005,27 @@ LOCK TABLES `sessions` WRITE;
 /*!40000 ALTER TABLE `sessions` DISABLE KEYS */;
 /*!40000 ALTER TABLE `sessions` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `slides`
+--
+
+DROP TABLE IF EXISTS `slides`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `slides` (
+  `slideid` bigint(20) unsigned NOT NULL,
+  `slideshowid` bigint(20) unsigned NOT NULL,
+  `screenid` bigint(20) unsigned NOT NULL,
+  `step` int(11) NOT NULL DEFAULT '0',
+  `delay` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`slideid`),
+  KEY `slides_1` (`slideshowid`),
+  KEY `slides_2` (`screenid`),
+  CONSTRAINT `c_slides_2` FOREIGN KEY (`screenid`) REFERENCES `screens` (`screenid`) ON DELETE CASCADE,
+  CONSTRAINT `c_slides_1` FOREIGN KEY (`slideshowid`) REFERENCES `slideshows` (`slideshowid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `slides`
@@ -890,6 +3037,26 @@ LOCK TABLES `slides` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `slideshow_user`
+--
+
+DROP TABLE IF EXISTS `slideshow_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `slideshow_user` (
+  `slideshowuserid` bigint(20) unsigned NOT NULL,
+  `slideshowid` bigint(20) unsigned NOT NULL,
+  `userid` bigint(20) unsigned NOT NULL,
+  `permission` int(11) NOT NULL DEFAULT '2',
+  PRIMARY KEY (`slideshowuserid`),
+  UNIQUE KEY `slideshow_user_1` (`slideshowid`,`userid`),
+  KEY `c_slideshow_user_2` (`userid`),
+  CONSTRAINT `c_slideshow_user_2` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`) ON DELETE CASCADE,
+  CONSTRAINT `c_slideshow_user_1` FOREIGN KEY (`slideshowid`) REFERENCES `slideshows` (`slideshowid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `slideshow_user`
 --
 
@@ -897,6 +3064,26 @@ LOCK TABLES `slideshow_user` WRITE;
 /*!40000 ALTER TABLE `slideshow_user` DISABLE KEYS */;
 /*!40000 ALTER TABLE `slideshow_user` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `slideshow_usrgrp`
+--
+
+DROP TABLE IF EXISTS `slideshow_usrgrp`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `slideshow_usrgrp` (
+  `slideshowusrgrpid` bigint(20) unsigned NOT NULL,
+  `slideshowid` bigint(20) unsigned NOT NULL,
+  `usrgrpid` bigint(20) unsigned NOT NULL,
+  `permission` int(11) NOT NULL DEFAULT '2',
+  PRIMARY KEY (`slideshowusrgrpid`),
+  UNIQUE KEY `slideshow_usrgrp_1` (`slideshowid`,`usrgrpid`),
+  KEY `c_slideshow_usrgrp_2` (`usrgrpid`),
+  CONSTRAINT `c_slideshow_usrgrp_2` FOREIGN KEY (`usrgrpid`) REFERENCES `usrgrp` (`usrgrpid`) ON DELETE CASCADE,
+  CONSTRAINT `c_slideshow_usrgrp_1` FOREIGN KEY (`slideshowid`) REFERENCES `slideshows` (`slideshowid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `slideshow_usrgrp`
@@ -908,6 +3095,26 @@ LOCK TABLES `slideshow_usrgrp` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `slideshows`
+--
+
+DROP TABLE IF EXISTS `slideshows`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `slideshows` (
+  `slideshowid` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `delay` int(11) NOT NULL DEFAULT '0',
+  `userid` bigint(20) unsigned NOT NULL,
+  `private` int(11) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`slideshowid`),
+  UNIQUE KEY `slideshows_1` (`name`),
+  KEY `c_slideshows_3` (`userid`),
+  CONSTRAINT `c_slideshows_3` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `slideshows`
 --
 
@@ -915,6 +3122,24 @@ LOCK TABLES `slideshows` WRITE;
 /*!40000 ALTER TABLE `slideshows` DISABLE KEYS */;
 /*!40000 ALTER TABLE `slideshows` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `sysmap_element_url`
+--
+
+DROP TABLE IF EXISTS `sysmap_element_url`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sysmap_element_url` (
+  `sysmapelementurlid` bigint(20) unsigned NOT NULL,
+  `selementid` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) COLLATE utf8_bin NOT NULL,
+  `url` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`sysmapelementurlid`),
+  UNIQUE KEY `sysmap_element_url_1` (`selementid`,`name`),
+  CONSTRAINT `c_sysmap_element_url_1` FOREIGN KEY (`selementid`) REFERENCES `sysmaps_elements` (`selementid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `sysmap_element_url`
@@ -926,6 +3151,25 @@ LOCK TABLES `sysmap_element_url` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `sysmap_url`
+--
+
+DROP TABLE IF EXISTS `sysmap_url`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sysmap_url` (
+  `sysmapurlid` bigint(20) unsigned NOT NULL,
+  `sysmapid` bigint(20) unsigned NOT NULL,
+  `name` varchar(255) COLLATE utf8_bin NOT NULL,
+  `url` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `elementtype` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`sysmapurlid`),
+  UNIQUE KEY `sysmap_url_1` (`sysmapid`,`name`),
+  CONSTRAINT `c_sysmap_url_1` FOREIGN KEY (`sysmapid`) REFERENCES `sysmaps` (`sysmapid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `sysmap_url`
 --
 
@@ -933,6 +3177,26 @@ LOCK TABLES `sysmap_url` WRITE;
 /*!40000 ALTER TABLE `sysmap_url` DISABLE KEYS */;
 /*!40000 ALTER TABLE `sysmap_url` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `sysmap_user`
+--
+
+DROP TABLE IF EXISTS `sysmap_user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sysmap_user` (
+  `sysmapuserid` bigint(20) unsigned NOT NULL,
+  `sysmapid` bigint(20) unsigned NOT NULL,
+  `userid` bigint(20) unsigned NOT NULL,
+  `permission` int(11) NOT NULL DEFAULT '2',
+  PRIMARY KEY (`sysmapuserid`),
+  UNIQUE KEY `sysmap_user_1` (`sysmapid`,`userid`),
+  KEY `c_sysmap_user_2` (`userid`),
+  CONSTRAINT `c_sysmap_user_2` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`) ON DELETE CASCADE,
+  CONSTRAINT `c_sysmap_user_1` FOREIGN KEY (`sysmapid`) REFERENCES `sysmaps` (`sysmapid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `sysmap_user`
@@ -944,6 +3208,26 @@ LOCK TABLES `sysmap_user` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `sysmap_usrgrp`
+--
+
+DROP TABLE IF EXISTS `sysmap_usrgrp`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sysmap_usrgrp` (
+  `sysmapusrgrpid` bigint(20) unsigned NOT NULL,
+  `sysmapid` bigint(20) unsigned NOT NULL,
+  `usrgrpid` bigint(20) unsigned NOT NULL,
+  `permission` int(11) NOT NULL DEFAULT '2',
+  PRIMARY KEY (`sysmapusrgrpid`),
+  UNIQUE KEY `sysmap_usrgrp_1` (`sysmapid`,`usrgrpid`),
+  KEY `c_sysmap_usrgrp_2` (`usrgrpid`),
+  CONSTRAINT `c_sysmap_usrgrp_2` FOREIGN KEY (`usrgrpid`) REFERENCES `usrgrp` (`usrgrpid`) ON DELETE CASCADE,
+  CONSTRAINT `c_sysmap_usrgrp_1` FOREIGN KEY (`sysmapid`) REFERENCES `sysmaps` (`sysmapid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `sysmap_usrgrp`
 --
 
@@ -951,6 +3235,55 @@ LOCK TABLES `sysmap_usrgrp` WRITE;
 /*!40000 ALTER TABLE `sysmap_usrgrp` DISABLE KEYS */;
 /*!40000 ALTER TABLE `sysmap_usrgrp` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `sysmaps`
+--
+
+DROP TABLE IF EXISTS `sysmaps`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sysmaps` (
+  `sysmapid` bigint(20) unsigned NOT NULL,
+  `name` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `width` int(11) NOT NULL DEFAULT '600',
+  `height` int(11) NOT NULL DEFAULT '400',
+  `backgroundid` bigint(20) unsigned DEFAULT NULL,
+  `label_type` int(11) NOT NULL DEFAULT '2',
+  `label_location` int(11) NOT NULL DEFAULT '0',
+  `highlight` int(11) NOT NULL DEFAULT '1',
+  `expandproblem` int(11) NOT NULL DEFAULT '1',
+  `markelements` int(11) NOT NULL DEFAULT '0',
+  `show_unack` int(11) NOT NULL DEFAULT '0',
+  `grid_size` int(11) NOT NULL DEFAULT '50',
+  `grid_show` int(11) NOT NULL DEFAULT '1',
+  `grid_align` int(11) NOT NULL DEFAULT '1',
+  `label_format` int(11) NOT NULL DEFAULT '0',
+  `label_type_host` int(11) NOT NULL DEFAULT '2',
+  `label_type_hostgroup` int(11) NOT NULL DEFAULT '2',
+  `label_type_trigger` int(11) NOT NULL DEFAULT '2',
+  `label_type_map` int(11) NOT NULL DEFAULT '2',
+  `label_type_image` int(11) NOT NULL DEFAULT '2',
+  `label_string_host` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `label_string_hostgroup` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `label_string_trigger` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `label_string_map` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `label_string_image` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `iconmapid` bigint(20) unsigned DEFAULT NULL,
+  `expand_macros` int(11) NOT NULL DEFAULT '0',
+  `severity_min` int(11) NOT NULL DEFAULT '0',
+  `userid` bigint(20) unsigned NOT NULL,
+  `private` int(11) NOT NULL DEFAULT '1',
+  PRIMARY KEY (`sysmapid`),
+  UNIQUE KEY `sysmaps_1` (`name`),
+  KEY `sysmaps_2` (`backgroundid`),
+  KEY `sysmaps_3` (`iconmapid`),
+  KEY `c_sysmaps_3` (`userid`),
+  CONSTRAINT `c_sysmaps_3` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`),
+  CONSTRAINT `c_sysmaps_1` FOREIGN KEY (`backgroundid`) REFERENCES `images` (`imageid`),
+  CONSTRAINT `c_sysmaps_2` FOREIGN KEY (`iconmapid`) REFERENCES `icon_map` (`iconmapid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `sysmaps`
@@ -963,6 +3296,47 @@ INSERT INTO `sysmaps` VALUES (1,'Local network',680,200,NULL,0,0,1,1,1,0,50,1,1,
 UNLOCK TABLES;
 
 --
+-- Table structure for table `sysmaps_elements`
+--
+
+DROP TABLE IF EXISTS `sysmaps_elements`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sysmaps_elements` (
+  `selementid` bigint(20) unsigned NOT NULL,
+  `sysmapid` bigint(20) unsigned NOT NULL,
+  `elementid` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `elementtype` int(11) NOT NULL DEFAULT '0',
+  `iconid_off` bigint(20) unsigned DEFAULT NULL,
+  `iconid_on` bigint(20) unsigned DEFAULT NULL,
+  `label` varchar(2048) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `label_location` int(11) NOT NULL DEFAULT '-1',
+  `x` int(11) NOT NULL DEFAULT '0',
+  `y` int(11) NOT NULL DEFAULT '0',
+  `iconid_disabled` bigint(20) unsigned DEFAULT NULL,
+  `iconid_maintenance` bigint(20) unsigned DEFAULT NULL,
+  `elementsubtype` int(11) NOT NULL DEFAULT '0',
+  `areatype` int(11) NOT NULL DEFAULT '0',
+  `width` int(11) NOT NULL DEFAULT '200',
+  `height` int(11) NOT NULL DEFAULT '200',
+  `viewtype` int(11) NOT NULL DEFAULT '0',
+  `use_iconmap` int(11) NOT NULL DEFAULT '1',
+  `application` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`selementid`),
+  KEY `sysmaps_elements_1` (`sysmapid`),
+  KEY `sysmaps_elements_2` (`iconid_off`),
+  KEY `sysmaps_elements_3` (`iconid_on`),
+  KEY `sysmaps_elements_4` (`iconid_disabled`),
+  KEY `sysmaps_elements_5` (`iconid_maintenance`),
+  CONSTRAINT `c_sysmaps_elements_5` FOREIGN KEY (`iconid_maintenance`) REFERENCES `images` (`imageid`),
+  CONSTRAINT `c_sysmaps_elements_1` FOREIGN KEY (`sysmapid`) REFERENCES `sysmaps` (`sysmapid`) ON DELETE CASCADE,
+  CONSTRAINT `c_sysmaps_elements_2` FOREIGN KEY (`iconid_off`) REFERENCES `images` (`imageid`),
+  CONSTRAINT `c_sysmaps_elements_3` FOREIGN KEY (`iconid_on`) REFERENCES `images` (`imageid`),
+  CONSTRAINT `c_sysmaps_elements_4` FOREIGN KEY (`iconid_disabled`) REFERENCES `images` (`imageid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `sysmaps_elements`
 --
 
@@ -970,6 +3344,27 @@ LOCK TABLES `sysmaps_elements` WRITE;
 /*!40000 ALTER TABLE `sysmaps_elements` DISABLE KEYS */;
 /*!40000 ALTER TABLE `sysmaps_elements` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `sysmaps_link_triggers`
+--
+
+DROP TABLE IF EXISTS `sysmaps_link_triggers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sysmaps_link_triggers` (
+  `linktriggerid` bigint(20) unsigned NOT NULL,
+  `linkid` bigint(20) unsigned NOT NULL,
+  `triggerid` bigint(20) unsigned NOT NULL,
+  `drawtype` int(11) NOT NULL DEFAULT '0',
+  `color` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT '000000',
+  PRIMARY KEY (`linktriggerid`),
+  UNIQUE KEY `sysmaps_link_triggers_1` (`linkid`,`triggerid`),
+  KEY `sysmaps_link_triggers_2` (`triggerid`),
+  CONSTRAINT `c_sysmaps_link_triggers_2` FOREIGN KEY (`triggerid`) REFERENCES `triggers` (`triggerid`) ON DELETE CASCADE,
+  CONSTRAINT `c_sysmaps_link_triggers_1` FOREIGN KEY (`linkid`) REFERENCES `sysmaps_links` (`linkid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `sysmaps_link_triggers`
@@ -981,6 +3376,31 @@ LOCK TABLES `sysmaps_link_triggers` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `sysmaps_links`
+--
+
+DROP TABLE IF EXISTS `sysmaps_links`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sysmaps_links` (
+  `linkid` bigint(20) unsigned NOT NULL,
+  `sysmapid` bigint(20) unsigned NOT NULL,
+  `selementid1` bigint(20) unsigned NOT NULL,
+  `selementid2` bigint(20) unsigned NOT NULL,
+  `drawtype` int(11) NOT NULL DEFAULT '0',
+  `color` varchar(6) COLLATE utf8_bin NOT NULL DEFAULT '000000',
+  `label` varchar(2048) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`linkid`),
+  KEY `sysmaps_links_1` (`sysmapid`),
+  KEY `sysmaps_links_2` (`selementid1`),
+  KEY `sysmaps_links_3` (`selementid2`),
+  CONSTRAINT `c_sysmaps_links_3` FOREIGN KEY (`selementid2`) REFERENCES `sysmaps_elements` (`selementid`) ON DELETE CASCADE,
+  CONSTRAINT `c_sysmaps_links_1` FOREIGN KEY (`sysmapid`) REFERENCES `sysmaps` (`sysmapid`) ON DELETE CASCADE,
+  CONSTRAINT `c_sysmaps_links_2` FOREIGN KEY (`selementid1`) REFERENCES `sysmaps_elements` (`selementid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `sysmaps_links`
 --
 
@@ -988,6 +3408,27 @@ LOCK TABLES `sysmaps_links` WRITE;
 /*!40000 ALTER TABLE `sysmaps_links` DISABLE KEYS */;
 /*!40000 ALTER TABLE `sysmaps_links` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `timeperiods`
+--
+
+DROP TABLE IF EXISTS `timeperiods`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `timeperiods` (
+  `timeperiodid` bigint(20) unsigned NOT NULL,
+  `timeperiod_type` int(11) NOT NULL DEFAULT '0',
+  `every` int(11) NOT NULL DEFAULT '1',
+  `month` int(11) NOT NULL DEFAULT '0',
+  `dayofweek` int(11) NOT NULL DEFAULT '0',
+  `day` int(11) NOT NULL DEFAULT '0',
+  `start_time` int(11) NOT NULL DEFAULT '0',
+  `period` int(11) NOT NULL DEFAULT '0',
+  `start_date` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`timeperiodid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `timeperiods`
@@ -999,14 +3440,50 @@ LOCK TABLES `timeperiods` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `trends`
+--
+
+DROP TABLE IF EXISTS `trends`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `trends` (
+  `itemid` bigint(20) unsigned NOT NULL,
+  `clock` int(11) NOT NULL DEFAULT '0',
+  `num` int(11) NOT NULL DEFAULT '0',
+  `value_min` double(16,4) NOT NULL DEFAULT '0.0000',
+  `value_avg` double(16,4) NOT NULL DEFAULT '0.0000',
+  `value_max` double(16,4) NOT NULL DEFAULT '0.0000',
+  PRIMARY KEY (`itemid`,`clock`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `trends`
 --
 
 LOCK TABLES `trends` WRITE;
 /*!40000 ALTER TABLE `trends` DISABLE KEYS */;
-INSERT INTO `trends` VALUES (23252,1463493600,1,0.0000,0.0000,0.0000),(23253,1463493600,1,0.0169,0.0169,0.0169),(23254,1463493600,1,0.0000,0.0000,0.0000),(23255,1463493600,1,0.0000,0.0000,0.0000),(23256,1463493600,1,0.0169,0.0169,0.0169),(23257,1463493600,1,0.1229,0.1229,0.1229),(23258,1463493600,1,0.0000,0.0000,0.0000),(23259,1463493600,1,0.0169,0.0169,0.0169),(23260,1463493600,1,0.0000,0.0000,0.0000),(23264,1463493600,1,0.0068,0.0068,0.0068),(23265,1463493600,1,0.0000,0.0000,0.0000),(23266,1463493600,1,0.0169,0.0169,0.0169),(23268,1463493600,1,0.0339,0.0339,0.0339),(23269,1463493600,1,0.0000,0.0000,0.0000),(23273,1463493600,1,98.6232,98.6232,98.6232),(23274,1463493600,1,100.0000,100.0000,100.0000),(23275,1463493600,1,99.7762,99.7762,99.7762),(23276,1463493600,1,99.9649,99.9649,99.9649),(23620,1463493600,1,99.7764,99.7764,99.7764),(24008,1465210800,2,0.0000,0.0000,0.0000),(24009,1465210800,2,0.0169,0.0169,0.0169),(24010,1465210800,2,0.0000,0.0085,0.0169),(24011,1465210800,2,0.0000,0.0000,0.0000),(24012,1465210800,2,0.0339,0.0339,0.0339),(24013,1465210800,2,0.1144,0.2203,0.3263),(24014,1465210800,2,0.0000,0.0000,0.0000),(24015,1465210800,2,0.0000,0.0169,0.0339),(24016,1465210800,2,0.0000,0.0000,0.0000),(24017,1465210800,2,0.0068,0.0102,0.0136),(24018,1465210800,2,0.0000,0.0000,0.0000),(24019,1465210800,2,0.0000,0.0000,0.0000),(24020,1465210800,2,0.0000,0.0339,0.0678),(24021,1465210800,2,0.0000,0.0000,0.0000),(24022,1465210800,2,0.1356,0.1949,0.2542),(24025,1465210800,2,98.6020,98.6042,98.6064),(24026,1465210800,2,99.7013,99.7142,99.7270),(24027,1465210800,1,0.5666,0.5666,0.5666),(24028,1465210800,1,0.0667,0.0667,0.0667),(24030,1465210800,2,100.0000,100.0000,100.0000),(24031,1465210800,2,99.7774,99.7774,99.7774),(24032,1465210800,2,99.8810,99.8841,99.8873),(24033,1465210800,1,0.3999,0.3999,0.3999);
+INSERT INTO `trends` VALUES (23252,1463493600,1,0.0000,0.0000,0.0000),(23253,1463493600,1,0.0169,0.0169,0.0169),(23254,1463493600,1,0.0000,0.0000,0.0000),(23255,1463493600,1,0.0000,0.0000,0.0000),(23256,1463493600,1,0.0169,0.0169,0.0169),(23257,1463493600,1,0.1229,0.1229,0.1229),(23258,1463493600,1,0.0000,0.0000,0.0000),(23259,1463493600,1,0.0169,0.0169,0.0169),(23260,1463493600,1,0.0000,0.0000,0.0000),(23264,1463493600,1,0.0068,0.0068,0.0068),(23265,1463493600,1,0.0000,0.0000,0.0000),(23266,1463493600,1,0.0169,0.0169,0.0169),(23268,1463493600,1,0.0339,0.0339,0.0339),(23269,1463493600,1,0.0000,0.0000,0.0000),(23273,1463493600,1,98.6232,98.6232,98.6232),(23274,1463493600,1,100.0000,100.0000,100.0000),(23275,1463493600,1,99.7762,99.7762,99.7762),(23276,1463493600,1,99.9649,99.9649,99.9649),(23620,1463493600,1,99.7764,99.7764,99.7764);
 /*!40000 ALTER TABLE `trends` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `trends_uint`
+--
+
+DROP TABLE IF EXISTS `trends_uint`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `trends_uint` (
+  `itemid` bigint(20) unsigned NOT NULL,
+  `clock` int(11) NOT NULL DEFAULT '0',
+  `num` int(11) NOT NULL DEFAULT '0',
+  `value_min` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `value_avg` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `value_max` bigint(20) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`itemid`,`clock`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `trends_uint`
@@ -1014,9 +3491,28 @@ UNLOCK TABLES;
 
 LOCK TABLES `trends_uint` WRITE;
 /*!40000 ALTER TABLE `trends_uint` DISABLE KEYS */;
-INSERT INTO `trends_uint` VALUES (23662,1463493600,1,0,0,0),(24029,1465210800,2,0,0,0);
+INSERT INTO `trends_uint` VALUES (23662,1463493600,1,0,0,0);
 /*!40000 ALTER TABLE `trends_uint` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `trigger_depends`
+--
+
+DROP TABLE IF EXISTS `trigger_depends`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `trigger_depends` (
+  `triggerdepid` bigint(20) unsigned NOT NULL,
+  `triggerid_down` bigint(20) unsigned NOT NULL,
+  `triggerid_up` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`triggerdepid`),
+  UNIQUE KEY `trigger_depends_1` (`triggerid_down`,`triggerid_up`),
+  KEY `trigger_depends_2` (`triggerid_up`),
+  CONSTRAINT `c_trigger_depends_2` FOREIGN KEY (`triggerid_up`) REFERENCES `triggers` (`triggerid`) ON DELETE CASCADE,
+  CONSTRAINT `c_trigger_depends_1` FOREIGN KEY (`triggerid_down`) REFERENCES `triggers` (`triggerid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `trigger_depends`
@@ -1029,6 +3525,23 @@ INSERT INTO `trigger_depends` VALUES (1,13668,13724),(2,13673,13724);
 UNLOCK TABLES;
 
 --
+-- Table structure for table `trigger_discovery`
+--
+
+DROP TABLE IF EXISTS `trigger_discovery`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `trigger_discovery` (
+  `triggerid` bigint(20) unsigned NOT NULL,
+  `parent_triggerid` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`triggerid`),
+  KEY `trigger_discovery_1` (`parent_triggerid`),
+  CONSTRAINT `c_trigger_discovery_2` FOREIGN KEY (`parent_triggerid`) REFERENCES `triggers` (`triggerid`),
+  CONSTRAINT `c_trigger_discovery_1` FOREIGN KEY (`triggerid`) REFERENCES `triggers` (`triggerid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `trigger_discovery`
 --
 
@@ -1038,14 +3551,73 @@ LOCK TABLES `trigger_discovery` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `triggers`
+--
+
+DROP TABLE IF EXISTS `triggers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `triggers` (
+  `triggerid` bigint(20) unsigned NOT NULL,
+  `expression` varchar(2048) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `description` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `url` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `status` int(11) NOT NULL DEFAULT '0',
+  `value` int(11) NOT NULL DEFAULT '0',
+  `priority` int(11) NOT NULL DEFAULT '0',
+  `lastchange` int(11) NOT NULL DEFAULT '0',
+  `comments` text COLLATE utf8_bin NOT NULL,
+  `error` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `templateid` bigint(20) unsigned DEFAULT NULL,
+  `type` int(11) NOT NULL DEFAULT '0',
+  `state` int(11) NOT NULL DEFAULT '0',
+  `flags` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`triggerid`),
+  KEY `triggers_1` (`status`),
+  KEY `triggers_2` (`value`,`lastchange`),
+  KEY `triggers_3` (`templateid`),
+  CONSTRAINT `c_triggers_1` FOREIGN KEY (`templateid`) REFERENCES `triggers` (`triggerid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `triggers`
 --
 
 LOCK TABLES `triggers` WRITE;
 /*!40000 ALTER TABLE `triggers` DISABLE KEYS */;
-INSERT INTO `triggers` VALUES (13559,'{13162}>0','/etc/passwd 被修改','',0,0,2,0,'','',NULL,0,0,0),(13569,'{13172}>20','CPU I/O等待时间 5分钟平均值超过20%','',0,0,2,0,'OS spends significant time waiting for I/O (input/output) operations. It could be indicator of performance issues with storage system.','',NULL,0,0,0),(13575,'{13406}<>1','HAProxy服务目前处于异常状态','',0,0,4,0,'','',NULL,0,0,0),(13578,'{13181}>0','Zabbix Agentd的hostname被修改','',0,0,1,0,'','',NULL,0,0,0),(13585,'{13188}<20M','内存少于20M','',0,0,3,0,'','',NULL,0,0,0),(13587,'{13190}<20','交换空间 剩余少于20%','',0,0,2,0,'It probably means that the systems requires more physical memory.','',NULL,0,0,0),(13589,'{13192}<5','Less than 5% free in the value cache','',0,0,2,0,'','',NULL,0,0,0),(13590,'{13193}<25','Less than 25% free in the configuration cache','',0,0,3,0,'Consider increasing CacheSize in the zabbix_server.conf configuration file','',NULL,0,0,0),(13591,'{13194}<25','Less than 25% free in the configuration cache','',0,0,2,0,'Consider increasing CacheSize in the zabbix_server.conf configuration file','',NULL,0,0,0),(13592,'{13195}<25','Less than 25% free in the history cache','',0,0,3,0,'','',NULL,0,0,0),(13593,'{13196}<25','Less than 25% free in the history cache','',0,0,2,0,'','',NULL,0,0,0),(13594,'{13197}<25','Less than 25% free in the history index cache','',0,0,3,0,'','',NULL,0,0,0),(13595,'{13198}<25','Less than 25% free in the history index cache','',0,0,2,0,'','',NULL,0,0,0),(13596,'{13199}<25','Less than 25% free in the trends cache','',0,0,2,0,'','',NULL,0,0,0),(13598,'{13201}>100','More than 100 items having missing data for more than 10 minutes','',0,0,2,0,'zabbix[queue,10m] item is collecting data about how many items are missing data for more than 10 minutes (next parameter)','',NULL,0,0,0),(13599,'{13202}>100','More than 100 items having missing data for more than 10 minutes','',0,0,2,0,'zabbix[queue,10m] item is collecting data about how many items are missing data for more than 10 minutes (next parameter)','',NULL,0,0,0),(13600,'{13203}=0','MySQL服务处于Down状态','',0,0,4,0,'','',NULL,0,0,0),(13606,'{13209}=1 or {13210}=1','openstack keystone not active','',0,0,4,0,'','',NULL,0,0,0),(13607,'{13211}=1 or {13212}=1','OpenStack服务openstack-keystone当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13608,'{13213}<>1','执行openstack net-list 命令失败','',0,0,4,0,'','',NULL,0,0,0),(13609,'{13214}=1 or {13215}=1','openstack servers: dbus not active','',0,0,4,0,'','',NULL,0,0,0),(13610,'{13216}=1 or {13217}=1','OpenStack服务dbus当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13611,'{13218}=1 or {13219}=1','OpenStack服务dbus当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13612,'{13220}=1 or {13221}=1','OpenStack服务dbus 当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13613,'{13222}=1 or {13223}=1','openstack servers: libvirtd not active','',0,0,4,0,'','',NULL,0,0,0),(13614,'{13224}=1 or {13225}=1','OpenStack服务libvirtd当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13615,'{13226}=1 or {13227}=1','openstack servers: memcached not active','',0,0,4,0,'','',NULL,0,0,0),(13617,'{13230}=1 or {13231}=1','OpenStack服务memcached当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13618,'{13232}=1 or {13233}=1','openstack servers: neutron-dhcp-agent not active','',0,0,4,0,'','',NULL,0,0,0),(13620,'{13236}=1 or {13237}=1','OpenStack服务neutron-dhcp-agent当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13621,'{13238}=1 or {13239}=1','openstack servers: neutron-l3-agent not active','',0,0,4,0,'','',NULL,0,0,0),(13623,'{13242}=1 or {13243}=1','OpenStack服务neutron-l3-agent当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13624,'{13244}=1 or {13245}=1','openstack servers: neutron-lbaas-agent not active','',0,0,4,0,'','',NULL,0,0,0),(13626,'{13248}=1 or {13249}=1','openstack servers: neutron-metadata-agent not active','',0,0,4,0,'','',NULL,0,0,0),(13627,'{13250}=1 or {13251}=1','OpenStack服务neutron-metadata-agent当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13628,'{13252}=1 or {13253}=1','OpenStack服务neutron-metadata-agent当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13629,'{13254}=1 or {13255}=1','OpenStack服务neutron-openvswitch-agent当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13630,'{13256}=1 or {13257}=1','OpenStack服务neutron-openvswitch-agent当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13631,'{13258}=1 or {13259}=1','openstack servers: neutron-server not active','',0,0,4,0,'','',NULL,0,0,0),(13632,'{13260}=1 or {13261}=1','OpenStack服务neutron-server当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13633,'{13262}=1 or {13263}=1','openstack servers: openstack-cinder-api not active','',0,0,4,0,'','',NULL,0,0,0),(13634,'{13264}=1 or {13265}=1','OpenStack服务openstack-cinder-api当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13635,'{13266}=1 or {13267}=1','openstack servers: openstack-cinder-backup not active','',0,0,4,0,'','',NULL,0,0,0),(13636,'{13268}=1 or {13269}=1','openstack servers: openstack-cinder-scheduler not active','',0,0,4,0,'','',NULL,0,0,0),(13637,'{13270}=1 or {13271}=1','openstack servers: openstack-cinder-volume not active','',0,0,4,0,'','',NULL,0,0,0),(13638,'{13272}=1 or {13273}=1','OpenStack服务openstack-cinder-volume当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13639,'{13274}=1 or {13275}=1','openstack servers: openstack-dashboard not active','',0,0,4,0,'','',NULL,0,0,0),(13640,'{13276}=1 or {13277}=1','openstack servers: openstack-glance-api not active','',0,0,4,0,'','',NULL,0,0,0),(13641,'{13278}=1 or {13279}=1','OpenStack服务openstack-glance-api当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13642,'{13280}=1 or {13281}=1','openstack servers: openstack-glance-registry not active','',0,0,4,0,'','',NULL,0,0,0),(13643,'{13282}=1 or {13283}=1','OpenStack服务openstack-glance-registry当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13644,'{13284}=1 or {13285}=1','openstack servers: openstack-nova-api not active','',0,0,4,0,'','',NULL,0,0,0),(13646,'{13288}=1 or {13289}=1','OpenStack服务openstack-nova-api当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13647,'{13290}=1 or {13291}=1','openstack servers: openstack-nova-cert not active','',0,0,4,0,'','',NULL,0,0,0),(13649,'{13294}=1 or {13295}=1','OpenStack服务openstack-nova-cert当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13650,'{13296}=1 or {13297}=1','openstack servers: openstack-nova-compute changed','',0,0,4,0,'','',NULL,0,0,0),(13651,'{13298}=1 or {13299}=1','OpenStack服务openstack-nova-compute当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13652,'{13300}=1 or {13301}=1','openstack servers: openstack-nova-conductor not active','',0,0,4,0,'','',NULL,0,0,0),(13654,'{13304}=1 or {13305}=1','OpenStack服务openstack-nova-conductor当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13655,'{13306}=1 or {13307}=1','openstack servers: openstack-nova-network not active','',0,0,4,0,'','',NULL,0,0,0),(13657,'{13310}=1 or {13311}=1','openstack servers: openvswitch not active','',0,0,4,0,'','',NULL,0,0,0),(13658,'{13312}=1 or {13313}=1','OpenStack服务openvswitch当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13659,'{13314}=1 or {13315}=1','OpenStack服务openvswitch当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13660,'{13316}=1 or {13317}=1','openstack servers: rabbitmq-server: not active','',0,0,4,0,'','',NULL,0,0,0),(13663,'{13322}=1 or {13323}=1','openstack servers: target not active','',0,0,4,0,'','',NULL,0,0,0),(13665,'{13326}=1 or {13327}=1','OpenStack服务target当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13666,'{13328}>100000000','Ceph Volumes 3分钟平均读速度超过100M/s','',0,0,3,0,'','',NULL,0,0,0),(13667,'{13329}>170000000','Ceph Volumes 3分钟平均写速度超过170M/s','',0,0,3,0,'','',NULL,0,0,0),(13668,'{13330}>20','Ping丢包率 连续5分钟都超过20%','',0,0,2,0,'','',NULL,0,0,0),(13669,'{13331}>5','CPU负载太高','',0,0,2,0,'','',NULL,0,0,0),(13671,'{13333}=0','RabbitMQ 服务当前处于Down状态','',0,0,4,0,'','',NULL,0,0,0),(13673,'{13335}>0.15','Ping响应时间 5分钟平均值大于0.15秒','',0,0,2,0,'','',NULL,0,0,0),(13678,'{13340}>100','RabbitMQ 上的Unacknowledged Messages超过100','',0,0,3,0,'','',NULL,0,0,0),(13679,'{13341}>1800','MySQL当前进程数超过1800','',0,0,3,0,'','',NULL,0,0,0),(13680,'{13405}>800','进程数 5分钟平均值超过800','',0,0,2,0,'','',NULL,0,0,0),(13682,'{13344}>50','处于R状态的进程数 5分钟内平均值超过50','',0,0,2,0,'','',NULL,0,0,0),(13684,'{13346}>3300','RabbitMQ 上的Sockets used超过3300','',0,0,3,0,'','',NULL,0,0,0),(13685,'{13347}>0','Zabbix Agentd的版本发生变化','',0,0,1,0,'','',NULL,0,0,0),(13686,'{13348}=1','Zabbix Agent 5分钟没有收到数据','',0,0,3,0,'','',NULL,0,0,0),(13687,'({TRIGGER.VALUE}=0 and {13349}>75) or ({TRIGGER.VALUE}=1 and {13349}>65)','Zabbix alerter processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13688,'({TRIGGER.VALUE}=0 and {13350}>75) or ({TRIGGER.VALUE}=1 and {13350}>65)','Zabbix configuration syncer processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13689,'({TRIGGER.VALUE}=0 and {13351}>75) or ({TRIGGER.VALUE}=1 and {13351}>65)','Zabbix configuration syncer processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13690,'({TRIGGER.VALUE}=0 and {13352}>75) or ({TRIGGER.VALUE}=1 and {13352}>65)','Zabbix data sender processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13691,'({TRIGGER.VALUE}=0 and {13353}>75) or ({TRIGGER.VALUE}=1 and {13353}>65)','Zabbix db watchdog processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13692,'({TRIGGER.VALUE}=0 and {13354}>75) or ({TRIGGER.VALUE}=1 and {13354}>65)','Zabbix discoverer processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13693,'({TRIGGER.VALUE}=0 and {13355}>75) or ({TRIGGER.VALUE}=1 and {13355}>65)','Zabbix discoverer processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13694,'({TRIGGER.VALUE}=0 and {13356}>75) or ({TRIGGER.VALUE}=1 and {13356}>65)','Zabbix escalator processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13695,'({TRIGGER.VALUE}=0 and {13357}>75) or ({TRIGGER.VALUE}=1 and {13357}>65)','Zabbix heartbeat sender processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13696,'({TRIGGER.VALUE}=0 and {13358}>75) or ({TRIGGER.VALUE}=1 and {13358}>65)','Zabbix history syncer processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13697,'({TRIGGER.VALUE}=0 and {13359}>75) or ({TRIGGER.VALUE}=1 and {13359}>65)','Zabbix history syncer processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13698,'({TRIGGER.VALUE}=0 and {13360}>75) or ({TRIGGER.VALUE}=1 and {13360}>65)','Zabbix housekeeper processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13699,'({TRIGGER.VALUE}=0 and {13361}>75) or ({TRIGGER.VALUE}=1 and {13361}>65)','Zabbix housekeeper processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13700,'({TRIGGER.VALUE}=0 and {13362}>75) or ({TRIGGER.VALUE}=1 and {13362}>65)','Zabbix http poller processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13701,'({TRIGGER.VALUE}=0 and {13363}>75) or ({TRIGGER.VALUE}=1 and {13363}>65)','Zabbix http poller processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13702,'({TRIGGER.VALUE}=0 and {13364}>75) or ({TRIGGER.VALUE}=1 and {13364}>65)','Zabbix icmp pinger processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13703,'({TRIGGER.VALUE}=0 and {13365}>75) or ({TRIGGER.VALUE}=1 and {13365}>65)','Zabbix icmp pinger processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13704,'({TRIGGER.VALUE}=0 and {13366}>75) or ({TRIGGER.VALUE}=1 and {13366}>65)','Zabbix ipmi poller processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13706,'({TRIGGER.VALUE}=0 and {13368}>75) or ({TRIGGER.VALUE}=1 and {13368}>65)','Zabbix java poller processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13708,'({TRIGGER.VALUE}=0 and {13370}>75) or ({TRIGGER.VALUE}=1 and {13370}>65)','Zabbix poller processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13709,'({TRIGGER.VALUE}=0 and {13371}>75) or ({TRIGGER.VALUE}=1 and {13371}>65)','Zabbix poller processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13710,'({TRIGGER.VALUE}=0 and {13372}>75) or ({TRIGGER.VALUE}=1 and {13372}>65)','Zabbix proxy poller processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13711,'({TRIGGER.VALUE}=0 and {13373}>75) or ({TRIGGER.VALUE}=1 and {13373}>65)','Zabbix self-monitoring processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13712,'({TRIGGER.VALUE}=0 and {13374}>75) or ({TRIGGER.VALUE}=1 and {13374}>65)','Zabbix self-monitoring processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13713,'({TRIGGER.VALUE}=0 and {13375}>75) or ({TRIGGER.VALUE}=1 and {13375}>65)','Zabbix snmp trapper processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13715,'({TRIGGER.VALUE}=0 and {13377}>75) or ({TRIGGER.VALUE}=1 and {13377}>65)','Zabbix timer processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13716,'({TRIGGER.VALUE}=0 and {13378}>75) or ({TRIGGER.VALUE}=1 and {13378}>65)','Zabbix trapper processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13717,'({TRIGGER.VALUE}=0 and {13379}>75) or ({TRIGGER.VALUE}=1 and {13379}>65)','Zabbix trapper processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13718,'({TRIGGER.VALUE}=0 and {13380}>75) or ({TRIGGER.VALUE}=1 and {13380}>65)','Zabbix unreachable poller processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13719,'({TRIGGER.VALUE}=0 and {13381}>75) or ({TRIGGER.VALUE}=1 and {13381}>65)','Zabbix unreachable poller processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13720,'{13382}=1','Zabbix 的Value Cache处于低内存工作模式','',0,0,3,0,'','',NULL,0,0,0),(13724,'{13386}=0','连续3次网络不可达','',0,0,3,0,'','',NULL,0,0,0),(13725,'{13387}>0','Zabbix Agentd的hostname被修改','',0,0,1,0,'','',13578,0,0,0),(13727,'{13389}>0','Zabbix Agentd的版本发生变化','',0,0,1,0,'','',13685,0,0,0),(13729,'{13391}=1','Zabbix Agent 5分钟没有收到数据','',0,0,3,0,'','',13686,0,0,0),(13731,'{13393}=1','osd.{#OSD_NAME} 处于Down状态','',0,0,4,0,'','',NULL,0,0,2),(13733,'{13395}>1000','osd.{#OSD_NAME} 连续3次的Apply Latency都超过1000ms','',0,0,3,0,'','',NULL,0,0,2),(13734,'{13396}>500','osd.{#OSD_NAME} 连续3次的Commit Latency都超过500ms','',0,0,3,0,'','',NULL,0,0,2),(13735,'{13397}<20','{#FSNAME}的磁盘剩余空间 少于20%','',0,0,2,0,'','',NULL,0,0,2),(13736,'{13398}<20','{#FSNAME}的inode 少于20%','',0,0,2,0,'','',NULL,0,0,2),(13739,'{13401}=1','Operational status was changed on {HOST.NAME} interface {#SNMPVALUE}','',0,0,1,0,'','',NULL,0,0,2),(13740,'{13402}=1','Operational status was changed on {HOST.NAME} interface {#SNMPVALUE}','',0,0,1,0,'','',13739,0,0,2),(13742,'{13407}=0','SSH服务处于Down状态','',0,0,3,0,'','',NULL,0,0,0),(13743,'{13408}=0','测试文件不存在','',0,0,3,0,'','',NULL,0,0,0),(13744,'{13411}=0','OpenStack Dashboard 连续三次无法访问','',0,0,3,0,'','',NULL,0,0,0),(13745,'{13413}=1','虚拟机{#UUID} 状态发生改变','',0,0,1,0,'','',NULL,0,0,2),(13746,'{13423}>20000000','虚拟机{#UUID} 磁盘5分钟平均读速度超过20M/s','',0,0,2,0,'','',NULL,0,0,2),(13747,'{13422}>20000000','虚拟机{#UUID} 磁盘5分钟平均写速度超过20M/s','',0,0,2,0,'','',NULL,0,0,2),(13748,'{13425}>20000000','虚拟机{#UUID} 网卡5分钟平均读速度超过20M/s','',0,0,2,0,'','',NULL,0,0,2),(13749,'{13424}>20000000','虚拟机{#UUID} 网卡5分钟平均写速度超过20M/s','',0,0,2,0,'','',NULL,0,0,2),(13750,'{13426}>0','/etc/shadow 被修改','',0,0,2,0,'','',NULL,0,0,0),(13751,'({TRIGGER.VALUE}=0 and {13427}>75) or ({TRIGGER.VALUE}=1 and {13427}>65)','Zabbix alerter processes more than 75% busy','',0,0,2,1465211108,'','',13687,0,0,0),(13752,'({TRIGGER.VALUE}=0 and {13428}>75) or ({TRIGGER.VALUE}=1 and {13428}>65)','Zabbix configuration syncer processes more than 75% busy','',0,0,2,1465211109,'','',13689,0,0,0),(13753,'({TRIGGER.VALUE}=0 and {13429}>75) or ({TRIGGER.VALUE}=1 and {13429}>65)','Zabbix db watchdog processes more than 75% busy','',0,0,2,1465211110,'','',13691,0,0,0),(13754,'({TRIGGER.VALUE}=0 and {13430}>75) or ({TRIGGER.VALUE}=1 and {13430}>65)','Zabbix discoverer processes more than 75% busy','',0,0,2,1465211111,'','',13693,0,0,0),(13755,'({TRIGGER.VALUE}=0 and {13431}>75) or ({TRIGGER.VALUE}=1 and {13431}>65)','Zabbix escalator processes more than 75% busy','',0,0,2,1465211112,'','',13694,0,0,0),(13756,'({TRIGGER.VALUE}=0 and {13432}>75) or ({TRIGGER.VALUE}=1 and {13432}>65)','Zabbix history syncer processes more than 75% busy','',0,0,2,1465211113,'','',13697,0,0,0),(13757,'({TRIGGER.VALUE}=0 and {13433}>75) or ({TRIGGER.VALUE}=1 and {13433}>65)','Zabbix housekeeper processes more than 75% busy','',0,0,2,1465211114,'','',13699,0,0,0),(13758,'({TRIGGER.VALUE}=0 and {13434}>75) or ({TRIGGER.VALUE}=1 and {13434}>65)','Zabbix http poller processes more than 75% busy','',0,0,2,1465211115,'','',13701,0,0,0),(13759,'({TRIGGER.VALUE}=0 and {13435}>75) or ({TRIGGER.VALUE}=1 and {13435}>65)','Zabbix icmp pinger processes more than 75% busy','',0,0,2,1465211116,'','',13703,0,0,0),(13760,'({TRIGGER.VALUE}=0 and {13436}>75) or ({TRIGGER.VALUE}=1 and {13436}>65)','Zabbix poller processes more than 75% busy','',0,0,2,1465211117,'','',13709,0,0,0),(13761,'({TRIGGER.VALUE}=0 and {13437}>75) or ({TRIGGER.VALUE}=1 and {13437}>65)','Zabbix proxy poller processes more than 75% busy','',0,0,2,1465211118,'','',13710,0,0,0),(13762,'({TRIGGER.VALUE}=0 and {13438}>75) or ({TRIGGER.VALUE}=1 and {13438}>65)','Zabbix self-monitoring processes more than 75% busy','',0,0,2,1465211119,'','',13712,0,0,0),(13763,'({TRIGGER.VALUE}=0 and {13439}>75) or ({TRIGGER.VALUE}=1 and {13439}>65)','Zabbix timer processes more than 75% busy','',0,0,2,1465211120,'','',13715,0,0,0),(13764,'({TRIGGER.VALUE}=0 and {13440}>75) or ({TRIGGER.VALUE}=1 and {13440}>65)','Zabbix trapper processes more than 75% busy','',0,0,2,1465211121,'','',13717,0,0,0),(13765,'({TRIGGER.VALUE}=0 and {13441}>75) or ({TRIGGER.VALUE}=1 and {13441}>65)','Zabbix unreachable poller processes more than 75% busy','',0,0,2,1465211122,'','',13719,0,0,0),(13766,'{13442}>100','More than 100 items having missing data for more than 10 minutes','',0,0,2,0,'zabbix[queue,10m] item is collecting data about how many items are missing data for more than 10 minutes (next parameter)','',13599,0,0,0),(13767,'{13443}<25','Less than 25% free in the configuration cache','',0,0,2,1465211125,'Consider increasing CacheSize in the zabbix_server.conf configuration file','',13591,0,0,0),(13768,'{13444}<5','Less than 5% free in the value cache','',0,0,2,1465211126,'','',13589,0,0,0),(13769,'{13445}=1','Zabbix 的Value Cache处于低内存工作模式','',0,0,3,1465211129,'','',13720,0,0,0),(13770,'{13446}<25','Less than 25% free in the history cache','',0,0,2,1465211130,'','',13593,0,0,0),(13771,'{13447}<25','Less than 25% free in the history index cache','',0,0,2,1465211131,'','',13595,0,0,0),(13772,'{13448}<25','Less than 25% free in the trends cache','',0,0,2,1465211132,'','',13596,0,0,0),(13773,'{13449}>0','Zabbix Agentd的hostname被修改','',0,0,1,0,'','Agent is unavailable.',13725,0,1,0),(13774,'{13450}=1','Zabbix Agent 5分钟没有收到数据','',0,0,3,0,'','Cannot evaluate function \"Zabbix server:agent.ping.nodata(5m)\": item does not have enough data after server start or item creati',13729,0,1,0),(13775,'{13451}>0','Zabbix Agentd的版本发生变化','',0,0,1,0,'','Agent is unavailable.',13727,0,1,0),(13776,'{13452}>50','处于R状态的进程数 5分钟内平均值超过50','',0,0,2,0,'','Agent is unavailable.',13682,0,1,0),(13777,'{13453}>800','进程数 5分钟平均值超过800','',0,0,2,0,'','Agent is unavailable.',13680,0,1,0),(13778,'{13454}>5','CPU负载太高','',0,0,2,0,'','Agent is unavailable.',13669,0,1,0),(13779,'{13455}>20','CPU I/O等待时间 5分钟平均值超过20%','',0,0,2,0,'OS spends significant time waiting for I/O (input/output) operations. It could be indicator of performance issues with storage system.','Agent is unavailable.',13569,0,1,0),(13780,'{13456}<20','交换空间 剩余少于20%','',0,0,2,0,'It probably means that the systems requires more physical memory.','Agent is unavailable.',13587,0,1,0),(13781,'{13457}>0','/etc/passwd 被修改','',0,0,2,0,'','Agent is unavailable.',13559,0,1,0),(13782,'{13458}>0','/etc/shadow 被修改','',0,0,2,0,'','Agent is unavailable.',13750,0,1,0),(13783,'{13459}<20M','内存少于20M','',0,0,3,0,'','Agent is unavailable.',13585,0,1,0),(13784,'{13460}<20','{#FSNAME}的inode 少于20%','',0,0,2,0,'','Agent is unavailable.',13736,0,1,2),(13785,'{13461}<20','{#FSNAME}的磁盘剩余空间 少于20%','',0,0,2,0,'','Agent is unavailable.',13735,0,1,2);
+INSERT INTO `triggers` VALUES (13559,'{13162}>0','/etc/passwd 被修改','',0,0,2,0,'','',NULL,0,0,0),(13569,'{13172}>20','CPU I/O等待时间 5分钟平均值超过20%','',0,0,2,0,'OS spends significant time waiting for I/O (input/output) operations. It could be indicator of performance issues with storage system.','',NULL,0,0,0),(13575,'{13406}<>1','HAProxy服务目前处于异常状态','',0,0,4,0,'','',NULL,0,0,0),(13578,'{13181}>0','Zabbix Agentd的hostname被修改','',0,0,1,0,'','',NULL,0,0,0),(13585,'{13188}<20M','内存少于20M','',0,0,3,0,'','',NULL,0,0,0),(13587,'{13190}<20','交换空间 剩余少于20%','',0,0,2,0,'It probably means that the systems requires more physical memory.','',NULL,0,0,0),(13589,'{13192}<5','Less than 5% free in the value cache','',0,0,2,0,'','',NULL,0,0,0),(13590,'{13193}<25','Less than 25% free in the configuration cache','',0,0,3,0,'Consider increasing CacheSize in the zabbix_server.conf configuration file','',NULL,0,0,0),(13591,'{13194}<25','Less than 25% free in the configuration cache','',0,0,2,0,'Consider increasing CacheSize in the zabbix_server.conf configuration file','',NULL,0,0,0),(13592,'{13195}<25','Less than 25% free in the history cache','',0,0,3,0,'','',NULL,0,0,0),(13593,'{13196}<25','Less than 25% free in the history cache','',0,0,2,0,'','',NULL,0,0,0),(13594,'{13197}<25','Less than 25% free in the history index cache','',0,0,3,0,'','',NULL,0,0,0),(13595,'{13198}<25','Less than 25% free in the history index cache','',0,0,2,0,'','',NULL,0,0,0),(13596,'{13199}<25','Less than 25% free in the trends cache','',0,0,2,0,'','',NULL,0,0,0),(13598,'{13201}>100','More than 100 items having missing data for more than 10 minutes','',0,0,2,0,'zabbix[queue,10m] item is collecting data about how many items are missing data for more than 10 minutes (next parameter)','',NULL,0,0,0),(13599,'{13202}>100','More than 100 items having missing data for more than 10 minutes','',0,0,2,0,'zabbix[queue,10m] item is collecting data about how many items are missing data for more than 10 minutes (next parameter)','',NULL,0,0,0),(13600,'{13203}=0','MySQL服务处于Down状态','',0,0,4,0,'','',NULL,0,0,0),(13606,'{13209}=1 or {13210}=1','openstack keystone not active','',0,0,4,0,'','',NULL,0,0,0),(13607,'{13211}=1 or {13212}=1','OpenStack服务openstack-keystone当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13608,'{13213}<>1','执行openstack net-list 命令失败','',0,0,4,0,'','',NULL,0,0,0),(13609,'{13214}=1 or {13215}=1','openstack servers: dbus not active','',0,0,4,0,'','',NULL,0,0,0),(13610,'{13216}=1 or {13217}=1','OpenStack服务dbus当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13611,'{13218}=1 or {13219}=1','OpenStack服务dbus当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13612,'{13220}=1 or {13221}=1','OpenStack服务dbus 当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13613,'{13222}=1 or {13223}=1','openstack servers: libvirtd not active','',0,0,4,0,'','',NULL,0,0,0),(13614,'{13224}=1 or {13225}=1','OpenStack服务libvirtd当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13615,'{13226}=1 or {13227}=1','openstack servers: memcached not active','',0,0,4,0,'','',NULL,0,0,0),(13617,'{13230}=1 or {13231}=1','OpenStack服务memcached当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13618,'{13232}=1 or {13233}=1','openstack servers: neutron-dhcp-agent not active','',0,0,4,0,'','',NULL,0,0,0),(13620,'{13236}=1 or {13237}=1','OpenStack服务neutron-dhcp-agent当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13621,'{13238}=1 or {13239}=1','openstack servers: neutron-l3-agent not active','',0,0,4,0,'','',NULL,0,0,0),(13623,'{13242}=1 or {13243}=1','OpenStack服务neutron-l3-agent当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13624,'{13244}=1 or {13245}=1','openstack servers: neutron-lbaas-agent not active','',0,0,4,0,'','',NULL,0,0,0),(13626,'{13248}=1 or {13249}=1','openstack servers: neutron-metadata-agent not active','',0,0,4,0,'','',NULL,0,0,0),(13627,'{13250}=1 or {13251}=1','OpenStack服务neutron-metadata-agent当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13628,'{13252}=1 or {13253}=1','OpenStack服务neutron-metadata-agent当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13629,'{13254}=1 or {13255}=1','OpenStack服务neutron-openvswitch-agent当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13630,'{13256}=1 or {13257}=1','OpenStack服务neutron-openvswitch-agent当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13631,'{13258}=1 or {13259}=1','openstack servers: neutron-server not active','',0,0,4,0,'','',NULL,0,0,0),(13632,'{13260}=1 or {13261}=1','OpenStack服务neutron-server当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13633,'{13262}=1 or {13263}=1','openstack servers: openstack-cinder-api not active','',0,0,4,0,'','',NULL,0,0,0),(13634,'{13264}=1 or {13265}=1','OpenStack服务openstack-cinder-api当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13635,'{13266}=1 or {13267}=1','openstack servers: openstack-cinder-backup not active','',0,0,4,0,'','',NULL,0,0,0),(13636,'{13268}=1 or {13269}=1','openstack servers: openstack-cinder-scheduler not active','',0,0,4,0,'','',NULL,0,0,0),(13637,'{13270}=1 or {13271}=1','openstack servers: openstack-cinder-volume not active','',0,0,4,0,'','',NULL,0,0,0),(13638,'{13272}=1 or {13273}=1','OpenStack服务openstack-cinder-volume当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13639,'{13274}=1 or {13275}=1','openstack servers: openstack-dashboard not active','',0,0,4,0,'','',NULL,0,0,0),(13640,'{13276}=1 or {13277}=1','openstack servers: openstack-glance-api not active','',0,0,4,0,'','',NULL,0,0,0),(13641,'{13278}=1 or {13279}=1','OpenStack服务openstack-glance-api当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13642,'{13280}=1 or {13281}=1','openstack servers: openstack-glance-registry not active','',0,0,4,0,'','',NULL,0,0,0),(13643,'{13282}=1 or {13283}=1','OpenStack服务openstack-glance-registry当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13644,'{13284}=1 or {13285}=1','openstack servers: openstack-nova-api not active','',0,0,4,0,'','',NULL,0,0,0),(13646,'{13288}=1 or {13289}=1','OpenStack服务openstack-nova-api当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13647,'{13290}=1 or {13291}=1','openstack servers: openstack-nova-cert not active','',0,0,4,0,'','',NULL,0,0,0),(13649,'{13294}=1 or {13295}=1','OpenStack服务openstack-nova-cert当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13650,'{13296}=1 or {13297}=1','openstack servers: openstack-nova-compute changed','',0,0,4,0,'','',NULL,0,0,0),(13651,'{13298}=1 or {13299}=1','OpenStack服务openstack-nova-compute当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13652,'{13300}=1 or {13301}=1','openstack servers: openstack-nova-conductor not active','',0,0,4,0,'','',NULL,0,0,0),(13654,'{13304}=1 or {13305}=1','OpenStack服务openstack-nova-conductor当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13655,'{13306}=1 or {13307}=1','openstack servers: openstack-nova-network not active','',0,0,4,0,'','',NULL,0,0,0),(13657,'{13310}=1 or {13311}=1','openstack servers: openvswitch not active','',0,0,4,0,'','',NULL,0,0,0),(13658,'{13312}=1 or {13313}=1','OpenStack服务openvswitch当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13659,'{13314}=1 or {13315}=1','OpenStack服务openvswitch当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13660,'{13316}=1 or {13317}=1','openstack servers: rabbitmq-server: not active','',0,0,4,0,'','',NULL,0,0,0),(13663,'{13322}=1 or {13323}=1','openstack servers: target not active','',0,0,4,0,'','',NULL,0,0,0),(13665,'{13326}=1 or {13327}=1','OpenStack服务target当前处于非正常状态','',0,0,4,0,'','',NULL,0,0,0),(13666,'{13328}>100000000','Ceph Volumes 3分钟平均读速度超过100M/s','',0,0,3,0,'','',NULL,0,0,0),(13667,'{13329}>170000000','Ceph Volumes 3分钟平均写速度超过170M/s','',0,0,3,0,'','',NULL,0,0,0),(13668,'{13330}>20','Ping丢包率 连续5分钟都超过20%','',0,0,2,0,'','',NULL,0,0,0),(13669,'{13331}>5','CPU负载太高','',0,0,2,0,'','',NULL,0,0,0),(13671,'{13333}=0','RabbitMQ 服务当前处于Down状态','',0,0,4,0,'','',NULL,0,0,0),(13673,'{13335}>0.15','Ping响应时间 5分钟平均值大于0.15秒','',0,0,2,0,'','',NULL,0,0,0),(13678,'{13340}>100','RabbitMQ 上的Unacknowledged Messages超过100','',0,0,3,0,'','',NULL,0,0,0),(13679,'{13341}>1800','MySQL当前进程数超过1800','',0,0,3,0,'','',NULL,0,0,0),(13680,'{13405}>800','进程数 5分钟平均值超过800','',0,0,2,0,'','',NULL,0,0,0),(13682,'{13344}>50','处于R状态的进程数 5分钟内平均值超过50','',0,0,2,0,'','',NULL,0,0,0),(13684,'{13346}>3300','RabbitMQ 上的Sockets used超过3300','',0,0,3,0,'','',NULL,0,0,0),(13685,'{13347}>0','Zabbix Agentd的版本发生变化','',0,0,1,0,'','',NULL,0,0,0),(13686,'{13348}=1','Zabbix Agent 5分钟没有收到数据','',0,0,3,0,'','',NULL,0,0,0),(13687,'({TRIGGER.VALUE}=0 and {13349}>75) or ({TRIGGER.VALUE}=1 and {13349}>65)','Zabbix alerter processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13688,'({TRIGGER.VALUE}=0 and {13350}>75) or ({TRIGGER.VALUE}=1 and {13350}>65)','Zabbix configuration syncer processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13689,'({TRIGGER.VALUE}=0 and {13351}>75) or ({TRIGGER.VALUE}=1 and {13351}>65)','Zabbix configuration syncer processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13690,'({TRIGGER.VALUE}=0 and {13352}>75) or ({TRIGGER.VALUE}=1 and {13352}>65)','Zabbix data sender processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13691,'({TRIGGER.VALUE}=0 and {13353}>75) or ({TRIGGER.VALUE}=1 and {13353}>65)','Zabbix db watchdog processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13692,'({TRIGGER.VALUE}=0 and {13354}>75) or ({TRIGGER.VALUE}=1 and {13354}>65)','Zabbix discoverer processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13693,'({TRIGGER.VALUE}=0 and {13355}>75) or ({TRIGGER.VALUE}=1 and {13355}>65)','Zabbix discoverer processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13694,'({TRIGGER.VALUE}=0 and {13356}>75) or ({TRIGGER.VALUE}=1 and {13356}>65)','Zabbix escalator processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13695,'({TRIGGER.VALUE}=0 and {13357}>75) or ({TRIGGER.VALUE}=1 and {13357}>65)','Zabbix heartbeat sender processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13696,'({TRIGGER.VALUE}=0 and {13358}>75) or ({TRIGGER.VALUE}=1 and {13358}>65)','Zabbix history syncer processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13697,'({TRIGGER.VALUE}=0 and {13359}>75) or ({TRIGGER.VALUE}=1 and {13359}>65)','Zabbix history syncer processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13698,'({TRIGGER.VALUE}=0 and {13360}>75) or ({TRIGGER.VALUE}=1 and {13360}>65)','Zabbix housekeeper processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13699,'({TRIGGER.VALUE}=0 and {13361}>75) or ({TRIGGER.VALUE}=1 and {13361}>65)','Zabbix housekeeper processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13700,'({TRIGGER.VALUE}=0 and {13362}>75) or ({TRIGGER.VALUE}=1 and {13362}>65)','Zabbix http poller processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13701,'({TRIGGER.VALUE}=0 and {13363}>75) or ({TRIGGER.VALUE}=1 and {13363}>65)','Zabbix http poller processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13702,'({TRIGGER.VALUE}=0 and {13364}>75) or ({TRIGGER.VALUE}=1 and {13364}>65)','Zabbix icmp pinger processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13703,'({TRIGGER.VALUE}=0 and {13365}>75) or ({TRIGGER.VALUE}=1 and {13365}>65)','Zabbix icmp pinger processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13704,'({TRIGGER.VALUE}=0 and {13366}>75) or ({TRIGGER.VALUE}=1 and {13366}>65)','Zabbix ipmi poller processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13706,'({TRIGGER.VALUE}=0 and {13368}>75) or ({TRIGGER.VALUE}=1 and {13368}>65)','Zabbix java poller processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13708,'({TRIGGER.VALUE}=0 and {13370}>75) or ({TRIGGER.VALUE}=1 and {13370}>65)','Zabbix poller processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13709,'({TRIGGER.VALUE}=0 and {13371}>75) or ({TRIGGER.VALUE}=1 and {13371}>65)','Zabbix poller processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13710,'({TRIGGER.VALUE}=0 and {13372}>75) or ({TRIGGER.VALUE}=1 and {13372}>65)','Zabbix proxy poller processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13711,'({TRIGGER.VALUE}=0 and {13373}>75) or ({TRIGGER.VALUE}=1 and {13373}>65)','Zabbix self-monitoring processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13712,'({TRIGGER.VALUE}=0 and {13374}>75) or ({TRIGGER.VALUE}=1 and {13374}>65)','Zabbix self-monitoring processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13713,'({TRIGGER.VALUE}=0 and {13375}>75) or ({TRIGGER.VALUE}=1 and {13375}>65)','Zabbix snmp trapper processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13715,'({TRIGGER.VALUE}=0 and {13377}>75) or ({TRIGGER.VALUE}=1 and {13377}>65)','Zabbix timer processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13716,'({TRIGGER.VALUE}=0 and {13378}>75) or ({TRIGGER.VALUE}=1 and {13378}>65)','Zabbix trapper processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13717,'({TRIGGER.VALUE}=0 and {13379}>75) or ({TRIGGER.VALUE}=1 and {13379}>65)','Zabbix trapper processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13718,'({TRIGGER.VALUE}=0 and {13380}>75) or ({TRIGGER.VALUE}=1 and {13380}>65)','Zabbix unreachable poller processes more than 75% busy','',0,0,3,0,'','',NULL,0,0,0),(13719,'({TRIGGER.VALUE}=0 and {13381}>75) or ({TRIGGER.VALUE}=1 and {13381}>65)','Zabbix unreachable poller processes more than 75% busy','',0,0,2,0,'','',NULL,0,0,0),(13720,'{13382}=1','Zabbix 的Value Cache处于低内存工作模式','',0,0,3,0,'','',NULL,0,0,0),(13724,'{13386}=0','连续3次网络不可达','',0,0,3,0,'','',NULL,0,0,0),(13725,'{13387}>0','Zabbix Agentd的hostname被修改','',0,0,1,0,'','',13578,0,0,0),(13727,'{13389}>0','Zabbix Agentd的版本发生变化','',0,0,1,0,'','',13685,0,0,0),(13729,'{13391}=1','Zabbix Agent 5分钟没有收到数据','',0,0,3,0,'','',13686,0,0,0),(13731,'{13393}=1','osd.{#OSD_NAME} 处于Down状态','',0,0,4,0,'','',NULL,0,0,2),(13733,'{13395}>1000','osd.{#OSD_NAME} 连续3次的Apply Latency都超过1000ms','',0,0,3,0,'','',NULL,0,0,2),(13734,'{13396}>500','osd.{#OSD_NAME} 连续3次的Commit Latency都超过500ms','',0,0,3,0,'','',NULL,0,0,2),(13735,'{13397}<20','{#FSNAME}的磁盘剩余空间 少于20%','',0,0,2,0,'','',NULL,0,0,2),(13736,'{13398}<20','{#FSNAME}的inode 少于20%','',0,0,2,0,'','',NULL,0,0,2),(13739,'{13401}=1','Operational status was changed on {HOST.NAME} interface {#SNMPVALUE}','',0,0,1,0,'','',NULL,0,0,2),(13740,'{13402}=1','Operational status was changed on {HOST.NAME} interface {#SNMPVALUE}','',0,0,1,0,'','',13739,0,0,2),(13742,'{13407}=0','SSH服务处于Down状态','',0,0,3,0,'','',NULL,0,0,0),(13743,'{13408}=0','测试文件不存在','',0,0,3,0,'','',NULL,0,0,0),(13744,'{13411}=0','OpenStack Dashboard 连续三次无法访问','',0,0,3,0,'','',NULL,0,0,0),(13745,'{13413}=1','虚拟机{#UUID} 状态发生改变','',0,0,1,0,'','',NULL,0,0,2),(13746,'{13423}>20000000','虚拟机{#UUID} 磁盘5分钟平均读速度超过20M/s','',0,0,2,0,'','',NULL,0,0,2),(13747,'{13422}>20000000','虚拟机{#UUID} 磁盘5分钟平均写速度超过20M/s','',0,0,2,0,'','',NULL,0,0,2),(13748,'{13425}>20000000','虚拟机{#UUID} 网卡5分钟平均读速度超过20M/s','',0,0,2,0,'','',NULL,0,0,2),(13749,'{13424}>20000000','虚拟机{#UUID} 网卡5分钟平均写速度超过20M/s','',0,0,2,0,'','',NULL,0,0,2),(13750,'{13426}>0','/etc/shadow 被修改','',0,0,2,0,'','',NULL,0,0,0);
 /*!40000 ALTER TABLE `triggers` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `users`
+--
+
+DROP TABLE IF EXISTS `users`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `users` (
+  `userid` bigint(20) unsigned NOT NULL,
+  `alias` varchar(100) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `name` varchar(100) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `surname` varchar(100) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `passwd` char(32) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `url` varchar(255) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `autologin` int(11) NOT NULL DEFAULT '0',
+  `autologout` int(11) NOT NULL DEFAULT '900',
+  `lang` varchar(5) COLLATE utf8_bin NOT NULL DEFAULT 'en_GB',
+  `refresh` int(11) NOT NULL DEFAULT '30',
+  `type` int(11) NOT NULL DEFAULT '1',
+  `theme` varchar(128) COLLATE utf8_bin NOT NULL DEFAULT 'default',
+  `attempt_failed` int(11) NOT NULL DEFAULT '0',
+  `attempt_ip` varchar(39) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `attempt_clock` int(11) NOT NULL DEFAULT '0',
+  `rows_per_page` int(11) NOT NULL DEFAULT '50',
+  PRIMARY KEY (`userid`),
+  UNIQUE KEY `users_1` (`alias`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `users`
@@ -1058,6 +3630,25 @@ INSERT INTO `users` VALUES (1,'Admin','Admin','','9193d4adb3b234f3a60c14345ff2a4
 UNLOCK TABLES;
 
 --
+-- Table structure for table `users_groups`
+--
+
+DROP TABLE IF EXISTS `users_groups`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `users_groups` (
+  `id` bigint(20) unsigned NOT NULL,
+  `usrgrpid` bigint(20) unsigned NOT NULL,
+  `userid` bigint(20) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `users_groups_1` (`usrgrpid`,`userid`),
+  KEY `users_groups_2` (`userid`),
+  CONSTRAINT `c_users_groups_1` FOREIGN KEY (`usrgrpid`) REFERENCES `usrgrp` (`usrgrpid`) ON DELETE CASCADE,
+  CONSTRAINT `c_users_groups_2` FOREIGN KEY (`userid`) REFERENCES `users` (`userid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `users_groups`
 --
 
@@ -1068,6 +3659,24 @@ INSERT INTO `users_groups` VALUES (4,7,1),(2,8,2),(5,13,3),(34,14,8),(20,14,9),(
 UNLOCK TABLES;
 
 --
+-- Table structure for table `usrgrp`
+--
+
+DROP TABLE IF EXISTS `usrgrp`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `usrgrp` (
+  `usrgrpid` bigint(20) unsigned NOT NULL,
+  `name` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  `gui_access` int(11) NOT NULL DEFAULT '0',
+  `users_status` int(11) NOT NULL DEFAULT '0',
+  `debug_mode` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`usrgrpid`),
+  UNIQUE KEY `usrgrp_1` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Dumping data for table `usrgrp`
 --
 
@@ -1076,6 +3685,21 @@ LOCK TABLES `usrgrp` WRITE;
 INSERT INTO `usrgrp` VALUES (7,'Zabbix administrators',0,0,0),(8,'Guests',0,1,0),(9,'Disabled',0,1,0),(11,'Enabled debug mode',0,0,1),(12,'No access to the frontend',2,0,0),(13,'经理',0,0,0),(14,'运营维护',0,0,0),(15,'监控管理员',0,0,0),(16,'Ceph管理员',0,0,0),(17,'HA管理员',0,0,0),(18,'MySQL管理员',0,0,0),(19,'OpenStack管理员',0,0,0),(20,'RabbitMQ管理员',0,0,0),(21,'其他',0,0,0),(22,'Zabbix UI',0,0,0);
 /*!40000 ALTER TABLE `usrgrp` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `valuemaps`
+--
+
+DROP TABLE IF EXISTS `valuemaps`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `valuemaps` (
+  `valuemapid` bigint(20) unsigned NOT NULL,
+  `name` varchar(64) COLLATE utf8_bin NOT NULL DEFAULT '',
+  PRIMARY KEY (`valuemapid`),
+  UNIQUE KEY `valuemaps_1` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Dumping data for table `valuemaps`
@@ -1090,9 +3714,15 @@ UNLOCK TABLES;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-06-06 19:14:10
+-- Dump completed on 2016-06-07  0:57:29
+
+DROP TABLE IF EXISTS `trigger_tag`;
+DROP TABLE IF EXISTS `event_tag`;
+DROP TABLE IF EXISTS `problem`;
+DROP TABLE IF EXISTS `event_recovery`;

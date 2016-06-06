@@ -1,6 +1,6 @@
 zabbix-db-storage:
-  image: busybox:latest
   container_name: zabbix-db-storage
+  image: busybox:latest
   volumes:
     - /var/lib/mysql
 
@@ -8,19 +8,19 @@ zabbix-db:
   image: zouyapeng/zabbix-db-mariadb
   container_name: zabbix-db
   volumes:
-    - /opt/volumes/mysql/backups:/backups
     - /etc/localtime:/etc/localtime:ro
+    - /opt/volumes/mysql/backups:/backups
   volumes_from:
     - zabbix-db-storage
   environment:
     - MARIADB_USER=zabbix
     - MARIADB_PASS=zabbix
 
-zabbix-server:
+zabbix:
   image: zouyapeng/docker-zabbix-server-3.0:latest
-  container_name: zabbix-server
+  container_name: zabbix
   ports:
-    - "80:80"
+    - "20001:80"
     - "10051:10051"
   volumes:
     - /etc/localtime:/etc/localtime:ro
@@ -31,5 +31,14 @@ zabbix-server:
     - ZS_DBHost=zabbix.db
     - ZS_DBUser=zabbix
     - ZS_DBPassword=zabbix
+    - ZS_StartSNMPTrapper=1
+    - ZS_SenderFrequency=30
+    - ZS_CacheSize=8M
+    - ZS_CacheUpdateFrequency=60
+    - ZS_StartDBSyncers=10
+    - ZS_HistoryCacheSize=8M
+    - ZS_TrendCacheSize=4M
+    - ZS_HistoryTextCacheSize=16M
+    - ZS_ValueCacheSize=8M
     - ZW_ZBX_SERVER=localhost
     - ZW_ZBX_SERVER_NAME=ZBXS

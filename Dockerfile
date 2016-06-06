@@ -50,18 +50,18 @@ ENV \
   ZS_VMwareCacheSize=8M \
   ZS_VMwareTimeout=10 \
   ZS_SNMPTrapperFile=/tmp/zabbix_traps.tmp \
-  ZS_StartSNMPTrapper=5 \
+  ZS_StartSNMPTrapper=0 \
   ZS_ListenIP=0.0.0.0 \
   ZS_HousekeepingFrequency=1 \
   ZS_MaxHousekeeperDelete=500 \
   ZS_SenderFrequency=30 \
-  ZS_CacheSize=512M \
+  ZS_CacheSize=8M \
   ZS_CacheUpdateFrequency=60 \
   ZS_StartDBSyncers=10 \
-  ZS_HistoryCacheSize=256M \
-  ZS_TrendCacheSize=256M \
-  ZS_HistoryTextCacheSize=512M \
-  ZS_ValueCacheSize=1024M \
+  ZS_HistoryCacheSize=8M \
+  ZS_TrendCacheSize=4M \
+  ZS_HistoryTextCacheSize=16M \
+  ZS_ValueCacheSize=8M \
   ZS_Timeout=5 \
   ZS_TrapperTimeout=300 \
   ZS_UnreachablePeriod=45 \
@@ -144,7 +144,8 @@ ENV \
   ZP_DBUser=zabbix \
   ZP_DBPassword=zabbix \
   ZP_DBPort=3306 \
-  ZP_User=zabbix
+  ZP_User=zabbix \
+  TERM=xterm
 
 # Layer: base
 RUN \
