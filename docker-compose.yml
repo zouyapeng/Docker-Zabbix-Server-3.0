@@ -20,7 +20,7 @@ zabbix:
   image: zouyapeng/docker-zabbix-server-3.0:latest
   container_name: zabbix
   ports:
-    - "20001:80"
+    - "80:80"
     - "10051:10051"
   volumes:
     - /etc/localtime:/etc/localtime:ro
