@@ -1,5 +1,5 @@
 FROM centos:centos7
-MAINTAINER Jan Garaj info@monitoringartist.com
+MAINTAINER Zouyapeng zyp19901009@163.com
 
 # ZABBIX_VERSION=trunk tags/3.0.1 branches/dev/ZBXNEXT-1263-1
 
@@ -144,7 +144,7 @@ ENV \
   ZP_DBUser=zabbix \
   ZP_DBPassword=zabbix \
   ZP_DBPort=3306 \
-  ZP_User=zabbix \
+  ZP_User=zabbix
 
 # Layer: base
 RUN \
