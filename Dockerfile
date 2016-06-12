@@ -172,14 +172,13 @@ RUN \
        php-gd php-bcmath php-ctype php-xml php-xmlreader php-xmlwriter \
        php-session php-net-socket php-mbstring php-gettext php-cli \
        php-mysqlnd php-opcache php-pdo php-snmp php-ldap && \
-  yum install -y centos-release-openstack-juno && \
-  yum install -y python-novaclient && \
   yum clean all && rm -rf /tmp/*
 ADD container-files-base /
 
 # Layer: zabbix
 COPY container-files-zabbix /
 RUN \
+  cp /etc/rdo-release.repo /etc/yum.repos.d/
   yum clean all && \
   yum update -y && \
   yum install -y tar svn gcc automake make nmap traceroute iptstate wget \
@@ -191,6 +190,7 @@ RUN \
               openldap-devel telnet net-tools snmptt sudo rubygems vim-common && \
  `# reinstall glibc for locales` \
   yum -y -q reinstall glibc-common && \
+  yum install -y python-novaclient && \
   cp /usr/local/etc/zabbix_agentd.conf /tmp && \
   svn co svn://svn.zabbix.com/${ZABBIX_VERSION} /usr/local/src/zabbix && \
   cd /usr/local/src/zabbix && \
