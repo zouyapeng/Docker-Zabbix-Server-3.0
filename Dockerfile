@@ -172,6 +172,8 @@ RUN \
        php-gd php-bcmath php-ctype php-xml php-xmlreader php-xmlwriter \
        php-session php-net-socket php-mbstring php-gettext php-cli \
        php-mysqlnd php-opcache php-pdo php-snmp php-ldap && \
+  yum install -y http://rdo.fedorapeople.org/openstack-juno/rdo-release-juno-1.noarch.rpm && \
+  yum install -y python-novaclient && \
   yum clean all && rm -rf /tmp/*
 ADD container-files-base /
 
