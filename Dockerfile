@@ -178,7 +178,7 @@ ADD container-files-base /
 # Layer: zabbix
 COPY container-files-zabbix /
 RUN \
-  cp /etc/rdo-release.repo /etc/yum.repos.d/
+  cp /etc/rdo-release.repo /etc/yum.repos.d/ && \
   yum clean all && \
   yum update -y && \
   yum install -y tar svn gcc automake make nmap traceroute iptstate wget \
